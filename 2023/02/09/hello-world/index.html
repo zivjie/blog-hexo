@@ -195,7 +195,7 @@
   const ipt = document.querySelector('#search-input')
   const btn = document.querySelector('#search-btn')
   const layer = document.querySelector('#search-layer')
-  const posts = JSON.parse(`[{"title":"My New Post","path":"2023/02/09/My-New-Post/"},{"title":"Hello World","path":"2023/02/09/hello-world/"}]`)
+  const posts = JSON.parse(`[{"title":"My New Post","path":"2023/02/09/My-New-Post/"},{"title":"MySQL架构","path":"2023/02/09/MySQL架构/"},{"title":"Hello World","path":"2023/02/09/hello-world/"}]`)
   ipt.addEventListener('keyup', e => {
     if (e.key === 'Enter') {
       handleSearch()
@@ -260,7 +260,7 @@
       <div class="main-left--statics">
         <a href="/categories">
           <div>
-            <span>0</span>
+            <span>1</span>
             <span>分类</span>
           </div>
         </a>
@@ -318,6 +318,20 @@
           </a>
         </li>
       
+        <li>
+          <a href="/java">
+            <span class="header-menu--span">java归类</span>
+            <i class="header-menu--icon iconfont icon-rizhi"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a href="/es">
+            <span class="header-menu--span">es归类</span>
+            <i class="header-menu--icon iconfont icon-rizhi"></i>
+          </a>
+        </li>
+      
     </ul>
   </div>
 
@@ -329,7 +343,7 @@
       </h5>
       <p class="main-left--subtitle">
         <span>文章数目：</span>
-        <span>2 篇</span>
+        <span>3 篇</span>
       </p>
       <p class="main-left--subtitle">
         <span>最近动态：</span>
@@ -465,7 +479,7 @@ pre:active {
       <i class="iconfont icon-gonggao"></i>
     </div>
     <div class="main-right--content">
-      Hello~大噶好。唔系可乐爱宅着，欢迎你们来到我的博客小站，希望能在这里收获到有用的东西哦！ 
+      Hello~大家好。我是一枚技术宅，欢迎你们来到我的博客小站，希望能在这里收获到有用的东西哦！ 
     </div>
   </div>
 
