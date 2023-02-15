@@ -164,6 +164,71 @@
                 <div class="container">
     
     
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
 
     
     <article class="post-wrap">
@@ -193,8 +258,85 @@
         </header>
 
         <div class="post-content">
-            <p>​        总体上，我们可以把mysql分成三层，跟客户端对接的连接层，真正执行操作的服务层，和硬件打交道的存储引擎层。</p>
-<p><img src="..%5Cimage%5Cmysql%5Cmysql%E6%9E%B6%E6%9E%84%5C%E5%9B%BE%E7%89%871.png" alt="pic"></p>
+            <p>​    总体上，我们可以把mysql分成三层，跟客户端对接的连接层，真正执行操作的服务层，和硬件打交道的存储引擎层。</p>
+<p><img src="/image/mysql/mysql%E6%9E%B6%E6%9E%84/%E5%9B%BE%E7%89%871.png"></p>
+<h2 id="1-连接层"><a href="#1-连接层" class="headerlink" title="1.连接层"></a>1.连接层</h2><p>​    客户端要连接到mysql服务器的3306端口，必须要跟服务器端建立连接，那么管理所有的连接，验证客户端的身份和权限，这些功能就在连接层完成。</p>
+<h2 id="2-服务层"><a href="#2-服务层" class="headerlink" title="2.服务层"></a>2.服务层</h2><p>​    连接层会把SQL语句交给服务层，这里面又包含一系列流程：比如查询缓存的判断，根据SQL调用相应的接口，对我们的SQL语句进行次发和语法的解析，比如关键字怎么识别，语法有没有错误等等。</p>
+<p>​    然后就是优化器，MySQL底层回根据一定的规则对我们的SQL语句进行优化，最后再交给执行器去执行。</p>
+<h2 id="3-存储引擎"><a href="#3-存储引擎" class="headerlink" title="3.存储引擎"></a>3.存储引擎</h2><p>​    存储引擎就是我们的数据真正存放的地方，在MySQL里面支持不同的存储引擎。</p>
+<p>​    再往下就是内存或者磁盘，具体请查看查询sql执行流程。</p>
+<h2 id="4-InnoDB总体架构"><a href="#4-InnoDB总体架构" class="headerlink" title="4.InnoDB总体架构"></a>4.InnoDB总体架构</h2><p><img src="/image/mysql/mysql%E6%9E%B6%E6%9E%84/%E5%9B%BE%E7%89%872.png"></p>
+<h3 id="4-1-内存结构"><a href="#4-1-内存结构" class="headerlink" title="4.1 内存结构"></a>4.1 内存结构</h3><p>​    主要分为三个部分：Buffer Pool，Change Buffer，Adaptive Hash Index，（redo）log buffer。</p>
+<h4 id="4-1-1-Buffer-pool"><a href="#4-1-1-Buffer-pool" class="headerlink" title="4.1.1 Buffer pool"></a>4.1.1 Buffer pool</h4><p>​    Buffer pool缓存的是页面信息，包括数据页，索引页。默认大小是128M（134217728字节），可以调整。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> status <span class="keyword">like</span> ‘<span class="operator">%</span>innodb_buffer_pool<span class="operator">%</span>’；</span><br></pre></td></tr></table></figure>
+
+<p>​    InnoDB用LRU算法来管理缓存池（链表实现，不是传统的LRU，分成了young和old），经过淘汰的数据就是热点数据。</p>
+<h4 id="4-1-2-LRU算法"><a href="#4-1-2-LRU算法" class="headerlink" title="4.1.2 LRU算法"></a>4.1.2 LRU算法</h4><p>​    传统的LRU可以用Map+链表实现，value存的是在链表中的地址。</p>
+<p><img src="/image/mysql/mysql%E6%9E%B6%E6%9E%84/%E5%9B%BE%E7%89%873.png"></p>
+<p>​    innodb中确实使用了一个双向链表，LRU list，但是这个list放的不是data page，而是指向缓存页的指针。如果写buffer pool的时候发现没有空闲页了，就要从buffer pool中淘汰数据页了，要根据LRU链表的数据来操作。</p>
+<p>​    首先，innodb的数据页并不都是在访问的时候才缓存到buffer pool的，innodb由一个预读机制（read ahead），也就是说，设计者认为访问某个page数据的时候，相邻的一些page可能会很快被访问到，所以先把这些page放到buffer pool中缓存起来，能提高I/O性能。这种预读的机制分为两种：</p>
+<p>​    <strong>1.线性预读（异步的）。</strong>为了方便管理，innodb中把64个相邻的page叫做一个extent（区）。如果顺序的访问了一个extent的56个page，这时innodb就会把下一个extent缓存到buffer pool中。顺序访问多少个page才缓存下一个extent，由一个参数控制：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> variables <span class="keyword">like</span> ‘<span class="operator">%</span>innodb_read_ahead_threshold<span class="operator">%</span>’；</span><br></pre></td></tr></table></figure>
+
+<p>​     <strong>2.随机预读。</strong>如果buffer pool已经缓存了同一个extent的数据页的个数超过13个时，就会把这个extent剩余的所有page全部缓存到buffer pool，但是随机预读的功能默认是不启用的，由一个参数控制：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> variables <span class="keyword">like</span> ‘<span class="operator">%</span>innodb_random_read_ahead<span class="operator">%</span>’；</span><br></pre></td></tr></table></figure>
+
+<p>​    但是预读肯定也会带来一些副作用，就是导致占用的内存空间更多，剩余的空闲页更少，如果说buffer pool的size不是很大，而预读的数据很多，很有可能那些真正的需要被缓存的热点数据被预读数据挤出buffer pool，淘汰掉了，下次访问时又要去磁盘。所以为了避免这种情况，对buffer pool进行冷热分离。靠近head的叫做new sublist，用来放热数据（热区），靠近tail的叫做old sublist，用来放冷数据（冷区）。</p>
+<p><img src="/image/mysql/mysql%E6%9E%B6%E6%9E%84/%E5%9B%BE%E7%89%874.png"><img src="/image/mysql/mysql%E6%9E%B6%E6%9E%84/%E5%9B%BE%E7%89%875.png"></p>
+<p>​    所有新数据加入到buffer pool时一律先放到冷区的head。如果有些预读的数据没有被用到，会在冷区直接被淘汰。放到冷区后如果再次被访问，都会把它移动到热区的head。如果热区的数据长时间没有被访问，会被先移动到冷区的head部，最后慢慢在tail淘汰。默认情况下，热区占了5/8的大小，冷区占了3/8，这个值由innodb_old_blocks_pct控制，它代表的是old区的大小，默认是37%也就是3/8. Innodb_old_blocks_pct的值可以调整，在5%到95%之间，这个值越大，new区越小，这个LRU算法越接近传统的LRU。如果这个值太小，old区没有被访问的速度淘汰会更快。</p>
+<p>​    还有一个问题：假设一次加载然后被立即访问的冷区数据量非常大，导致它们全部被移到了热区的head，它会导致很多热点数据被移动到冷区甚至淘汰，造成了缓冲池的污染。这个问题的解决方法是设置一个时间窗口，只有超过这个时间之后被访问，才认为是有效访问。Innodb中通过innodb_old_blocks_time这个参数来控制，默认为1秒钟，也就是说1秒钟内被访问的不算数，继续呆在冷区。只有1秒钟之后被访问的才被移到热区。这样就可以从很大程度上避免全表扫描或者预读的数据污染真正的热数据。</p>
+<p>​    进一步的优化，为了避免并发的问题，对于LRU链表的操作是要加锁的，也就是说每一次链表的移动，都会带来资源的竞争与等待，从这个角度来说，如果进一步提升InnoDB LRU的效率，就要尽量得减少LRU链表得移动。比如把热区一个非常靠近head得page移动到head。有没有这个必要呢？所以InnoDB对热区还有一个特殊得优化：如果一个缓存页处于热数据区域，且在热数据区域得前1/4区域（注意是热区得1/4，而不是这个链表得1/4），那么当访问这个缓存页得时候，就不用把它移动到热数据区域得头部；如果缓存页处于热区得后3/4区域，那么就得移动到热区得头部。</p>
+<h4 id="4-1-3-Change-Buffer-写缓存"><a href="#4-1-3-Change-Buffer-写缓存" class="headerlink" title="4.1.3 Change Buffer-写缓存"></a>4.1.3 Change Buffer-写缓存</h4><p>​    Change Buffer是Buffer Pool的一部分。如果这个数据页不是唯一索引，不存在数据重复的情况，也就不需要从磁盘加载索引页判断数据是不是重复（唯一性检查）。这种情况下可以先把修改记录在内存的缓存池中，从而提升更新语句（Insert， Delete，Update）的执行速度。</p>
+<p>​    这一块区域就是Change Buffer。5.5之前叫Insert Buffer插入缓冲，现在也支持delete和update。</p>
+<p>​    最后把Change Buffer记录到数据页的操作叫做merge。发生merge的几种情况如下：在访问这个数据页的时候，或者通过后台线程，或者通过数据库shut down，redo log写满时触发。</p>
+<p>​    如果数据库发部分索引都是非唯一索引，并且业务是写多读少，不会在写数据后立刻读取，就可以用Change Buffer（写缓存）</p>
+<p>​    可以通过调大这个值来扩大Change的大小，以支持写多读少的业务场景。（代表Change Buffer占Buffer pool的比例，默认为25%）</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> variables <span class="keyword">like</span> ‘<span class="operator">%</span>innodb_change_buffer_max_size<span class="operator">%</span>’；</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-1-4-Adaptive-Hash-Index"><a href="#4-1-4-Adaptive-Hash-Index" class="headerlink" title="4.1.4 Adaptive Hash Index"></a>4.1.4 Adaptive Hash Index</h4><p>​    查看索引模块</p>
+<h4 id="4-1-5-Redo-Log-Buffer"><a href="#4-1-5-Redo-Log-Buffer" class="headerlink" title="4.1.5 Redo Log Buffer"></a>4.1.5 Redo Log Buffer</h4><p>​    Redo Log也不是每一次都直接写入磁盘，在Buffer Pool中有一块内存区域（Log Buffer）专门用来保存即将写入日志文件的数据，默认为16M，它同样可以节省磁盘IO。</p>
+<p>​    <img src="/image/mysql/mysql%E6%9E%B6%E6%9E%84/%E5%9B%BE%E7%89%876.png"></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> variables <span class="keyword">like</span> ‘<span class="operator">%</span>innodb_log_buffer_size<span class="operator">%</span>’；</span><br></pre></td></tr></table></figure>
+
+<p>注意：redo log的内容主要用于奔溃恢复。磁盘的数据文件，数据来自buffer pool。Redo log写入磁盘，不是写入数据文件。</p>
+<p>​    在我们写入数据到磁盘的时候，操作系统本身是有缓冲的，flush就是把操作系统缓冲区写入到磁盘。Log buffer写入磁盘的时机由一个参数控制，默认是1。刷盘越快越安全，但是也会越消耗性能。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> variables <span class="keyword">like</span> ‘<span class="operator">%</span>innodb_flush_log_at_trx_commit<span class="operator">%</span>’；</span><br></pre></td></tr></table></figure>
+
+<p>​    <img src="/image/mysql/mysql%E6%9E%B6%E6%9E%84/%E5%9B%BE%E7%89%877.png"></p>
+<h3 id="4-2-磁盘结构"><a href="#4-2-磁盘结构" class="headerlink" title="4.2 磁盘结构"></a>4.2 磁盘结构</h3><p>​    表空间可以看作是InnoDB存储引擎逻辑结构的最高层，所有的数据都存放在表空间中。InnoDB的表空间分为5大类。</p>
+<h4 id="4-2-1-系统表空间-system-tablespace"><a href="#4-2-1-系统表空间-system-tablespace" class="headerlink" title="4.2.1 系统表空间-(system tablespace)"></a>4.2.1 系统表空间-(system tablespace)</h4><p>​    在默认情况下InnoDB存储引擎有一个共享表空间（/var/lib/mysql/ibdata1），也叫系统表空间。</p>
+<p>​    InnoDB系统表空间包含InnoDB数据字典和双写缓冲区，Change Buffer和undo logs，如果没有指定file-per-table，也包含用户创建的表和索引数据。</p>
+<p>​    1.undo log后面介绍</p>
+<p>​    2.数据字典：由内部系统表组成，存储表和索引的元数据（定义信息）</p>
+<p>​    3.双写缓冲（InnoDB的一个特性）</p>
+<p>​    InnoDB的页和操作系统的页大小不一致，InnoDB页大小一般为16k，操作系统页大小为4k，InnoDB页写入磁盘中时，一个页需要分4次写。</p>
+<p>​    <img src="/image/mysql/mysql%E6%9E%B6%E6%9E%84/%E5%9B%BE%E7%89%878.png"></p>
+<p>​    如果存储引擎正在写入页的数据到磁盘时发生了宕机，可能出现页只写了一部分的数据，比如只写了4k，就宕机了。这种情况叫做部分写失效（partial page write），可能会导致数据丢失。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> variables <span class="keyword">like</span> ‘<span class="operator">%</span>innodb_doublewrite<span class="operator">%</span>’；</span><br></pre></td></tr></table></figure>
+
+<p>​    如果这个页本身已经损坏了，用它来做奔溃恢复是没有意义的。所以在对于应用redo log之前，需要一个页的副本，如果出现了写入失效，就用这个页的副本来还原这个页，然后再应用redo log。这个页的副本就是double write，InnoDB的双写技术，通过它实现了数据页的可靠性。跟redo log一样，double write由两部分组成，一部分是内存的double write，一部分是磁盘上的double write。因为double write是顺序写入的，不会带来很大的开销。在默认情况下，所有的表共享一个系统表空间这个文件会越来越大，而且它的空间不会收缩。</p>
+<h4 id="4-2-2-独占表空间-file-per-table-tablespaces"><a href="#4-2-2-独占表空间-file-per-table-tablespaces" class="headerlink" title="4.2.2 独占表空间-(file-per-table tablespaces)"></a>4.2.2 独占表空间-(file-per-table tablespaces)</h4><p>​    我们可以让每张表独占一个表空间。这个开关通过innodb_file_per_table设置，默认开启。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> variables <span class="keyword">like</span> ‘<span class="operator">%</span>innodb_file_per_table<span class="operator">%</span>’；</span><br></pre></td></tr></table></figure>
+
+<p>​    开启后，则每张表会开启一个表空间，这个文件就是数据目录下的ibd文件，存放表的索引和数据。但是其他类的数据，如回滚（undo）信息，插入缓冲索引页，系统事务信息，二次写缓冲（double write buffer）等还是存放在原来的共享表空间内。</p>
+<h4 id="4-2-3-通用表空间-general-tablespaces"><a href="#4-2-3-通用表空间-general-tablespaces" class="headerlink" title="4.2.3 通用表空间-(general tablespaces)"></a>4.2.3 通用表空间-(general tablespaces)</h4><p>​    通用表空间也是一个共享的表空间，跟ibddata1类似。 可以创建一个通用表空间，用来存储不同数据库的表，数据路径和文件可以自定义，语法：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span>spaces ts <span class="keyword">add</span> datafile <span class="string">&#x27;/var/lib/mysql/ts.ibd&#x27;</span> file_block_size<span class="operator">=</span><span class="number">16</span>K engine<span class="operator">=</span>innodb;</span><br></pre></td></tr></table></figure>
+
+<p>​    在创建表的时候可以指定表空间吗，用alert修改表空间可以转移表空间。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t(id <span class="type">integer</span>) tablespace ts;</span><br></pre></td></tr></table></figure>
+
+<p>​    不同的表空间的数据是可以移动的。删除表空间需要先删除里面的所有表：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">drop</span> <span class="keyword">table</span> t;</span><br><span class="line"><span class="keyword">drop</span> tablespace ts;</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-2-4-临时表空间-temporary-tablespaces"><a href="#4-2-4-临时表空间-temporary-tablespaces" class="headerlink" title="4.2.4 临时表空间-(temporary tablespaces)"></a>4.2.4 临时表空间-(temporary tablespaces)</h4><p>​    存储临时表的数据，包括用户创建的临时表，和磁盘的内部临时表。对应数据目录下的ibtmp1文件。当数据服务器正常关闭时，该表空间被删除，下次重启产生。</p>
+<h4 id="4-2-5-Redo-Log"><a href="#4-2-5-Redo-Log" class="headerlink" title="4.2.5 Redo Log"></a>4.2.5 Redo Log</h4><p>​    在更新sql执行流程中讲述</p>
+<h4 id="4-2-6-Undo-log-tablespaces"><a href="#4-2-6-Undo-log-tablespaces" class="headerlink" title="4.2.6 Undo log tablespaces"></a>4.2.6 Undo log tablespaces</h4><p>​    Undo log的数据默认在系统表空间ibdata1文件中，因为共享表空间不会自动收缩，页可以单独创建一个undo表空间。</p>
+<h3 id="4-3-后台线程"><a href="#4-3-后台线程" class="headerlink" title="4.3 后台线程"></a>4.3 后台线程</h3><p>​    后台线程的主要作用是负责刷新内存池中的数据和把修改的数据页刷新到磁盘。后台线程分为：master thread，IO thread，ourge thread，page cleaner thread。</p>
+<p>​    1.Master thread：负责刷新缓存数据到磁盘并协调调度其他后台线程。</p>
+<p>​    2.IO thread：分为innodb buffer，log，read，write进程。分别用来处理insert buffer，重做日志，读写请求的IO回调。</p>
+<p>​    3.Purge threadL用来回收undo页。</p>
+<p>​    4.Page cleaner thread：用来刷新脏页。</p>
+<p>​    除了InnoDB架构中的日志文件，MySQL的Server层也有一个日志文件，叫做binlog，它可以被所有的存储引擎使用。</p>
 
         </div>
 
@@ -227,6 +369,8 @@
             </div>
         </section>
         <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2023/02/15/mysql/SQL%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B/">SQL执行流程</a>
             
             
         </section>
