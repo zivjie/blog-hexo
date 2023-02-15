@@ -303,7 +303,167 @@
 <p>​    默认关闭的意思是不推荐使用，因为MySQL自带的缓存的应用场景有限：第一个是它要求SQL语句必须一模一样，中间多一个空格，字母大小写都被认为是不同的SQL；第二个是表里面任何一条数据发生变化时，这张表所有缓存都会失效，所以对于大量数据更新的应用，也不适合。所以缓存这一块，我们还是交给orm框架（比如mybatis默认开启了一级缓存），或者独立的缓存服务，比如Redis来处理更合适。</p>
 <h3 id="1-3-语法解析和预处理-Parser-amp-Preprocessor"><a href="#1-3-语法解析和预处理-Parser-amp-Preprocessor" class="headerlink" title="1.3 语法解析和预处理(Parser &amp; Preprocessor)"></a>1.3 语法解析和预处理(Parser &amp; Preprocessor)</h3><p>​    对语句基于SQL语法进行词法分析，语法分析和语义的解析。</p>
 <h4 id="1-3-1-词法解析"><a href="#1-3-1-词法解析" class="headerlink" title="1.3.1 词法解析"></a>1.3.1 词法解析</h4><p>​    词法解析就是把一个完整的SQL语句打碎成一个个的单词</p>
-<p>​    </p>
+<h4 id="1-3-2-语法解析"><a href="#1-3-2-语法解析" class="headerlink" title="1.3.2 语法解析"></a>1.3.2 语法解析</h4><p>​    语法解析会对SQL做一语法检查，比如单引号有没有闭合，然后根据MySQL定义的语法规则，根据SQL语句生成一个数据结构，这个数据结构我们把它叫做解析树（select_lex）。</p>
+<p><img src="/image/mysql/sql%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B/2.png"></p>
+<p>​    词法语法分析是一个非常基础的功能，java的编译器，百度搜索引擎如果要识别语句，必须也要有词法语法分析功能。任何数据库的中间件，要解析SQL完成路由功能，也必须要有词法语法功能，比如Mycat，Sharding-JDBC（用到了Druid Parser）。在市面上也有很多的开源的词法解析的工具（比如LEX，Yacc）。</p>
+<h4 id="1-3-3-预处理器"><a href="#1-3-3-预处理器" class="headerlink" title="1.3.3 预处理器"></a>1.3.3 预处理器</h4><p>​    预处理器会检查生成的解析树，解决解析器无法解析的语义。比如它会检查表和列名是否存在，检查名字和别名，保证没有歧义。预处理后得到一个新的解析树。</p>
+<h3 id="1-4-查询优化与查询执行计划"><a href="#1-4-查询优化与查询执行计划" class="headerlink" title="1.4 查询优化与查询执行计划"></a>1.4 查询优化与查询执行计划</h3><p>​    一条SQL语句是可以有很多执行方式的，最终返回相同的结果，他们是等价的。选择哪种执行方式就是由MySQL的查询优化器的模块（Optimizer）。查询优化器的目的是根据解析树生成不同的执行计划（Execution Plan），然后选择一种最优的执行计划，MySQL中使用的是基于开销（cost）的优化器，哪种执行计划开销最小，就用哪种。查看查询的开销：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> status <span class="keyword">like</span> ‘Last_query_cost’;</span><br></pre></td></tr></table></figure>
+
+<p>​    优化的细节可以查看《数据库查询优化器的艺术-原理解析与SQL性能优化》。优化器最终会把解析树变成一个查询执行计划，查询执行计划是一个数据结构。MySQL提供了一个执行计划的工具，我们在SQL语句前面加上explain，就可以看到执行计划的信息。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">EXPLAIN <span class="keyword">select</span> name <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> id <span class="operator">=</span> <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+<p>​    如果要得到详细的信息，还可以用format=json，或者开启optimizer trace。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">EXPLAIN FORMAT<span class="operator">=</span>JSON <span class="keyword">where</span> name <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> id <span class="operator">=</span> <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="1-5-存储引擎"><a href="#1-5-存储引擎" class="headerlink" title="1.5 存储引擎"></a>1.5 存储引擎</h3><p>​    查看数据库存放数据的路径</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> variables <span class="keyword">like</span> <span class="string">&#x27;datastr&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>​    默认情况下，每个数据库都有自己的一个文件夹。任何一个存储引擎都有一个frm文件，这是表结构定义文件。不同的存储引擎存放数据的方式不一样， 产生的问价也不一样，innodb是1个，memory没有，myisam是两个。</p>
+<p><img src="/image/mysql/sql%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B/3.png"></p>
+<h4 id="1-5-1-存储引擎的选择"><a href="#1-5-1-存储引擎的选择" class="headerlink" title="1.5.1 存储引擎的选择"></a>1.5.1 存储引擎的选择</h4><p>​    一张表的存储引擎，是在创建表的时候指定的，使用ENGINE关键字</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> <span class="string">&#x27;user_innodb&#x27;</span>(</span><br><span class="line">	<span class="string">&#x27;id&#x27;</span> <span class="type">int</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span> AUTO_INCREMENT,</span><br><span class="line">    <span class="string">&#x27;name&#x27;</span> <span class="type">varchar</span>(<span class="number">255</span>) <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span>,</span><br><span class="line">    PRIMARY_KEY(<span class="string">&#x27;id&#x27;</span>),</span><br><span class="line">    KEY <span class="string">&#x27;comidx_name&#x27;</span> (<span class="string">&#x27;name&#x27;</span>)</span><br><span class="line">) ENGINE<span class="operator">=</span>InnoDB AUTO_INCREMENT<span class="operator">=</span><span class="number">1</span> <span class="keyword">DEFAULT</span> CHARSET<span class="operator">=</span>urf8mb4;</span><br></pre></td></tr></table></figure>
+
+<p>​    没有指定的话，数据库就会使用默认的存储引擎，5.5.5之前，默认的是myisam。5.5.5之后默认的是innodb。不同的业务需求对应相应的存储引擎。</p>
+<h4 id="1-5-2-存储引擎的比较"><a href="#1-5-2-存储引擎的比较" class="headerlink" title="1.5.2 存储引擎的比较"></a>1.5.2 存储引擎的比较</h4><p>​    常见的存储引擎：<a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/5.7/en/storage-engines.html">https://dev.mysql.com/doc/refman/5.7/en/storage-engines.html</a></p>
+<p>​    <strong>MyISAM（3个文件）</strong></p>
+<p>​    应用范围比较小。表级锁限制了读/写的性能，因此在web和数据仓库配置中，它通常用于只读或以读为主的工作。</p>
+<p>​    特点：</p>
+<p>​                1.支持表级别的锁（插入或更新会锁表）。不支持事务。</p>
+<p>​                2.拥有较高的插入（insert）和查询（select）速度。</p>
+<p>​                3.存储了表的行数（count速度更快）。</p>
+<p>​    （怎么快速向数据库中插入100万条数据？我们有一种先用myisam插入数据，然后修改存储引擎为innodb的操作）</p>
+<p>​    适合：只读之类的数据分析项目</p>
+<p><strong>InnoDB（2个文件）</strong></p>
+<p>​    MySQL5.7中默认的存储引擎。InnoDB是一个事务安全（与ACID兼容）的MySQL存储引擎，它具有提交，回滚和奔溃回复功能来保护用户数据。InnoDB行级锁（不升级为更粗粒度的锁）和Oracle风格的一致非锁读提高了多用户并发性和性能。InnoDB将用户数据存储在聚集索引中，以减少基于主键的常见查询的I/O。为了保持数据的完整性，InnoDB还支持外键引用完整性约束。</p>
+<p>​    特点：</p>
+<p>​        1.支持事务，支持外键，因此数据的玩成型，一致性更高。</p>
+<p>​        2.支持行级锁和表级锁</p>
+<p>​        3.支持读写并发，写不阻塞读（MVCC）</p>
+<p>​        4.特殊的索引存放方式，可以减少IO，提升查询效率。</p>
+<p>​    适合：经常更新的表，存在并发读写或者由事务处理的业务系统。</p>
+<p>​    <strong>Memory（1个文件）</strong></p>
+<p>​    将所有数据存储在RAM中，以便在需要快速查找非关键性数据的环境中快速访问。这个引擎以前被称为堆引擎。其使用案例正在减少；InnoDB及其缓存池内存区域提供了一种通用，持久的方法来将大部分或所有数据保存在内存中，而ndbcluster为大型分布式数据提供了快速的键值查找。</p>
+<p>​    特点：把数据放在内存里面，读写速度很快。但是数据库重启或者奔溃，数据会全部消失，只适合做临时表。将表中的数据存储到内存中。</p>
+<p>​    <strong>CSV（3个文件）</strong></p>
+<p>​    它的表实际上是带有逗号分隔值的文本文件。Csv表允许以csv格式导入或转储数据，以便与读写相同格式的脚本和应用程序交换数据，因为csv表没有索引，所以通常在正常操作期间将数据保存在innodb中，并且只在导入或导出阶段使用csv表。</p>
+<p>​    特点：不允许空行，不支持索引。格式通用，可以直接编辑。</p>
+<p>​    适合：在不同数据库之间导入导出。</p>
+<p><strong>Archive（2个文件）</strong></p>
+<p>​    这些紧凑的未索引的表用于存储和检索大量很少引用的历史，存档或安全审计信息。</p>
+<p>​    特点：不支持索引，不支持update delete。</p>
+<p>​    这些是mysql中常见的一些存储引擎，不同的存储引擎提供的特性都不一样，它们由不同的存储机制。索引方式，锁定水平等功能。我们在不同的业务场景中对数据操作的要求不同，就可以选择不同的存储引擎来满足我们的需求。</p>
+<h4 id="1-5-3-如何选择存储引擎"><a href="#1-5-3-如何选择存储引擎" class="headerlink" title="1.5.3 如何选择存储引擎"></a>1.5.3 如何选择存储引擎</h4><p>​    InnoDB：对数据一致性要求比较高，需要事务支持。</p>
+<p>​    MyIsam：数据查询多更新少，对查询性能要求比较高。</p>
+<p>​    Memory：需要一个用于查询的临时表。</p>
+<p>​    还可以根据官网内部手册使用C语言开发一个存储引擎。所有的存储引擎都遵循了一定的规范，提供了相同的接口。</p>
+<h3 id="1-6-执行引擎"><a href="#1-6-执行引擎" class="headerlink" title="1.6 执行引擎"></a>1.6 执行引擎</h3><p>​    它利用存储引擎提供相应的api来完成操作，不同功能的存储引擎实现的api是相同的。最后把数据返回给客户端。</p>
+<h2 id="2-更新SQL执行流程"><a href="#2-更新SQL执行流程" class="headerlink" title="2. 更新SQL执行流程"></a>2. 更新SQL执行流程</h2><p>​    在数据库里，我们说的update操作其实包括了更新，插入和删除。MyBatis的源码中Executor里面只有doQuery()和doUpdate()方法，没有doDelete()和doInsert()。它和查询的基本流程是一致的，也就是说，它也要经过解析器，优化器得处理，最后交给执行器。区别在于拿到符合条件得数据之后的操作。</p>
+<h3 id="2-1-Buffer-Pool-缓冲池"><a href="#2-1-Buffer-Pool-缓冲池" class="headerlink" title="2.1 Buffer Pool(缓冲池)"></a>2.1 Buffer Pool(缓冲池)</h3><p>​    首先，对于InnoDB存储引擎来说，数据都是放在磁盘上得，存储引擎要操作数据。必须先把磁盘里面的数据加载到内存中才能操作。这里有个问题，是不是我们需要的数据多大，我们就一次从磁盘加载多少数据到内存呢?比如我要读6个字节。</p>
+<p>​    磁盘I/O的读写相对于内存的操作来说是很慢的。如果我们需要的数据分散在磁盘的不同的地方，那就意味着回产生很多次的I/O操作。所以，无论是操作系统也好，还是存储引擎也好，都有一个预读取的概念，也就是说，当磁盘上的一块区域被读取时，很有可能它附近的位置也回马上被读取到，这个就叫做局部性远离了，那么这样，我们干脆每次多读一些，而不是用多少都多少。</p>
+<p>​    InnoDB设定了一个存储引擎从磁盘读取数据带内存的最小单位，叫做页。操作系统也有页的概念。操作系统的页一般是4k，而Innodb中最小的单位默认是16K。如果要修改这个值的大小，需要清空数据重新初始化服务。</p>
+<p>​    还有一个问题，操作数据的时候，每次都要从磁盘读取到内存（再返回给Server），有没有什么办法可以提高效率？还是缓存的思想，把读取过来的数据页缓存起来。</p>
+<p>​    InnoDB设计了一个内存的缓冲区，读取数据的时候，先判断是不是在这个内存区域里面，如果是，就直接读取，然后操作。不用再次从磁盘中加载。如果不是，读取后就写到这个内存的缓冲区。这个区域就叫Buffer Pool。</p>
+<p><img src="/image/mysql/sql%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B/4.png"></p>
+<p>​    修改数据的时候，也是先写入到buffer pool中，而不是直接写到磁盘。内存的数据页个磁盘数据不一致的时候，我们就叫它为脏页。InnoDB中有专门的后台线程把Buffer Pool的数据写入到磁盘，每个一段时间就一次性的把多个修改写入磁盘，这个动作叫做刷脏。</p>
+<p>​    总结一下：Buffer Pool的作用是为了提高读写效率。</p>
+<h3 id="2-2-Redo-Log"><a href="#2-2-Redo-Log" class="headerlink" title="2.2 Redo Log"></a>2.2 Redo Log</h3><p>​    因为刷脏不是实时的，如果Buffer Pool里面的脏页还没有刷入磁盘时，数据库宕机或者重启，这些数据就会丢失。所以内存必须要有一个持久化的措施。为了避免这个问题，InnoDB把对所有页面的修改操作专门写入一个日志文件。如果有未同步到磁盘的数据，数据库在启动的时候，回从这个日志文件进行恢复操作（实现Crash-safe）。我们说的事务的ACID中的D（持久性），就是用它来实现的。</p>
+<p><img src="/image/mysql/sql%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B/5.png"></p>
+<p>​    这个日志文件就是磁盘的redo log（重做日志）。 那么写日志文件和写到数据文件有什么区别？</p>
+<p>​    我们说一下磁盘寻址的过程。这个是磁盘的构造。磁盘的盘片不停的旋转，磁头会在磁盘表面画出一个圆形轨迹，这个就叫做磁道。从内到外半径不同有很多磁道。然后又用半径线，把磁道分割成了扇区（两根射线之内的扇区组成扇面）。如果要读写数据，必须找到数据对应的扇区，这个过程就叫寻址。</p>
+<p><img src="/image/mysql/sql%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B/6.png"></p>
+<p>​    如果我们所需要的数据是随机分散在磁盘上不同页的不同扇区中，那么找到相应的数据需要等到磁臂旋转到指定的页，然后盘片寻找到对应的扇区，才能找到我们能所需要的一块数据，一次进行此过程知道找完所有数据。这个就是随机IO，读取数据速度较慢。</p>
+<p>​    假设我们已经找到了第一块数据，并且其他所需的数据就在这块数据后边，那么就不需要重新寻址，可以依次拿到我们所需的数据，这个就叫顺序IO。 刷盘是随机IO，而记录日志是顺序IO，顺序IO效率更高，本质上是数据集中存储和分散存储的区别。因此先把修改写入日志文件，在保证了内存数据的安全性的情况下，可以延迟刷盘时机，进而提高系统吞吐。</p>
+<p>​    Redo log位于/var/lib/mysql目录下的ib_logfile0和ib_logfile1，默认2个文件，每个48M。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> variables <span class="keyword">like</span> <span class="string">&#x27;innodb_log%&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>innodb_log_file_size</td>
+<td>指定每个文件的大小，默认48M</td>
+</tr>
+<tr>
+<td>innodb_log_files_in_group</td>
+<td>指定文件的数量，默认为2</td>
+</tr>
+<tr>
+<td>innodb_log_group_home_dir</td>
+<td>指定文件所在路径，相对或绝对。如果不指定，则为datadir路径</td>
+</tr>
+</tbody></table>
+<p> redo log特点？</p>
+<ol>
+<li><p>redo log是Innodb存储引擎实现的，并不是所有存储引擎都有。支持奔溃恢复是Innodb的一个特性。</p>
+</li>
+<li><p>redo log不是记录数据页更新之后的状态，而是记录的是“在某个数据也上做了什么修改”。属于物理日志。</p>
+</li>
+<li><p>redo log的大小是固定的，前面的内容会被覆盖，一旦写满，就会触发buffer pool到磁盘的同步，以便腾出空间记录后面的修改。</p>
+</li>
+</ol>
+<p>除了redo log之外，还有一个跟修改有关的日志，叫做undo log，这两个日志和事务密切相关，统称为事务日志。</p>
+<h3 id="2-3-Undo-Log"><a href="#2-3-Undo-Log" class="headerlink" title="2.3 Undo Log"></a>2.3 Undo Log</h3><p>​    Undo log（撤销日志或回滚日志）记录了事务发生之前的数据状态，分为insert undo log和update undo log。如果修改数据时出现异常，可以用undo log来实现回滚操作（保持原子性）。可以理解为undo log记录的是反向操作，比如insert会记录delete，update会记录update原来的值，跟redo log记录在哪个物理页做了什么操作不同，所以叫逻辑格式的日志。</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>innodb_undo_directory</td>
+<td>undo文件的路径</td>
+</tr>
+<tr>
+<td>innodb_undo_log_truncate</td>
+<td>设置为1，即开启在线回收(收缩)undo log日志文件</td>
+</tr>
+<tr>
+<td>innodb_max_undo_log_size</td>
+<td>如果innodb_undo_log_truncate设置为1，超过这个大小的时候会触发truncate回收的动作，如果page大小是16KB，truncate后空间缩小到10M，默认1073741824字节=1G</td>
+</tr>
+<tr>
+<td>innodb_undo_logs</td>
+<td>回滚段的数量，默认128，这个参数已经过时</td>
+</tr>
+<tr>
+<td>innodb_undo_tablespaces</td>
+<td>设置undo独立表空间个数，范围为0-95，默认为0，0表示不开启独立undo表空间，且undo日志存储在ibdata文件中，这个参数已经过时</td>
+</tr>
+</tbody></table>
+<h3 id="2-4-更新过程"><a href="#2-4-更新过程" class="headerlink" title="2.4 更新过程"></a>2.4 更新过程</h3><p>有了这些日志之后，总结一下更新操作的流程。例如：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">update</span> <span class="keyword">user</span> <span class="keyword">set</span> name <span class="operator">=</span> <span class="string">&#x27;penyuyan&#x27;</span> <span class="keyword">where</span> id <span class="operator">=</span> <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>1、 事务开始，从内存（buffer pool）或磁盘（data file）取到包含这条数据的数据页，返回给server的执行器</p>
+<p>2、 Server的执行器修改数据页的这一行数据的值为penyuyan</p>
+<p>3、 记录name=qingshan到undo log</p>
+<p>4、 记录name=penyuyan到redo log</p>
+<p>5、 调用存储引擎接口，记录数据页到buffer pool（修改name=penyuyan）</p>
+<p>6、 事务提交</p>
+<h3 id="2-5-Bin-log"><a href="#2-5-Bin-log" class="headerlink" title="2.5 Bin log"></a>2.5 Bin log</h3><p>​    Binlog以事件的形式记录了所有的ddl和dml语句（因为它记录的是操作而不是数据值，属于逻辑日志），可以用来做主从复制和数据恢复。跟redo log不同，它的文件内容是可以追加的，没有固定大小限制。在开启了binlog功能的情况下，我们可以把binlog导出成sql语句。把所有的操作重放一遍，来实现数据的恢复。Binlog的另一个功能就是用来实现主从复制，它的原理就是从服务器读取主服务器的binlog，然后再执行一遍。配置方式和主从复制的实现原理再Mycat第二节课中有讲述。有了这两个日志之后，一条更新语句是怎么执行的（redo不能一次写入了）</p>
+<p><img src="/image/mysql/sql%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B/7.png"></p>
+<p>例如一条语句：update teacher set name = ‘penyuyan’ where id = 1;</p>
+<p>​    1.先查询到这条语句，如果有缓存，也会用到缓存</p>
+<p>​    2.把name改成pengyuyan，然后调用引擎的API接口，写入这一行数据到内存，同时记录redo log。 这时redo log进入prepare状态，然后告诉执行器，执行完成了，可以随时提交</p>
+<p>​    3.执行器收到通知后记录binlog，然后条用存储引擎接口，设置redo log为commit状态。</p>
+<p>​    4.更新完成。</p>
+<p>这张图片的重点：</p>
+<p>​    1.先记录到内存，再写日志文件。</p>
+<p>​    2.记录redo log分为两个阶段</p>
+<p>​    3.存储引擎和Server记录不同的日志</p>
+<p>​    4.先记录redo，再记录binlog</p>
+<p>为什么需要两阶段提交：</p>
+<p>举例：如果我们执行的是把name改成penyuyan，如果写完redo log，还没有写binlog的时候，MySQL重启了。因为redo log可以在重启时用于数据恢复，所以写入磁盘的是pengyuyan。但是binlog中没有记录这个逻辑日志，所以这时候用binlog去恢复数据或者同步到从库，就会出现数据不一致的情况。所以在写两个日志的情况下，binlog就充当了一个事务的协调者。通知InnoDB来执行prepare或者commit或者rollback。如果写入binlog失败，就不会提交。简单地说，这里有两个写日志的操作，类似于分布式事务，不同两阶段提交，就不能保证都成功或者都失败。</p>
+<p>在奔溃恢复时，判断事务是否需要提交：</p>
+<p>1.binlog无记录，redolog无记录：在redolog写之前crash，恢复操作，回滚事务。</p>
+<p>2.binlog无记录，redolog状态prepare：在binlog写完之前crash，恢复操作，回滚事务。</p>
+<p>3.binlog有记录，redolog状态prepare：在binlog写完提交事务之前crash，恢复操作，提交事务。</p>
+<p>4.binlog有记录，redolog状态commit：正常完成事务，不需要恢复。</p>
 
         </div>
 
