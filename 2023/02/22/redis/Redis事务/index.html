@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="zhaojie">
+
+
+
+
+
+<title>Redis事务 | Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Jie&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Jie&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">Redis事务</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">zhaojie</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">February 22, 2023&nbsp;&nbsp;16:00:00</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Redis/">Redis</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="1-为什么要用事务"><a href="#1-为什么要用事务" class="headerlink" title="1 为什么要用事务"></a>1 为什么要用事务</h2><p>Redis的单个命令是原子性的（比如get set mget mset），要么成功要么失败，不存在并发干扰的问题。如果涉及到多个命令的时候，需要把多个命令作为一个不可分割的处理序列，就必须要依赖redis的功能特性来实现了。</p>
+<p>Redis提供了事务的功能，可以把一组命令一起执行。Redis的事务有3个特点：</p>
+<ol>
+<li><p>按进入队列的顺序执行。</p>
+</li>
+<li><p>不会受到其他客户端的请求的影响</p>
+</li>
+<li><p>事务不能嵌套，多个multi命令效果一样</p>
+</li>
+</ol>
+<h2 id="2-事务的用法"><a href="#2-事务的用法" class="headerlink" title="2  事务的用法"></a>2  事务的用法</h2><p>Redis的事务涉及到四个命令：multi（开启事务），exec（执行事务），discard（取消事务），watch（监视）</p>
+<p>案例场景：tom和mic各有1000元，tom向mic转账100元。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">set tom 1000</span><br><span class="line">set mic 1000</span><br><span class="line">multi</span><br><span class="line">decrby tom 100</span><br><span class="line">incrby mic 100</span><br><span class="line">exec</span><br><span class="line">get tom</span><br><span class="line">get mic</span><br></pre></td></tr></table></figure>
+
+<p>通过multi命令开启事务。Multi执行后，客户端可以继续向服务器发送任意多条命令，这些命令不会立即执行，而是被放到一个队列中。当exec命令被调用时，所有队列中的命令才会被执行。如果没有执行exec，所有的命令都不会被执行。如果中途不想执行事务了，可以调用discard可以清空事务队列，放弃执行。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">multi </span><br><span class="line">decrby tom 100</span><br><span class="line">discard</span><br><span class="line">get tom</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-Watch命令"><a href="#3-Watch命令" class="headerlink" title="3  Watch命令"></a>3  Watch命令</h2><p>为了防止事务过程中某个key‘的值被其他客户端请求修改，在Redis中还提供那个了一个watch命令。也就是多个客户端更新变量的时候，会跟原值做比较，只有它没有被其他线程修改的情况下，才更新成新的值。它可以为Redis事务提供CAS乐观锁行为。</p>
+<p>可以一个用watch监视一个或者多个key，如果开启事务之后，至少一个被监视key键在exec执行之前被修改了，那么整个事务都会被取消（key提前过期除外）。可以用unwatch取消。</p>
+<table>
+<thead>
+<tr>
+<th>client 1</th>
+<th>client 2</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>set balance 1000 <br />watch balance <br />multi <br />incrby balance 100</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>decrby balance 100</td>
+</tr>
+<tr>
+<td>exec [返回null] <br />get balance</td>
+<td></td>
+</tr>
+</tbody></table>
+<h2 id="4-事务可能遇到的问题"><a href="#4-事务可能遇到的问题" class="headerlink" title="4 事务可能遇到的问题"></a>4 事务可能遇到的问题</h2><h3 id="4-1-在执行exec之前发生错误"><a href="#4-1-在执行exec之前发生错误" class="headerlink" title="4.1 在执行exec之前发生错误"></a>4.1 在执行exec之前发生错误</h3><p>比如：入队的命令存在语法错误，包括参数数量，参数名称等等（编译器错误）。事务会被拒绝执行，也就是队列中所有的明林都不会得到执行。</p>
+<h3 id="4-2-在执行exec之后发生错误"><a href="#4-2-在执行exec之后发生错误" class="headerlink" title="4.2 在执行exec之后发生错误"></a>4.2 在执行exec之后发生错误</h3><p>比如String使用了hash的命令，参数个数正确，但是数据类型错误，这是一种运行时错误。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">flushall</span><br><span class="line">multi</span><br><span class="line">set k1 1</span><br><span class="line">hset k1 a b</span><br><span class="line">exec</span><br><span class="line">1) OK</span><br><span class="line">2) (error) WRONGTYPE Operation againest a key holding the wrong kind of value </span><br><span class="line">get k1</span><br></pre></td></tr></table></figure>
+
+<p>最后发现set k1 1的命令是成功的，也就是在这种发生了运行时异常的情况下，只有错误的命令没有被执行，但是其他命令没有收到影响。这个显然不符合对原子性的定义，也就是没办法用redis的这种事务机制来实现原子性，保证数据的一致。</p>
+<h3 id="4-3-为什么不回滚？"><a href="#4-3-为什么不回滚？" class="headerlink" title="4.3 为什么不回滚？"></a>4.3 为什么不回滚？</h3><p>官方的解释是这样的：</p>
+<ol>
+<li><p>redis命令只会因为错误的语法而失败，也就是说，从实用性的角度来说，失败的命令是由代码错误造成的，而这些错误应该在开发的过程中被发现，而不应该出现在生产环境中。</p>
+</li>
+<li><p>因为不需要对回滚进行支持，所以redis的内部可以保持简单且快速。需要知道的是：回滚不能够解决代码问题。</p>
+</li>
+</ol>
+<p>Redis从2.6版本开始引入了Lua脚本，也就是说redis可以用lua来执行redis命令。</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                
+                
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/redis/"># redis</a>
+                    
+                        <a href="/tags/%E7%BC%93%E5%AD%98/"># 缓存</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2023/02/22/redis/Redis%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB/">Redis为什么这么快</a>
+            
+            
+            <a class="next" rel="next" href="/2023/02/21/springboot/springboot%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/">Springboot启动流程</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© zhaojie | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

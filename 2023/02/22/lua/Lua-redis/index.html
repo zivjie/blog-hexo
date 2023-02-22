@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="zhaojie">
+
+
+
+
+
+<title>Lua脚本-redis | Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Jie&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Jie&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">Lua脚本-redis</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">zhaojie</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">February 22, 2023&nbsp;&nbsp;16:13:00</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Lua/">Lua</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="1-在redis中调用lua脚本"><a href="#1-在redis中调用lua脚本" class="headerlink" title="1  在redis中调用lua脚本"></a>1  在redis中调用lua脚本</h2><p>使用eval方法，语法格式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">eval lua-script key-num [key1 key2 key3 ...] [value1 value2 value3 ...]</span><br><span class="line"></span><br><span class="line">//eval 代表执行Lua语言的命令</span><br><span class="line">//lua-script 代表Lua语言脚本内容</span><br><span class="line">//key-num 表示参数中有多少个key，需要注意的是Redis中的key是从1开始的，如果没有key的参数，那么写0</span><br><span class="line">//[key1 key2 key3 ...]是key作为参数传递给Lua语言，也可以不写，但是需要和key-num的个数对应起来</span><br><span class="line">//[value1 value2 value3 ...]参数的value值，一一对应，可填可不填</span><br></pre></td></tr></table></figure>
+
+<p>示例：返回一个字符串，0个参数：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">eval &quot;return &#x27;Hello World&#x27;&quot; 0</span><br></pre></td></tr></table></figure>
+
+<p>实际上，Lua脚本在Redis里面真正的用途是用来执行redis命令。</p>
+<h2 id="2-在Lua脚本中调用redis命令"><a href="#2-在Lua脚本中调用redis命令" class="headerlink" title="2  在Lua脚本中调用redis命令"></a>2  在Lua脚本中调用redis命令</h2><h3 id="2-1-命令格式"><a href="#2-1-命令格式" class="headerlink" title="2.1 命令格式"></a>2.1 命令格式</h3><p>使用redis.call(command, key, [param1, param2 ……])进行操作。语法格式：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">redis.call(command, key [param1, param2, ...])</span><br><span class="line"><span class="comment">-- command是命令，包括set、get、del等</span></span><br><span class="line"><span class="comment">-- key是被操作的键</span></span><br><span class="line"><span class="comment">-- param1， param2 ...代表给key的参数</span></span><br></pre></td></tr></table></figure>
+
+<p>一个简单的案例，让Lua脚本执行set qingshan 2673</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">eval &quot;return redis.call(&#x27;set&#x27;,&#x27;qingshan&#x27;,&#x27;2673&#x27;)&quot;  //写死值</span><br><span class="line">eval &quot;return redis.call(&#x27;set&#x27;, KEYS[1], ARGV[1])&quot; 1 qingshan 2673 //参数传递</span><br></pre></td></tr></table></figure>
+
+<p>在redis-cli中直接写Lua脚本不够方便，也不能实现编辑和复用，通常我们会把lua脚本凡在文件中，然后执行这个文件。</p>
+<h3 id="2-2-Lua脚本文件"><a href="#2-2-Lua脚本文件" class="headerlink" title="2.2 Lua脚本文件"></a>2.2 Lua脚本文件</h3><p>创建脚本文件</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /usr/local/soft/redis-6.0.9/src</span><br><span class="line">vim test.lua</span><br></pre></td></tr></table></figure>
+
+<p>Lua脚本内容，先赋值，再取值：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">redis.call(<span class="string">&#x27;set&#x27;</span>,<span class="string">&#x27;qingshan&#x27;</span>,<span class="string">&#x27;lua666&#x27;</span>)</span><br><span class="line"><span class="keyword">return</span> redis.call(<span class="string">&#x27;get&#x27;</span>,<span class="string">&#x27;qingshan&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>调用脚本文件</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /usr/local/soft/redis-6.0.9/src</span><br><span class="line">redis-cli --<span class="built_in">eval</span> test.lua 0</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3-案例：对IP进行限流"><a href="#2-3-案例：对IP进行限流" class="headerlink" title="2.3 案例：对IP进行限流"></a>2.3 案例：对IP进行限流</h3><p>需求：每个用户再X秒内只能访问Y次。设计思路：</p>
+<p>首先是数据类型。用String的key记录IP，用value记录访问的次数。几秒钟和几次哟啊用参数动态传进去。拿到IP以后，对IP+1。如果是第一次访问，对key设置国企时间（参数1）.否则判断次数，超过限定次数（参数2），返回0。如果没有超过次数返回1。超过时间，key国企之后，可以再次访问。</p>
+<p>KEY[1]是IP，ARGV[1]是过期时间X，ARGV[2]是限制访问的次数Y。</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- ip_limit.lua</span></span><br><span class="line"><span class="comment">-- IP限流，对某个IP频率进行校址，6秒钟访问10次</span></span><br><span class="line"><span class="keyword">local</span> num=redis.call(<span class="string">&#x27;incr&#x27;</span>,KEYS[<span class="number">1</span>])</span><br><span class="line"><span class="keyword">if</span> <span class="built_in">tonumber</span>(num)==<span class="number">1</span> <span class="keyword">then</span></span><br><span class="line">    redis.call(<span class="string">&#x27;expire&#x27;</span>,KEYS[<span class="number">1</span>],ARGV[<span class="number">1</span>])</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span></span><br><span class="line">   <span class="keyword">elseif</span> <span class="built_in">tonumber</span>(num)&gt;<span class="built_in">tonumber</span>(ARGV[<span class="number">2</span>]) <span class="keyword">then</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">   <span class="keyword">else</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<p>6秒钟内限制访问10次，调用测试（连续调用10次）</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-cli --<span class="built_in">eval</span> ip_limit.lua app:ip:<span class="built_in">limit</span>:192.168.8.111 , 6 10</span><br></pre></td></tr></table></figure>
+
+<p>Java代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">LuaTest</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">Jedis</span> <span class="variable">jedis</span> <span class="operator">=</span> getJedisUtil();</span><br><span class="line">        jedis.eval(<span class="string">&quot;return redis.call(&#x27;set&#x27;,KEYS[1],ARGV[1])&quot;</span>, <span class="number">1</span>,<span class="string">&quot;test:lua:key&quot;</span>,<span class="string">&quot;qingshan2673lua&quot;</span>);</span><br><span class="line">        System.out.println(jedis.get(<span class="string">&quot;test:lua:key&quot;</span>));</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>; i&lt;<span class="number">10</span>; i++)&#123;</span><br><span class="line">            limit();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 10秒内限制访问5次</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">limit</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="type">Jedis</span> <span class="variable">jedis</span> <span class="operator">=</span> getJedisUtil();</span><br><span class="line">        <span class="comment">// 只在第一次对key设置过期时间</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">lua</span> <span class="operator">=</span> <span class="string">&quot;local num = redis.call(&#x27;incr&#x27;, KEYS[1])\n&quot;</span> +</span><br><span class="line">                <span class="string">&quot;if tonumber(num) == 1 then\n&quot;</span> +</span><br><span class="line">                <span class="string">&quot;\tredis.call(&#x27;expire&#x27;, KEYS[1], ARGV[1])\n&quot;</span> +</span><br><span class="line">                <span class="string">&quot;\treturn 1\n&quot;</span> +</span><br><span class="line">                <span class="string">&quot;elseif tonumber(num) &gt; tonumber(ARGV[2]) then\n&quot;</span> +</span><br><span class="line">                <span class="string">&quot;\treturn 0\n&quot;</span> +</span><br><span class="line">                <span class="string">&quot;else \n&quot;</span> +</span><br><span class="line">                <span class="string">&quot;\treturn 1\n&quot;</span> +</span><br><span class="line">                <span class="string">&quot;end\n&quot;</span>;</span><br><span class="line">        <span class="type">Object</span> <span class="variable">result</span> <span class="operator">=</span> jedis.evalsha(jedis.scriptLoad(lua), Arrays.asList(<span class="string">&quot;localhost&quot;</span>), Arrays.asList(<span class="string">&quot;10&quot;</span>, <span class="string">&quot;5&quot;</span>));</span><br><span class="line">        System.out.println(result);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Jedis <span class="title function_">getJedisUtil</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">ip</span> <span class="operator">=</span> ResourceUtil.getKey(<span class="string">&quot;redis.host&quot;</span>);</span><br><span class="line">        <span class="type">int</span> <span class="variable">port</span> <span class="operator">=</span> Integer.valueOf(ResourceUtil.getKey(<span class="string">&quot;redis.port&quot;</span>));</span><br><span class="line">        <span class="type">String</span> <span class="variable">password</span> <span class="operator">=</span> ResourceUtil.getKey(<span class="string">&quot;redis.password&quot;</span>);</span><br><span class="line">        <span class="type">JedisPoolConfig</span> <span class="variable">jedisPoolConfig</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JedisPoolConfig</span>();</span><br><span class="line">        <span class="type">JedisPool</span> <span class="variable">pool</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JedisPool</span>(jedisPoolConfig, ip, port, <span class="number">10000</span>, password);</span><br><span class="line">        <span class="keyword">return</span> pool.getResource();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-4-缓存Lua脚本"><a href="#2-4-缓存Lua脚本" class="headerlink" title="2.4 缓存Lua脚本"></a>2.4 缓存Lua脚本</h3><p><strong>为什么要缓存</strong></p>
+<p>​    在Lua脚本比较长的情况下，如果多次调用脚本都需要把整个脚本传给Redis服务端，会产生比较大的网络开销。为了解决这个问题，Redis可以缓存Lua脚本并生成SHA1摘要码，后面可以直接通过摘要码来执行Lua脚本。</p>
+<p><strong>如何缓存</strong></p>
+<p>这里面涉及到两个命令，首先是在服务端缓存lua脚本生成一个摘要码，用script load命令</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">script load <span class="string">&quot;return Hello World&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>第二个命令是通过摘要码执行缓存的脚本：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">evalsha <span class="string">&quot;摘要码&quot;</span> 0</span><br></pre></td></tr></table></figure>
+
+<p><strong>自乘案例</strong></p>
+<p>Redis有incrby这样的自增命令，但是没有自乘。比如乘以3，乘以5</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">set</span> num 2</span><br></pre></td></tr></table></figure>
+
+<p>写一个自乘的运算，让它乘以后面的参数:</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> curVal=redis.call(<span class="string">&quot;get&quot;</span>,KEYS[<span class="number">1</span>])</span><br><span class="line"><span class="keyword">if</span> curVal==<span class="literal">false</span> <span class="keyword">then</span></span><br><span class="line">    curVal=<span class="number">0</span></span><br><span class="line">   <span class="keyword">else</span></span><br><span class="line">    curVal=<span class="built_in">tonumber</span>(curVal)</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line">curVal=curVal*<span class="built_in">tonumber</span>(ARGV[<span class="number">1</span>])</span><br><span class="line">redis.call(<span class="string">&quot;set&quot;</span>,KEYS[<span class="number">1</span>],curVal)</span><br><span class="line"><span class="keyword">return</span> curVal</span><br></pre></td></tr></table></figure>
+
+<p>这个命令变成串行，语句之间使用分号隔开，Script load命令（redis客户端执行）</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">script locad <span class="string">&#x27;local curVal=redis.call(&quot;get&quot;,KEYS[1]);if curVal==false then curVal=0 else curVal=tonumber(curVal) end;curVal=curVal*tonumber(ARGV[1]);redis.call(&quot;set&quot;,KEYS[1],curVal);return curVal&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>调用</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">evalsha <span class="string">&quot;摘要码&quot;</span> 1 num 6</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-5-脚本超时"><a href="#2-5-脚本超时" class="headerlink" title="2.5 脚本超时"></a>2.5 脚本超时</h3><p>Redis的指令执行本身是单线程的，这个线程还要执行客户端的Lua脚本，如果Lua脚本执行超时或者陷入了死循环，是不是没有办法为客户端提供服务了？它会导致其他的命令都会进入等待状态。为了防止这种情况，首先，脚本执行有一个超时时间，默认为5秒钟。</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">lua-time-limit</span> <span class="string">5000</span></span><br></pre></td></tr></table></figure>
+
+<p>超过5秒钟，其他客户端的命令不会等待，而是直接返回BUSY错误。这样也不行，不能一直拒绝其他客户端的命令执行。在提示中看到有两个命令可以使用，第一个是script kill，终止脚本的执行。但是需要注意:并不是所有的lua脚本执行都可以kill。如果当前执行的lua脚本对Redis的数据进行了修改（set，DEL、等），那么通过script kill命令是不能终止脚本运行的。为什么包含修改的脚本不能中断？因为要保证脚本运行的原子性。如果脚本执行了一部分被终止，那就违背了脚本原子性的目标。遇到这种情况，只能通过shutdown nosave命令，直接把redis服务停掉。正常关机是shutdown。Shutdown nosave和shutdown的区别在于shutdown nosave不会进行持久化操作，意味着发生在上一个快照后的数据库修改都会丢失。</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                
+                
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/redis/"># redis</a>
+                    
+                        <a href="/tags/lua/"># lua</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+            
+            <a class="next" rel="next" href="/2023/02/22/redis/Redis%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB/">Redis为什么这么快</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© zhaojie | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>
