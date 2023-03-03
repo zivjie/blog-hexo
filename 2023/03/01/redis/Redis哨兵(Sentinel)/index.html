@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="zhaojie">
+
+
+
+
+
+<title>Redis哨兵(Sentinel) | Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Jie&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Jie&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">Redis哨兵(Sentinel)</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">zhaojie</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">March 1, 2023&nbsp;&nbsp;10:35:00</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Redis/">Redis</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="1-原理"><a href="#1-原理" class="headerlink" title="1  原理"></a>1  原理</h2><p>怎么实现高可用？第一个对于服务器来说，能够实现主从自动切换；第二个，对于客户端来说，如果发生了主从切换，它需要获取最新的master节点。这个怎么实现呢？这里面应该要有一个管理redis节点状态的角色，而且具备路由功能。比如RocketMQ是通过nameserver来实现的。思路：创建一台监控服务器来监控所有redis服务节点的状态，比如，master节点超过一定时间没有给监控服务器发送心跳报文，就把master标记为下线，之后把某一个slave变成master，应用每一次都是从这个监控服务器拿到master的地址。</p>
+<p>Redis的高可用是通过哨兵Sentinel来保证的。它的思路就是通过运行监控服务器来保证服务的可用性。从redis2.8版本起，提供了一个稳定版本的哨兵，用来解决高可用的问题。我们会启动奇数个的哨兵服务（通过src/redis-sentinel）。可以同sentinel的脚本启动，也可以用redis-server的脚本加sentinel参数启动。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">./redis-sentinel ../sentinel.conf</span><br><span class="line"># 或者</span><br><span class="line">./redis-server ../sentinel.conf --sentinel</span><br></pre></td></tr></table></figure>
+
+<p>它的本质上只是一个运行在特殊模式之下的redis。Sentinel通过info命令得到被监听redis机器的master，slave信息。</p>
+<p><img src="/image/redis/redis%E5%93%A8%E5%85%B5/1.png"></p>
+<p>为保证监控服务器的可用性，会对Sentinel做集群的部署。Sentinel既监控所有的redis服务，Sentinel相互之间也监控。注意：Sentinel本身没有主从之分，地位是平等的，只有redis服务节点有主从之分。sentinel唯一的联系，就是监控相同的master，sentinel节点是怎么知道其他的Sentinel节点的存在的？因为Sentinel是一个特殊状态的redis节点，它也有发布订阅的功能。哨兵上线时，给所有的redis节点的名字为_sentinel_:hello的channle发送消息。每个哨兵都订阅了所有redis节点为_sentinel_:helo的channle，所以能相互感知对方的存在，而进行监控。</p>
+<h3 id="1-1-服务下线"><a href="#1-1-服务下线" class="headerlink" title="1.1 服务下线"></a>1.1 服务下线</h3><p>sentinel默认以每秒钟1次的频率向redis服务节点发送ping命令。如果在指定时间内没有收到有效回复，sentinel会将该服务器标记为下线（主观下线）。由这个参数控制：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># sentiel.conf</span></span><br><span class="line"><span class="attr">sentiel</span> <span class="string">down-after-milliseconds &lt;master-name&gt; &lt;milliseconds&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>默认是30秒。但是，只有发现master下线，并不代表master真的下线了。也有可能是网络出问题了。所以，这个时候第一个发现master下线的sentinel节点会继续询问其他的sentinel节点，确认这个节点是否下线，如果多数sentinel节点都认为master下线，master才真正被确认下线（客观下线）。确定master下线后，就需要重新选举master。Kafka有会在Broke里面选一个Controller出来。RocketMQ用Dledger技术选举（基于Raft协议）。</p>
+<h3 id="1-2-故障转移"><a href="#1-2-故障转移" class="headerlink" title="1.2 故障转移"></a>1.2 故障转移</h3><p>Redis的选举和故障转移都是由sentinel完成的，故障转移流程的第一步就是在sentinel集群选择一个leader，由leader完成故障转移流程。Sentinel通过Raft算法，实现sentinel选举。</p>
+<p><strong>Raft算法</strong></p>
+<p>只要有了多个副本，就必然要面对副本一致性的问题。如果要所有的节点达成一致，必然要通过复制的方式实现。所以数据保持一致需要两个步骤：领导选举，数据复制。数据复制在redis主从复制中说过了，这里关注一下选举的实现。</p>
+<p>Raft算法是一个共识算法(consensus algorith)。Spring cloud的注册中心解决方案Consul也用到了Raft协议。Raft的核心思想：先到先得，少数服从多数。sentinel的raft实现跟原生的算法有所区别，但是大体思想一致。</p>
+<ol>
+<li><p>分布式环境中的节点有三个状态: Follower,Candidate(虚线外框),Leader(实现外框).</p>
+</li>
+<li><p>一开始所有的节点都是Follower状态.如果follower连接不到leader(leader挂了),它就会成为candidate。candidate请求其他节点的投票，其他的节点会投给它，如果它得到了大多数节点的投票，它就成为了主节点.这个过程就叫做leader election。</p>
+</li>
+<li><p>现在所有的写操作需要在leader节点上发生。leader会记录操作日志，没有同步到其他follower节点的日志，状态是uncommitted。等到超过半数的follower同步了这条记录，日志状态就会变成committed。leader会通知所有的follower日志已经committed，这个时候所有的节点就达成了一致，这个过程叫log replication。</p>
+</li>
+<li><p>在raft协议中，选举的时候有两个超时时间。第一个叫election timeout，也就是说，为了防止同一时间大量节点参与选举，每个节点在变成candidate之前需要随机等待一段时间，时间范围是150ms and 300ms之间。第一个变成candidate的节点会先发起投票，它会先投给自己，然后请求其他节点投票(request vote)。</p>
+</li>
+<li><p>如果还没有收到投票结果，又到了超时时间，需要重置超时时间，只要有大部分节点投给了一个节点，他就会变成leader。</p>
+</li>
+<li><p>成为leader之后，它会发消息来同步数据(append entries)，发消息的间隔是由heartbeat timeout的计时。</p>
+</li>
+<li><p>只要follower收到了同步数据的信息，代表leader没挂，他们就会清除heartbeat timeout的计时。</p>
+</li>
+<li><p>但是一旦followers在heartbeat timeout时间之内没有收到append entries消息，它就会认为leader挂了，开始让其他节点投票，成为新的leader。</p>
+</li>
+<li><p>必须超过半数以上节点投票，保证只有一个leader被选出来。</p>
+</li>
+<li><p>如果两个follower同时变成了candidate，就会出现分割投票，比如有两个节点同时变成candidate，而且各自有一个投票请求先达到了其他的节点。加上他们给自己的投票，每个candidate手上有两票。但是，因为他们的election timeout不同，在发起新的一轮选举的时候，有一个节点收到了更多的投票，所以它变成了leader。</p>
+</li>
+</ol>
+<p>总结:sentinel的raft算法和raft论文略有不同.</p>
+<ol>
+<li><p>master客观下线触发选举，而不是过了election timeout时间开始选举。</p>
+</li>
+<li><p>leader并不会把自己成为leader的消息发送给其他sentinel。其他sentinel等待leader从slave选出master后，检测到新的master正常工作后，就会去掉客观下线的标识，从而不需要进入故障转移流程。</p>
+</li>
+</ol>
+<p>到达这里，从所有的sentinel节点里面选出来一个leader，也就是所谓选举委员会主席，下面才是真正的选举。</p>
+<p><strong>故障转移</strong></p>
+<p>对于所有的slave节点，一共有四个因素影响选举的结果，分别是断开连接时长、优先级排序、复制数量、进程id。</p>
+<ol>
+<li><p>如果与哨兵连接断开的比较久，超过了某个阈值，就直接失去了选举权。</p>
+</li>
+<li><p>如果拥有选举权，那就看谁的优先级高，这个在配置文件里可以设置(replica-priority 100)，数值越小优先级越高。</p>
+</li>
+<li><p>如果优先级相同，那就看谁从master中复制的数据最多(复制偏移量最大)，选最多的那个。</p>
+</li>
+<li><p>如果复制量也相同，就选进程id最小的那个。</p>
+</li>
+</ol>
+<p>Master节点确定之后，让其他的节点变成它的从节点：</p>
+<ol>
+<li><p>选出sentinel leader之后，由sentinel leader向某个节点发送slaveof no one命令，让他成为独立节点。</p>
+</li>
+<li><p>然后向其他节点发送slaveof x.x.x.x xxxx(本机ip端口)，让它们成为这个节点的从节点，故障转移完成。</p>
+</li>
+</ol>
+<h2 id="2-功能总结"><a href="#2-功能总结" class="headerlink" title="2  功能总结"></a>2  功能总结</h2><p>监控：sentinel会不断检查主服务器和从服务器是否正常运行。</p>
+<p>通知：如果某一个被监控的实例出现问题，sentinel可以通过命令发出通知。</p>
+<p>自动故障转移(failover)：如果主服务器发生故障，sentinel可以启动故障转移过程，把某台服务器升级为主服务器，并发出通知。</p>
+<p>配置管理：客户端连接到sentinel，获取当前的redis主服务器的地址。</p>
+<h2 id="3-实战"><a href="#3-实战" class="headerlink" title="3  实战"></a>3  实战</h2><h3 id="3-1-Sentinel配置"><a href="#3-1-Sentinel配置" class="headerlink" title="3.1 Sentinel配置"></a>3.1 Sentinel配置</h3><p>为了保证sentinel的高可用,sentinel也需要做集群部署,集群中至少需要三个sentinel实例(推荐奇数个,防止脑裂).</p>
+<table>
+<thead>
+<tr>
+<th>hostname</th>
+<th>ip地址</th>
+<th>节点角色&amp;端口</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>master</td>
+<td>192.168.44.186</td>
+<td>Master: 6379 / Sentinel: 26379</td>
+</tr>
+<tr>
+<td>slave1</td>
+<td>192.168.44.187</td>
+<td>Slave: 6379 / Sentinel: 26379</td>
+</tr>
+<tr>
+<td>slave2</td>
+<td>192.168.44.188</td>
+<td>Slave: 6379 / Sentinel: 26379</td>
+</tr>
+</tbody></table>
+<p>以redis的安装路径/user/local/soft/redis-6.0.9/为例，在187和188的src/redis.conf配置文件中添加</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">replicaof <span class="number">192.168</span><span class="number">.44</span><span class="number">.186</span> <span class="number">6379</span></span><br></pre></td></tr></table></figure>
+
+<p>在186,187,188创建sentinel配置文件(安装后根目录下默认有sentinel.conf)，三台服务器内容相同：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">daemonize</span> <span class="string">yes</span></span><br><span class="line"><span class="attr">port</span> <span class="string">26739</span></span><br><span class="line"><span class="attr">protected-mode</span> <span class="string">no</span></span><br><span class="line"><span class="attr">dir</span> <span class="string">&quot;/usr/local/soft/redis-6.0.9/sentinel-tmp&quot;</span></span><br><span class="line"><span class="attr">sentinel</span> <span class="string">monitor redis-master 192.168.44.186 6379 2</span></span><br><span class="line"><span class="attr">sentinel</span> <span class="string">down-after-milliseconds redis-master 30000</span></span><br><span class="line"><span class="attr">sentinel</span> <span class="string">failover-timeout redis-master 180000</span></span><br><span class="line"><span class="attr">sentinel</span> <span class="string">parallel-syncs redis-master 1</span></span><br></pre></td></tr></table></figure>
+
+<p>上面出现了4个’redis-master’,这个名称要统一,并且使用客户端(比如jedis)连接的时候要使用这个名字。</p>
+<table>
+<thead>
+<tr>
+<th>配置</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>protected-mode</td>
+<td>是否允许外部网络访问，yes不允许</td>
+</tr>
+<tr>
+<td>dir</td>
+<td>sentinel的工作目录</td>
+</tr>
+<tr>
+<td>sentinel monitor</td>
+<td>sentinel监控的redis主节点</td>
+</tr>
+<tr>
+<td>sentinel down-after-milliseconds（毫秒）</td>
+<td>master宕机多久，才会被sentinel主观认为下线</td>
+</tr>
+<tr>
+<td>sentinel failover-timeout（毫秒）</td>
+<td>1.同一个sentinel对同一个master两次failover之间的间隔时间<br />2.当一个slave从一个错误的master那里同步数据开始计算时间，知道slave被纠正为向正确的master那里同步的数据时间。<br />3.当想要取消一个正进行的failover所需要的时间。<br />4.当进行failover时，配置所有slaves指向新的master所需的最大时间</td>
+</tr>
+<tr>
+<td>sentinel parallel-syncs</td>
+<td>这个配置项指定了在发生failover主备切换时最多可以有多少个slave同时对新的master进行同步，这个数字越小，完成failover所需的时间就越长，但是这个数字越大，就意味着越多的slave因为replication而不可用，可以通过将这个值设为1来保证每次只有一个slave处于不能处理命令请求的状态</td>
+</tr>
+</tbody></table>
+<h3 id="3-2-Sentinel验证"><a href="#3-2-Sentinel验证" class="headerlink" title="3.2 Sentinel验证"></a>3.2 Sentinel验证</h3><p>启动redis服务和sentinel，查看集群状态</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis&gt; info replication</span><br></pre></td></tr></table></figure>
+
+<p>模拟宕机,在主节点执行</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis&gt; shutdown</span><br></pre></td></tr></table></figure>
+
+<p>某个节点会被选为新的master，只有一个slave节点。注意看sentinel.conf里面的redis-master被修改了！模拟原master恢复，启动redis-server。master又有两个slave了。</p>
+<h3 id="3-3-Sentinel连接使用"><a href="#3-3-Sentinel连接使用" class="headerlink" title="3.3 Sentinel连接使用"></a>3.3 Sentinel连接使用</h3><p>Jedis连接sentinel，master name来自于sentinel.conf的配置</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> JedisSentinelPool <span class="title function_">createJedisPool</span><span class="params">()</span>&#123;</span><br><span class="line">    <span class="type">String</span> <span class="variable">masterName</span> <span class="operator">=</span> <span class="string">&quot;redis-master&quot;</span>;</span><br><span class="line">    Set&lt;String&gt; sentinels = <span class="keyword">new</span> <span class="title class_">HashSet</span>&lt;&gt;();</span><br><span class="line">    sentinels.add(<span class="string">&quot;192.168.44.186:26379&quot;</span>);</span><br><span class="line">    sentinels.add(<span class="string">&quot;192.168.44.187:26379&quot;</span>);</span><br><span class="line">    sentinels.add(<span class="string">&quot;192.168.44.188:26379&quot;</span>);</span><br><span class="line">    pool = <span class="keyword">new</span> <span class="title class_">JedisSentinelPool</span>(masterName, sentinels);</span><br><span class="line">    <span class="keyword">return</span> pool;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Springboot连接sentinel:</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring.redis.sentinel.master</span>=<span class="string">redis-master</span></span><br><span class="line"><span class="attr">spring.redis.sentinel.nodes</span>=<span class="string">192.168.44.186:26379,192.168.44.187:26379,192.168.44.188:26379</span></span><br></pre></td></tr></table></figure>
+
+<p>无论是jedis还是springbot(2.x版本默认是Lettuce)，都只需要配置全部哨兵的地址，由哨兵返回当前的master节点地址。</p>
+<h2 id="4-不足"><a href="#4-不足" class="headerlink" title="4 不足"></a>4 不足</h2><p>主从切换的过程中会丢失数据，因为只有一个master。只能单点写，没有解决水平扩容的问题。如果数据量非常大，这个时候就要对redis的数据进行分片了。这个时候需要多个master-slave的group，把数据分布到不同的group中。</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                
+                
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/redis/"># redis</a>
+                    
+                        <a href="/tags/%E7%BC%93%E5%AD%98/"># 缓存</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2023/03/01/redis/Redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/">Redis主从复制</a>
+            
+            
+            <a class="next" rel="next" href="/2023/02/28/redis/Redis%E6%8C%81%E4%B9%85%E5%8C%96%E6%9C%BA%E5%88%B6/">Redis持久化机制</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© zhaojie | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

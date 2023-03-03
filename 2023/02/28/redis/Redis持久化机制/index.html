@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="zhaojie">
+
+
+
+
+
+<title>Redis持久化机制 | Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Jie&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Jie&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">Redis持久化机制</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">zhaojie</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">February 28, 2023&nbsp;&nbsp;9:38:21</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Redis/">Redis</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <p>Redis速度快，很大一部分原因是因为它所有的数据都存储在内存中。如果断电或者宕机，都会导致内存的数据丢失。为了实现重启后数据不丢失，redis提供了两种持久化的方案，一种是RDB快照（Redis Database），一种是AOF（Append Only File）。持久化是redis跟memcache的主要区别之一。</p>
+<h2 id="1-RDB"><a href="#1-RDB" class="headerlink" title="1. RDB"></a>1. RDB</h2><p>RDB是redis默认的持久化方案（注意如果开启了AOF，优先用AOF）。当满足一定条件的时候，会把当前内存中的数据写入磁盘，生成一个快照文件dump.rdb。redis重启会通过加载dump.rdb文件恢复数据。</p>
+<h3 id="1-1-Rdb触发"><a href="#1-1-Rdb触发" class="headerlink" title="1.1 Rdb触发"></a>1.1 Rdb触发</h3><p><strong>1 自动触发</strong></p>
+<p>a） 配置规则触发。</p>
+<p>redis.conf，SNAPSHOTTING，其中定义了触发把数据保存到磁盘的触发频率。如果不需要rdb方案，注释save或者配置成空字符串“”。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">save 900 1     #900秒内至少有一个key被修改（包括添加）</span><br><span class="line">save 400 10    #400秒内至少有10个key被修改</span><br><span class="line">save 60 10000  #60秒内至少有10000个key被修改</span><br></pre></td></tr></table></figure>
+
+<p>注意上面的配置是不冲突的，只要满足任意一个都会触发。用lastsave命令可以查看最近一次成功生成快照的时间。Rdb文件位置和目录（默认在安装根目录下）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">dir ./  #文件路径</span><br><span class="line">dbfilename dump.rdb  #文件名称</span><br><span class="line">rdbcompression yes  #是否以LZF压缩rdb文件</span><br><span class="line">rdbchechsum yes  #开启数据校验</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>dir</td>
+<td>rdb文件默认在启动目录下（相对路径） config get dir获取</td>
+</tr>
+<tr>
+<td>dbfilename</td>
+<td>文件名称</td>
+</tr>
+<tr>
+<td>rdbcompression</td>
+<td>开启压缩可以节省存储空间，但是会消耗一些CPU的计算时间，默认开启</td>
+</tr>
+<tr>
+<td>rdbchecksum</td>
+<td>使用CRC64算法来进行数据校验，但是这样做会增加大约10%的性能消耗，如果希望获取到最大的性能提升，可以关闭此功能</td>
+</tr>
+</tbody></table>
+<p>b） shutdown触发，保证服务器正常关闭。</p>
+<p>c） flushall，rdb文件是空的，没什么意义。</p>
+<p><strong>2 手动触发</strong></p>
+<p>如果我们需要重启服务或者迁移数据，这个时候就需要手动触发快照保存。Redis提供了两条命令：</p>
+<p>a） save，在生成快照的时候会阻塞当前redis服务器，redis不能处理其他命令。如果内存中的数据比较多，会造成redis长时间的阻塞。生产环境下不建议使用这个命令。</p>
+<p>b） 执行bgsave，执行bgsave时，redis会在后台异步进行快照操作，快照同时还可以响应客户端请求。具体操作是redis进程执行fork操作创建子线程（copy-on-write），rdb持久化过程由子进程负责，完成后自动结束。它不会记录fork之后产生的数据。阻塞只发生在fork阶段，一般时间很短。</p>
+<h3 id="1-2-RDB数据恢复"><a href="#1-2-RDB数据恢复" class="headerlink" title="1.2 RDB数据恢复"></a>1.2 RDB数据恢复</h3><ol>
+<li> shutdown持久化</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#添加键值</span></span><br><span class="line">redis&gt; <span class="built_in">set</span> k1 1</span><br><span class="line">redis&gt; <span class="built_in">set</span> k2 2</span><br><span class="line">redis&gt; <span class="built_in">set</span> k3 3</span><br><span class="line">redis&gt; <span class="built_in">set</span> k4 4</span><br><span class="line">redis&gt; <span class="built_in">set</span> k5 5</span><br><span class="line"><span class="comment">#停止服务器，触发save</span></span><br><span class="line">redis&gt; shutdown</span><br><span class="line"><span class="comment">#备份dump.rdb文件</span></span><br><span class="line"><span class="built_in">cp</span> dump.rdb dump.rdb.bak</span><br><span class="line"><span class="comment">#启动服务器，数据都在</span></span><br><span class="line">redis&gt; redis-server redis.conf</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>模拟数据丢失</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#模拟数据丢失，触发save</span></span><br><span class="line">redis&gt; shutdown</span><br><span class="line"><span class="comment">#停止服务器</span></span><br><span class="line">redis&gt; shutdown</span><br><span class="line"><span class="comment">#启动服务器</span></span><br><span class="line">redis&gt; redis-server redis.conf</span><br><span class="line"><span class="comment">#数据丢失</span></span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li> 通过该备份文件恢复数据</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#停止服务器</span></span><br><span class="line">redis&gt; shutdown</span><br><span class="line"><span class="comment">#重命名备份文件</span></span><br><span class="line"><span class="built_in">mv</span> dump.rdb.bak dump.rdb</span><br><span class="line"><span class="comment">#启动服务器</span></span><br><span class="line">redis&gt; redis-server redis.conf</span><br><span class="line"><span class="comment">#数据找回</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="1-3-RDB文件的优劣"><a href="#1-3-RDB文件的优劣" class="headerlink" title="1.3 RDB文件的优劣"></a>1.3 RDB文件的优劣</h3><p>一、 优势</p>
+<p>1． Rdb是一个非常紧凑（compact）的文件，它保存了redis在某个时间点上的数据集。这种文件非常适合用于进行备份和灾难恢复。</p>
+<p>2． 生成rdb文件的时候，redis主进程会fork()一个子进程来处理所有保存工作，主进程不需要进行任何磁盘io操作。</p>
+<p>3． Rdb在恢复大数据集时的速度比aof的恢复速度快。</p>
+<p>二．劣势</p>
+<p>1.rdb方式数据没办法做到实时持久化/秒级持久化。因为bgsave每次运行都要执行fork操作创建子进程，频繁执行成本过高。</p>
+<p>2.在一定间隔时间做一次备份，所以如果redis意外当掉的话，就会丢失最后一次快照之后的所有修改（数据又丢失）。</p>
+<p>​    如果数据相对来说比较重要，希望将损失降到最小，则可以使用aof方式进行持久化。</p>
+<h2 id="2-AOF"><a href="#2-AOF" class="headerlink" title="2. AOF"></a>2. AOF</h2><p>Redis默认不开启。aof采用日志的形式来记录每个写操作，并追加文件中。开启后，执行更改redis数据的命令时，就会把命令写入到aof文件中。Redis重启时会根据日志文件的内容把写指令从前到后执行一次以完成数据的恢复工作。</p>
+<h3 id="2-1-aof配置"><a href="#2-1-aof配置" class="headerlink" title="2.1 aof配置"></a>2.1 aof配置</h3><figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开关</span></span><br><span class="line"><span class="attr">appendonly</span> <span class="string">no</span></span><br><span class="line"><span class="comment"># 文件名</span></span><br><span class="line"><span class="attr">appendfilename</span> <span class="string">&quot;appendonly.aof&quot;</span></span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>appendonly</td>
+<td>Redis默认只开启RDB持久化，开启AOF需要修改为yes</td>
+</tr>
+<tr>
+<td>appendfilename</td>
+<td>路径也是通过dir参数配置，config get dir</td>
+</tr>
+</tbody></table>
+<p>由于操作系统的缓存机制，aof数据并没有真正地写入磁盘，而是进入了系统的硬盘缓存。什么时候把缓冲区的内容写入到aof文件？</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>appendfsync everysec</td>
+<td>AOF持久化策略(硬盘缓存到磁盘)，默认everysec <br />no—-表示不执行fsync，由操作系统保证数据同步到磁盘，速度最快，但是不安全<br />always—-表示每次写入都执行fsync，以保证数据同步到磁盘，效率很低<br />everysec—-表示每秒执行一次fsync，可能会导致丢失这1s的数据，通常选择everysec，兼顾安全和效率</td>
+</tr>
+</tbody></table>
+<p>由于aof持久化是redis不断将写命令记录到aof文件中，随着redis不断的进行，aof文件会越来越大，文件越大，占用服务器内存越大以及aof恢复要求时间越长。例如计数器增加100万次，100万个命令都记录进去了，但是结果只有一个。为了解决这个问题，redis新增了重写机制，当aof文件的大小超过锁设定的阈值时，redis就会启动aof文件的内容压缩，值保留可以恢复数据的最小指令集。可以使用命令bgrewriteaof来重写。Aof文件重写并不是对原文件进行重新整理，而是读取服务器现有的键值对，然后用一条命令去代替之前记录这个键值对的多条命令，生成一个新的文件后去替换原来的aof文件。</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 重写触发机制</span></span><br><span class="line"><span class="attr">auto-aof-rewrite-percentage</span> <span class="string">100</span></span><br><span class="line"><span class="attr">auto-aof-rewrite-min-size</span> <span class="string">64mb</span></span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>auto-aof-rewrite-percentage</td>
+<td>默认值是100，aof自动重写配置，当目前aof文件大小超过上一次重写的aof文件大小的百分之多少进行重写，即当aof文件增长到一定大小的时候，Redis能够调用bgrewriteaof对日志文件进行重写，当前AOF文件大小是上次日志重写得到aof文件大小的二倍(设置为100)时，自动启动新的日志重写过程。</td>
+</tr>
+<tr>
+<td>auto-aof-rewrite-min-size</td>
+<td>默认64M。设置允许重写的最小aof文件大小，避免了达到约定百分比但尺寸仍然很小的情况还要重写</td>
+</tr>
+</tbody></table>
+<p><em>问题：重写过程中，AOF文件被更改了怎么办？</em></p>
+<p>当子进程执行aof重写时，主进程需要执行以下三个工作：</p>
+<p>（1）处理命令请求；（2）将写命令追加到现有的aof文件中；（3）将写命令追加到aof重写缓存中</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>no-appendfsync-on-rewrite</td>
+<td>在aof重写或者写入rdb文件时，会执行大量IO，此时对于everysec和always的aof模式来说，执行fsync会造成过长时间的阻塞，no-appendfsync-on-rewrite字段设置为默认no。如果对延迟要求很高的应用，这个字段可以设置为yes，否则还是设置为no，这样对持久化特性来说这是更安全的选择。设置为yes表示rewrite期间对新写操作不fsync，暂时存在内存中，等rewrite完成后再写入，默认为no，建议修改为yes。Linux默认fsync策略是30秒。可能丢失30秒数据。</td>
+</tr>
+<tr>
+<td>aof-load-truncated</td>
+<td>aof文件可能在尾部是不完整的，当redis启动时，aof文件的数据被载入内存中。重启可能发生在redis所在的主机操作系统宕机后，尤其在ext4文件系统没有加上data=ordered选项，出现这种现象。redis宕机或者异常终止不会造成尾部不完整现象，可以选择让redis退出，或者导入尽可能多的数据。如果选择yes，当截断的aof文件被导入的时候，会自动发布一个log给客户端然后load。如果是no，用户必须手动redis-check-aof修复aof文件才可以。默认为yes。</td>
+</tr>
+</tbody></table>
+<h3 id="2-2-AOF数据恢复"><a href="#2-2-AOF数据恢复" class="headerlink" title="2.2 AOF数据恢复"></a>2.2 AOF数据恢复</h3><p>重启redis后就会进行aof文件的恢复</p>
+<h3 id="2-3-AOF的优劣势"><a href="#2-3-AOF的优劣势" class="headerlink" title="2.3 AOF的优劣势"></a>2.3 AOF的优劣势</h3><p>一、 优点：</p>
+<p>​    1． Aof持久化的方法提供了多种的同步频率，即使用默认的同步频率每秒同步一次，redis最多也就丢失1秒的数据而已。</p>
+<p>二、缺点</p>
+<p>​    1.对于具有相同数据的redis，aof文件通常会比RDB文件体积更大（rdb存的是数据快照）</p>
+<p>​    2.虽然aof提供了多种同步的频率，默认情况下，每秒同步一次的频率也具有较高的性能，在高并发的情况下，rdb比aof具有更好的性能保证。</p>
+<h2 id="3-两种方案比较"><a href="#3-两种方案比较" class="headerlink" title="3.  两种方案比较"></a>3.  两种方案比较</h2><p>如果可以忍受一小段时间内数据的丢失，毫无疑问使用rdb是最好的，定时生成rdb快照（snapshot）非常便于进行数据库备份，并且rdb恢复数据集的速度也要比aof恢复的速度要快。否则就是用AOF重写。但是一般情况下建议不要单独使用某一种持久化机制，而是应该两种一起用，在这种情况下，当redis重启的时候会优先加载aof文件来恢复原始的数据，因为在通常情况下aof文件保存的数据集要比RDB文件保存的数据集要完整。</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                
+                
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/redis/"># redis</a>
+                    
+                        <a href="/tags/%E7%BC%93%E5%AD%98/"># 缓存</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2023/03/01/redis/Redis%E5%93%A8%E5%85%B5(Sentinel)/">Redis哨兵(Sentinel)</a>
+            
+            
+            <a class="next" rel="next" href="/2023/02/27/redis/Redis%E5%86%85%E5%AD%98%E5%9B%9E%E6%94%B6/">Redis内存回收</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© zhaojie | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

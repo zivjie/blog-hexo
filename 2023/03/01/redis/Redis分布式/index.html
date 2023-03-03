@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="zhaojie">
+
+
+
+
+
+<title>Redis分布式 | Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Jie&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Jie&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">Redis分布式</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">zhaojie</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">March 1, 2023&nbsp;&nbsp;11:30:00</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Redis/">Redis</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <p>如果要实现redis数据的分片，有三种方案。</p>
+<p>第一种是在客户端实现相关的逻辑，例如用取模或者一致性哈希对key进行分片，查询和修改都先判断key的路由。</p>
+<p>第二种是把做分片处理的逻辑抽取出来，运行一个独立的代理服务，客户端连接到这个代理服务，代理服务做请求的转发。</p>
+<p>第三种就是基于服务端实现。</p>
+<h2 id="1-客户端Sharding-ShardedJedis"><a href="#1-客户端Sharding-ShardedJedis" class="headerlink" title="1  客户端Sharding-ShardedJedis"></a>1  客户端Sharding-ShardedJedis</h2><p>RedisTemplate就是对jedis的封装。</p>
+<p>Jedis有几种连接池。比如这里一个连接到186，一个连接到windows的redis服务。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ShardingTest</span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span>&#123;</span><br><span class="line">        <span class="type">JedisPoolConfig</span> <span class="variable">poolConfig</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JedisPoolConfig</span>();</span><br><span class="line">        <span class="comment">//Redis服务器</span></span><br><span class="line">        <span class="type">JedisShardInfo</span> <span class="variable">shardInfo1</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JedisShardInfo</span>(<span class="string">&quot;127.0.0.1&quot;</span>, <span class="number">6379</span>);</span><br><span class="line">        <span class="type">JedisShardInfo</span> <span class="variable">shardInfo2</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JedisShardInfo</span>(<span class="string">&quot;192.168.44.186&quot;</span>, <span class="number">6379</span>);</span><br><span class="line">        <span class="comment">//连接池</span></span><br><span class="line">        List&lt;JedisShardInfo&gt; infoList = Arrays.asList(shardInfo1, shardInfo2);</span><br><span class="line">        <span class="type">ShardedJedisPool</span> <span class="variable">jedisPool</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ShardedJedisPool</span>(poolConfig, infoList);</span><br><span class="line">        </span><br><span class="line">        <span class="type">ShardedJedis</span> <span class="variable">jedis</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">try</span>&#123;</span><br><span class="line">            jedis = jedisPool.getResource();</span><br><span class="line">            <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span> ; i&lt;<span class="number">100</span> i++)&#123;</span><br><span class="line">                jedis.set(<span class="string">&quot;k&quot;</span>+i, <span class="string">&quot;&quot;</span>+i);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span> ; i&lt;<span class="number">100</span> ; i++)&#123;</span><br><span class="line">                System.out.printLn(jedis.get(<span class="string">&quot;k&quot;</span>+i));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="keyword">if</span>(jedis != <span class="literal">null</span>)&#123;</span><br><span class="line">                jedis.close();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过dbsize命令发现，一台服务器有44个key，一台服务器有56个key。如果是希望数据分布相对均匀的话，首先可以考虑哈希后取模(因为key不一定是整数，所以先计算哈希)。</p>
+<p><strong>哈希后取模</strong></p>
+<p>例如，hash(key)%N，根据余数，决定映射到哪个节点。这种方式比较简单，属于静态的分片规则，但是一旦节点数量变化，由于取模的N发生变化，数据需要重新分布。为了解决这个问题，又有了一致性哈希算法。ShardedJedis实际上用的就是一致性哈希算法。</p>
+<p><strong>一致性哈希</strong></p>
+<p>原理：把所有的哈希值空间组织成一个虚拟的圆环(哈希环)，整个空间按顺时针方向组织。因为是环形空间，0和2^32-1是重叠的。假如有四台机器要哈希环来实现映射(分布数据)，先根据机器的名称或者ip计算哈希值，然乎分布到哈希环中(红色圆圈)。</p>
+<p><img src="/image/redis/redis%E5%88%86%E5%B8%83%E5%BC%8F/1.png"></p>
+<p>现在有4条数据或者4个访问请求，对key计算后，得到哈希环中的位置（绿色圆圈）。沿哈希环顺时针找到的第一个node，就是数据存储的节点。</p>
+<p><img src="/image/redis/redis%E5%88%86%E5%B8%83%E5%BC%8F/2.png"></p>
+<p>在这种情况下，新增了一个node5节点，只影响一部分数据的分布。</p>
+<p><img src="/image/redis/redis%E5%88%86%E5%B8%83%E5%BC%8F/3.png"></p>
+<p>删除了一个节点node4，只影响相邻的一个节点。</p>
+<p><img src="/image/redis/redis%E5%88%86%E5%B8%83%E5%BC%8F/4.png"></p>
+<p>一致性哈希解决了动态增减节点时，所有数据都需要重新分布的问题，它只会影响到下一个相邻的系欸但，对其他节点没有影响。但是这样的一致性算法有一个缺点，因为节点不一定是均匀分布的，特别是在节点数比较少的情况下，所以数据不能得到均匀分布。解决这个问题的办法是引入虚拟节点(Virtual node)。</p>
+<p><img src="/image/redis/redis%E5%88%86%E5%B8%83%E5%BC%8F/5.png"></p>
+<p>Node1设置了两个虚拟节点，node2也设置了两个虚拟节点（虚线圆圈）。这时候有3条数据分布到了node1，1条数据分布到了node2。</p>
+<p><img src="/image/redis/redis%E5%88%86%E5%B8%83%E5%BC%8F/6.png"></p>
+<p>一致性哈希在分布式系统中，负载均衡，分库分表等场景中都有应用，跟LRU一样，是一个基础的算法。</p>
+<p><strong>java源码</strong></p>
+<p>Redis.client.util.Sharded.initialze()，jedis实例被放到了一棵红黑树TreeMap中。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">  <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">initialize</span><span class="params">(List&lt;S&gt; shards)</span> &#123;</span><br><span class="line">      <span class="comment">//创建一个红黑树</span></span><br><span class="line">      <span class="built_in">this</span>.nodes = <span class="keyword">new</span> <span class="title class_">TreeMap</span>();</span><br><span class="line"><span class="comment">//把所有节点放入红黑树中</span></span><br><span class="line">      <span class="keyword">for</span>(<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i != shards.size(); ++i) &#123;</span><br><span class="line">          <span class="type">S</span> <span class="variable">shardInfo</span> <span class="operator">=</span> (ShardInfo)shards.get(i);</span><br><span class="line">          <span class="comment">//为每个Redis节点创建160个虚拟节点，放到红黑树中</span></span><br><span class="line">          <span class="type">int</span> <span class="variable">N</span> <span class="operator">=</span> <span class="number">160</span> * shardInfo.getWeight();</span><br><span class="line">          <span class="type">int</span> n;</span><br><span class="line">          <span class="keyword">if</span> (shardInfo.getName() == <span class="literal">null</span>) &#123;</span><br><span class="line">              <span class="keyword">for</span>(n = <span class="number">0</span>; n &lt; N; ++n) &#123;</span><br><span class="line">                  <span class="built_in">this</span>.nodes.put(<span class="built_in">this</span>.algo.hash(<span class="string">&quot;SHARD-&quot;</span> + i + <span class="string">&quot;-NODE-&quot;</span> + n), shardInfo);</span><br><span class="line">              &#125;</span><br><span class="line">          &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">              <span class="keyword">for</span>(n = <span class="number">0</span>; n &lt; N; ++n) &#123;</span><br><span class="line">                  <span class="comment">//对名字计算哈希(MurmurHash)</span></span><br><span class="line">                  <span class="built_in">this</span>.nodes.put(<span class="built_in">this</span>.algo.hash(shardInfo.getName() + <span class="string">&quot;*&quot;</span> + n), shardInfo);</span><br><span class="line">              &#125;</span><br><span class="line">          &#125;</span><br><span class="line">	<span class="comment">//添加到map中，键为ShardInfo，值为redis实例</span></span><br><span class="line">          <span class="built_in">this</span>.resources.put(shardInfo, shardInfo.createResource());</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>当存取键值对时，计算键的哈希值，然后从红黑树上摘下比该值大的第一个节点上的JedisShardInfo，随后从resources去除jedis。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> R <span class="title function_">getShard</span><span class="params">(String key)</span>&#123;</span><br><span class="line">    <span class="keyword">return</span> resources.get(getShardInfo(key));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>获取红黑树子集，找出比它大的第一个节点</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> S <span class="title function_">getShardInfo</span><span class="params">(<span class="type">byte</span>[] key)</span> &#123;</span><br><span class="line">    <span class="comment">//获取比当前key的哈希值要大的红黑树的子集</span></span><br><span class="line">    SortedMap&lt;Long, S&gt; tail = <span class="built_in">this</span>.nodes.tailMap(<span class="built_in">this</span>.algo.hash(key));</span><br><span class="line">    <span class="keyword">return</span> tail.isEmpty() ? </span><br><span class="line">        <span class="comment">//没有比它大的了，直接从nodes中取出</span></span><br><span class="line">        (ShardInfo)<span class="built_in">this</span>.nodes.get(<span class="built_in">this</span>.nodes.firstKey()) : </span><br><span class="line">    	<span class="comment">//返回第一个比它大的JedisShardInfo</span></span><br><span class="line">    	(ShardInfo)tail.get(tail.firstKey());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用ShardedJedis之类的客户端分片代码的优势是配置简单，不依赖于其他中间件，分区的逻辑可以自定义，比较灵活。但是基于客户端的方案，不能实现动态的服务增减，每个客户端需要自行维护分片则略，存在重复代码。</p>
+<h2 id="2-代理Proxy"><a href="#2-代理Proxy" class="headerlink" title="2  代理Proxy"></a>2  代理Proxy</h2><p>典型的代理分区方案有Twitter开源的Twemproxy和国内的豌豆荚开源的Codis。</p>
+<h3 id="2-1-Twemproxy"><a href="#2-1-Twemproxy" class="headerlink" title="2.1 Twemproxy"></a>2.1 Twemproxy</h3><p><img src="/image/redis/redis%E5%88%86%E5%B8%83%E5%BC%8F/7.png"></p>
+<p>Twemproxy的优点：比较稳定，可用性高。</p>
+<p>不足：</p>
+<ol>
+<li><p>出现故障不能自动转移，架构复杂，需要借助其他组件（LVS/HAProxy+Keepalived）实现HA</p>
+</li>
+<li><p>扩缩容需要修改配置，不能实现平滑地扩缩容（需要重新分布数据）。</p>
+</li>
+</ol>
+<h3 id="2-2-Codis"><a href="#2-2-Codis" class="headerlink" title="2.2 Codis"></a>2.2 Codis</h3><p>Codis是一个代理中间件，豌豆荚公司用Go语言开发的（快三年时间没有更新了）。跟数据库分库分表中间件的Mycat的工作层次是一样的。功能：客户端连接Codis跟连接redis没有区别。</p>
+<table>
+<thead>
+<tr>
+<th>功能特性</th>
+<th>Codis</th>
+<th>Tewmproxy</th>
+<th>Redis Cluster</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>重新分片不需要重启</td>
+<td>yes</td>
+<td>yes</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>pipeline</td>
+<td>yes</td>
+<td>yes</td>
+<td>–</td>
+</tr>
+<tr>
+<td>多key操作的hash tags {}</td>
+<td>yes</td>
+<td>yes</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>重新分片时的多key操作</td>
+<td>yes</td>
+<td>–</td>
+<td>no</td>
+</tr>
+<tr>
+<td>客户端支持</td>
+<td>所有</td>
+<td>所有</td>
+<td>支持cluster协议的客户端</td>
+</tr>
+</tbody></table>
+<p><img src="/image/redis/redis%E5%88%86%E5%B8%83%E5%BC%8F/8.png"></p>
+<p>分片原理：Codis把所有的key分成了N个槽（例如1024），每个槽对应一个分组，一个分组对应于一个或者一组Redis实例。Codis对key进行CRC32运算，得到一个32位的数字，然后模拟N（槽的个数），得到余数，这个就是key对应的槽，槽后面就是redis实例（跟Mycat的先哈希后范围的算法思想类似）。比如4个槽：</p>
+<p><img src="/image/redis/redis%E5%88%86%E5%B8%83%E5%BC%8F/9.png"></p>
+<p>Codis的槽位映射关系是保存在proxy中的，如果要解决单点的问题，Codis也要做集群部署，多个Codis节点同步槽和实例的关系需要运行一个Zookeeper（或者etcd/本地文件）。</p>
+<p>在新增节点的时候，可以为节点指定特定的槽位。Coids也提供了自动均衡策略。Codis不支持事务，其他的一些命令也不支持。获取数据原理（mget）在redis中的各个实例里获取到符合的key，然后再汇总到Codis中。Codis是第三方提供的分布式解决方案，再官网的集群功能稳定之前，Coids也得到了大量的应用。</p>
+<h2 id="3-Redis-Cluster"><a href="#3-Redis-Cluster" class="headerlink" title="3  Redis Cluster"></a>3  Redis Cluster</h2><p>Redis Cluster是在Redis3.0版本正式推出的，用来解决分布式的需求，同时也可以实现高可用。跟Codis不一样，它是去中心化的，客户端可以连接到任意一个可用节点。数据分片有几个关键的问题需要解决：</p>
+<ol>
+<li><p>数据怎么相对均匀的分片</p>
+</li>
+<li><p>客户端怎么访问到相应的节点和数据</p>
+</li>
+<li><p>重新分片的过程，怎么保证正常服务</p>
+</li>
+</ol>
+<h3 id="3-1-架构"><a href="#3-1-架构" class="headerlink" title="3.1 架构"></a>3.1 架构</h3><p>Redis Cluster可以看成是由多个Redis实例组成的数据集合。客户端不需要关注数据到底存储在哪个节点，只需要关注这个集合整体。以3主3从为例，节点之间两两交互，共享数据分片，节点状态等信息。</p>
+<p><img src="/image/redis/redis%E5%88%86%E5%B8%83%E5%BC%8F/10.png"></p>
+<h3 id="3-2-搭建"><a href="#3-2-搭建" class="headerlink" title="3.2 搭建"></a>3.2 搭建</h3><table>
+<thead>
+<tr>
+<th>类型</th>
+<th>命令</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>集群</td>
+<td>cluster info：打印集群的信息<br />cluster nodes：列出集群当前已知的所有节点，以及这些节点的相关信息</td>
+</tr>
+<tr>
+<td>节点</td>
+<td>cluster meet &lt;ip<ip>&gt;&lt;port<port>&gt; : 将ip与port所指定的节点添加到集群当中，让它成为集群的一份子<br />cluster forget&lt;node_id<node_id>&gt; : 从集群中移除node_id指定的节点(保证空槽道)<br />cluster replicate&lt;node_id<node_id>&gt; : 将当前节点设置为node_id指定节点的从节点 <br />cluster saveconfig：将节点的配置文件保存到硬盘中</td>
+</tr>
+<tr>
+<td>槽(slot)</td>
+<td>cluster addslots&lt;slot<slot>&gt;[slot …]：将一个或多个槽指派给当前节点<br />cluster delslots&lt;slot<slot>&gt;[slot …]：移除一个或多个槽对当前节点的指派 <br />cluster flushslots：移除指派给当前节点的所有槽，让当前节点变成一个没有指派任何槽的节点<br />cluster setslot&lt;slot<slot>&gt; node&lt;node_id<node_id>&gt;：将槽slot指派给node_id指定的节点，如果槽已经指派给另一个节点，那么先让另一个节点删除该槽，然后再进行指派<br />cluster setslot&lt;slot<slot>&gt; migrating<node_id>&gt;：将本节点的槽迁移到node_id指定的节点中<br />cluster setslot&lt;slot<slot>&gt; importing<node_id>&gt;：从node_id指定的节点中导入槽到本节点<br />cluster setslot&lt;slot<slot>&gt; stable：取消对槽的导入或者迁移</td>
+</tr>
+<tr>
+<td>键</td>
+<td>cluster keyslot &lt;key<key>&gt;：计算键key应该被放置在哪个槽上<br />cluster countkeysinslot &lt;slot<slot>&gt;：返回槽目前包含的键值对数量<br />cluster getkeysinslot&lt;slot<slot>&gt; &lt;count<count>&gt;：返回count个槽中的键</td>
+</tr>
+</tbody></table>
+<h3 id="3-3-数据分布"><a href="#3-3-数据分布" class="headerlink" title="3.3 数据分布"></a>3.3 数据分布</h3><p>Redis既没有用哈希取模，也没有用一致性哈希，而是用虚拟槽来实现的。Redis创建了16384个槽（slot），每个节点负责一定区间的slot。比如Node1负责0-5460，Node2负责5461-10922，Node3负责10923-163838.</p>
+<p><img src="/image/redis/redis%E5%88%86%E5%B8%83%E5%BC%8F/11.png"></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">redis-cli -p 7291</span><br><span class="line">redis-cli -p 7292</span><br><span class="line">redis-cli -p 7293</span><br></pre></td></tr></table></figure>
+
+<p>对象分布到Redis节点上时，对key用CRC16算法计算再%16384，得到一个slot的值，数据落到负责这个slot的redis节点上。Redis的每个master节点都会维护自己负责的slot。用一个bit序列实现，比如：序列的第0位是1，就代表第一个slot是它负责；序列的第1位是0，就代表第二个slot不归它负责。查看key属于哪个slot：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis&gt; cluster keyslot qs</span><br></pre></td></tr></table></figure>
+
+<p>注意：key与slot的关系是永远不会变的，汇编的只有slot和redis节点的关系。</p>
+<p><em>问题：怎么让相关的数据落到同一个节点上？</em></p>
+<p>比如有些multi key操作是不能跨节点的，例如用户2673的基本信息和金融信息？</p>
+<p>在key里面加入{hash tag}即可。Redis在计算槽编号的时候只会获取{}之间的字符串进行槽便哈计算，这样由于上面两个不同的键。{}里面的字符串是相同的，因此他们可以被计算出相同的槽。</p>
+<h3 id="3-4-客户端重定向"><a href="#3-4-客户端重定向" class="headerlink" title="3.4 客户端重定向"></a>3.4 客户端重定向</h3><p>比如在7291端口的redis的redis-cli客户端操作：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:7291&gt; <span class="built_in">set</span> qs 1</span><br><span class="line">(error)MOVED 13724 127.0.0.1:7293</span><br></pre></td></tr></table></figure>
+
+<p>服务器返回MOVED，也就是根据key计算出来的slot不归7291端口管理，而是归7293端口管理，服务器返回MOVED告诉客户端去7293端口操作。这个时候更换端口，用redis-cli-p 7293操作，才会返回OK。或者用./redis-cli-c -o port的命令。Jedis等客户端会在本地维护一份slot——node的映射关系，大部分时候不需要重定向，所以叫做smart jedis（需要客户端支持）。</p>
+<h3 id="3-5-数据迁移"><a href="#3-5-数据迁移" class="headerlink" title="3.5 数据迁移"></a>3.5 数据迁移</h3><p>因为key和slot的关系是永远不会变的，当新增了节点的时候，需要把原有的slot分配给新的节点负责，并且把相关的数据迁移过来。</p>
+<p>添加新节点（新增一个7297）：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-cli --cluster add-node 127.0.0.1:7291 127.0.0.1:7297</span><br></pre></td></tr></table></figure>
+
+<p>新增的节点没有哈希槽，不能分布数据，在原来的任意一个节点上执行：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-cli --cluster reshard 127.0.0.1:7291</span><br></pre></td></tr></table></figure>
+
+<p>输入需要分配的哈希槽的数量（比如500），和哈希槽的来源节点（可以输入all或者id）。</p>
+<h3 id="3-6-高可用和主从切换原理"><a href="#3-6-高可用和主从切换原理" class="headerlink" title="3.6 高可用和主从切换原理"></a>3.6 高可用和主从切换原理</h3><p>当slave发现自己的master变成FAIL状态时，便尝试进行Failover，成为新的master。由于挂掉的master可能会有多个slave，从而存在多个slave竞争成为master节点的过程，其过程如下：</p>
+<ol>
+<li><p>slave发现自己的master变成Fail</p>
+</li>
+<li><p>将自己记录的集群currentEpoch加1，并广播FAILOVER_AUTH_REQUEST信息</p>
+</li>
+<li><p>其他节点收到该信息，只有master响应，判断请求者的合法性，并发送FAILOVER_AUTH_ACK，对每一个epoch只发送一次ack。</p>
+</li>
+<li><p>尝试failover的slave收集FAILOVER_AUTH_ACK</p>
+</li>
+<li><p>超过半数后变成新master</p>
+</li>
+<li><p>广播pong通知其他集群节点</p>
+</li>
+</ol>
+<p>总结：Redis Cluster既能够实现主从的角色分配，又能够实现主从切换，相当于集成了Replication和Sentinel的功能。</p>
+<h3 id="3-7-总结"><a href="#3-7-总结" class="headerlink" title="3.7 总结"></a>3.7 总结</h3><p>Redis Cluster特点：</p>
+<ol>
+<li><p>无中心架构</p>
+</li>
+<li><p>数据按照slot存储分布在多个节点，节点间数据共享，可动态调整数据分布。</p>
+</li>
+<li><p>可扩展性，可线性扩展到1000个节点（官方推荐不超过1000个），节点可动态添加或删除。</p>
+</li>
+<li><p>高可用性，部分节点不可用时，集群仍可用。通过增加Slave做standby数据副本，能够实现故障自动failover，节点之间通过gossip协议交换状态信息，用投票机制完成slave到master的角色提升。</p>
+</li>
+<li><p>降低运维成本，提高系统的扩展性和可用性。</p>
+</li>
+</ol>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                
+                
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/redis/"># redis</a>
+                    
+                        <a href="/tags/%E7%BC%93%E5%AD%98/"># 缓存</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2023/03/02/redis/Redis%E5%AE%A2%E6%88%B7%E7%AB%AF/">Redis客户端</a>
+            
+            
+            <a class="next" rel="next" href="/2023/03/01/redis/Redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/">Redis主从复制</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© zhaojie | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="zhaojie">
+
+
+
+
+
+<title>Redis主从复制 | Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Jie&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Jie&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">Redis主从复制</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">zhaojie</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">March 1, 2023&nbsp;&nbsp;10:35:00</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Redis/">Redis</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <p>redis支持集群的架构。集群的节点有主节点和从节点之分，主节点叫master，从节点叫slave。slave会通过复制的技术，自动同步master的数据。</p>
+<h2 id="1-主从复制配置"><a href="#1-主从复制配置" class="headerlink" title="1  主从复制配置"></a>1  主从复制配置</h2><p>Redis的主从配置非常的简单，只需要在配置文件里面添加一行配置就可以了。例如一主多从，186是主节点，在每个slave节点的redis.conf配置文件增加一行:</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">replicaof</span> <span class="string">192.168.44.186 6379</span></span><br></pre></td></tr></table></figure>
+
+<p>从节点启动之后，就会自动连接到master节点，开始同步数据。如果master节点变了，比如原来的master宕机，选举出了新的master，这个配置会被重写。还有一种方式，就是在启动服务器时通过参数直接指定master节点：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./redis-server --slaveof <span class="number">192.168</span><span class="number">.44</span><span class="number">.186</span> <span class="number">6379</span></span><br></pre></td></tr></table></figure>
+
+<p>一个正在运行的节点，可以改变其他节点的从节点，这就是第三种方式，在客户端直接执行slaveof IP port，使该redis实例成为从节点。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">slaveof <span class="number">192.168</span><span class="number">.44</span><span class="number">.186</span> <span class="number">6379</span></span><br></pre></td></tr></table></figure>
+
+<p>一个从节点也可以是其他节点的主节点，形成级联复制的关系。查看集群状态:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis&gt; info replication</span><br></pre></td></tr></table></figure>
+
+<p>从节点是只读的，不能执行写操作。执行命令会报错。在主节点写入后，slave会自动从master同步数据。把配置文件里面的replica of去掉重启，或者直接断开复制：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis&gt; slaveof no one</span><br></pre></td></tr></table></figure>
+
+<p>此时从节点会变成自己的主节点，不再复制数据。MySQL的主从复制原理是依赖binlog，然后还有几个线程。</p>
+<h2 id="2-主从复制原理"><a href="#2-主从复制原理" class="headerlink" title="2 主从复制原理"></a>2 主从复制原理</h2><p>Redis的主从复制分为两类，一种叫全量复制，就是一个节点第一次连接到master节点，需要全部的数据。第二种叫做增量复制，比如之前已经连接到master节点，但是中间网络断开，或者slave节点宕机了，缺失了一部分的数据。</p>
+<h3 id="2-1-连接阶段"><a href="#2-1-连接阶段" class="headerlink" title="2.1 连接阶段"></a>2.1 连接阶段</h3><ol>
+<li><p>  slave节点启动时（或者执行slaveof命令时），会在自己本地保存master节点的消息，包括master node的host和ip。</p>
+</li>
+<li><p>slave节点内部有个定时任务replicationCron，每个一秒检查是否有新的master node要连接和复制。</p>
+</li>
+</ol>
+<p>如果发现有master节点，就跟master节点建立连接。如果连接成功，从节点就会连接建立一个专门处理复制工作的文件事件处理器负责后续的复制工作。为了让主节点感知到slave节点的存在，slave节点定时会给主节点发送ping请求。</p>
+<h3 id="2-2-数据同步阶段"><a href="#2-2-数据同步阶段" class="headerlink" title="2.2 数据同步阶段"></a>2.2 数据同步阶段</h3><p>如果是新加入的slave节点，那就需要全量复制。Master通过bgsave命令再本地生成一份RDB快照，将RDB快文件发给slave节点（如果超时会重连，可以调大repl-timeout的值）。</p>
+<p>如果slave自己本来有数据，Slave节点首先需要清除自己的旧数据，然后用RDB文件加载数据。</p>
+<p>master节点生成RDB期间，如果接收到写命令，开始生成RDB文件时，master会把所有新的写命令缓存在内存中，在slave节点保存了RDB之后，再将新的写命令复制给slave节点。（跟AOF重写rewrite期间接收到的命令的处理思路是一样的）。</p>
+<p>第一次全量同步完了，主从已经保持一致了，后面就是持续把接收到的命令发送给slave节点。</p>
+<h3 id="2-3-命令传播阶段"><a href="#2-3-命令传播阶段" class="headerlink" title="2.3 命令传播阶段"></a>2.3 命令传播阶段</h3><p>master节点持续把写命令，异步复制给slave节点。总结起来非常的简单，前面同RDB文件，后面把命令发给slave节点，就实现了主从复制。注意，一般情况下不会用redis做读写分离，因为redis的吞吐量已经够高了，做集群分片之后并发的问题更少，所以不需要考虑主从延迟的问题。跟MySQL一样主从之间复制延迟是不可避免的，只能通过优化网络来改善。</p>
+<p>第二种情况就是增量复制了。slave通过master_repl_offset记录偏移量。Redis的一个新特性，就是主从复制的无盘复制（从2.8.18版本开始支持无盘复制）。</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">repl-diskless-sync</span>=<span class="string">no</span></span><br></pre></td></tr></table></figure>
+
+<p>为了降低主节点的磁盘开销，redis支持无盘复制，master生成的RDB文件并不保存到磁盘而是直接通过网络发送给从节点。无盘复制适用于主节点所在机器磁盘性能较差但网络带宽较充裕的场景。</p>
+<h2 id="3-主从复制不足"><a href="#3-主从复制不足" class="headerlink" title="3  主从复制不足"></a>3  主从复制不足</h2><p>Redis的主从复制解决了数据备份和一部分性能的问题，但是没有解决高可用的问题。在一主一从或者多主多从的情况下，如果主服务器挂了，对外提供的服务就不可用了，单点问题没有得到解决。跟mysql一样。如果每次都是手动把之前的从服务器切换到主服务器，然后再把剩余节点设置为它的从节点，这个比较费时费力，还会造成一定时间的服务不可用。</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                
+                
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/redis/"># redis</a>
+                    
+                        <a href="/tags/%E7%BC%93%E5%AD%98/"># 缓存</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2023/03/01/redis/Redis%E5%88%86%E5%B8%83%E5%BC%8F/">Redis分布式</a>
+            
+            
+            <a class="next" rel="next" href="/2023/03/01/redis/Redis%E5%93%A8%E5%85%B5(Sentinel)/">Redis哨兵(Sentinel)</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© zhaojie | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

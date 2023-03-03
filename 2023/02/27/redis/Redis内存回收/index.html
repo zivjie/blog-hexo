@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="zhaojie">
+
+
+
+
+
+<title>Redis内存回收 | Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Jie&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Jie&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">Redis内存回收</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">zhaojie</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">February 27, 2023&nbsp;&nbsp;20:12:21</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Redis/">Redis</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="1-过期策略"><a href="#1-过期策略" class="headerlink" title="1. 过期策略"></a>1. 过期策略</h2><h3 id="1-1-立即过期-主动淘汰"><a href="#1-1-立即过期-主动淘汰" class="headerlink" title="1.1 立即过期(主动淘汰)"></a>1.1 立即过期(主动淘汰)</h3><p>每个设置过期时间的key都需要创建一个定时器，到过期时间就会立即清除。该策略可以立即清除过期的数据，对内存很友好，但是会占用大量CPU资源去处理过期的数据，从而影响缓存的响应时间和吞吐量。</p>
+<h3 id="1-2-惰性过期-被动淘汰"><a href="#1-2-惰性过期-被动淘汰" class="headerlink" title="1.2 惰性过期(被动淘汰)"></a>1.2 惰性过期(被动淘汰)</h3><p>只有当访问一个key时，才会判断该key是否已经过期，过期则清除。该策略可以最大化的节省CPU资源，却对内存非常不友好。极端情况下可能出现大量的过期key没有再次被访问，从而不会被清除，占用大量内存。</p>
+<p>第一种情况，所有的查询都会调用expireIfNeeded判断是否过期：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">expireIfNeeded(redisDb *db, robj *key)</span><br></pre></td></tr></table></figure>
+
+<p>第二种情况，每次写入key时，发现内存不够，吊桶activeExpireCycle释放一部分内存。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">activeExpireCycle(<span class="type">int</span> type)</span><br></pre></td></tr></table></figure>
+
+<h3 id="1-3-定期过期"><a href="#1-3-定期过期" class="headerlink" title="1.3 定期过期"></a>1.3 定期过期</h3><p>每隔一定的时间，会扫描一定数量的数据库的expire字典中一定数量的key，并清除其中已经过期的key。该策略是前两者的一个折中方案，通过调整定时扫描的时间间隔和每次扫描的限定耗时，可以再不同情况下使得Cpu和内存资源达到最优的平衡效果。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">redisDb</span>&#123;</span></span><br><span class="line">    dict *dict;</span><br><span class="line">    dict *expires;</span><br><span class="line">    dict *blocking_keys;</span><br><span class="line">    dict *ready_keys;</span><br><span class="line">    dict *watched_keys;</span><br><span class="line">    <span class="type">int</span> id;</span><br><span class="line">    <span class="type">long</span> <span class="type">long</span> avg_ttl;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> expires_cursor;</span><br><span class="line">    <span class="built_in">list</span> *defrag_later;</span><br><span class="line">&#125; redisDb;</span><br></pre></td></tr></table></figure>
+
+<p>总结: Redis中同时使用了惰性过期和定期过期两种过期策略，并不是实时的清除过期的key。</p>
+<h2 id="2-淘汰策略"><a href="#2-淘汰策略" class="headerlink" title="2. 淘汰策略"></a>2. 淘汰策略</h2><p>Redis的内存淘汰策略，是指当内存使用达到最大内存极限时，需要使用淘汰算法来决定清理掉哪些数据，以保证新数据的存入。</p>
+<h3 id="2-1-最大内存设置"><a href="#2-1-最大内存设置" class="headerlink" title="2.1 最大内存设置"></a>2.1 最大内存设置</h3><p>Redis.conf参数配置  #maxmemory <bytes></p>
+<p>如果不设置maxmemory或者设置为0，32位系统最多使用3GB内存，64位系统不限制内存。</p>
+<p>动态修改（先get一下）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis&gt; config set maxmemory 2GB</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-淘汰策略"><a href="#2-2-淘汰策略" class="headerlink" title="2.2 淘汰策略"></a>2.2 淘汰策略</h3><p><a target="_blank" rel="noopener" href="https://redis.io/docs/reference/eviction/">https://redis.io/docs/reference/eviction/</a></p>
+<p>redis.conf   #maxmemory-policy noeviction</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># volatile-lru -&gt; Evict using approximated LRU, only keys with an expire set</span><br><span class="line"># allkeys-lru  -&gt; Evict any key using approximated LRU</span><br><span class="line"># vloatile-lfu -&gt; Evict using approximated LFU, only keys with an expire set</span><br><span class="line"># allkeys-lfu  -&gt; Evict any key using approximated LFU</span><br><span class="line"># volatile-random -&gt; Remove a random key having an expire set</span><br><span class="line"># allkeys-random  -&gt; Remove a random key, any key</span><br><span class="line"># volatile-ttl -&gt; Remove the key with the nearest expire time(minor TTL)</span><br></pre></td></tr></table></figure>
+
+<p>（1）先从后缀的算法名来看：</p>
+<p>LRU，Least Recently Used：最近最少使用。判断最近被使用的时间，目前最远的数据有限被淘汰。</p>
+<p>LFU，Least Frequently Used：最不常用，按照使用频率删除，4.0版本新增。</p>
+<p>Random 随机删除。</p>
+<p>（2）从前缀针对的对象来分：volatile是针对设置了ttl的key，allkeys是针对所有key</p>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>volatile-lru</td>
+<td>根据LRU算法删除设置了超时属性(expire)的键，直到腾出足够内存为止。如果没有可删除的对象，回退到noeviction策略</td>
+</tr>
+<tr>
+<td>allkeys-lru</td>
+<td>根据LRU算法删除键，不管数据有没有设置超时属性，知道腾出足够的内存为止</td>
+</tr>
+<tr>
+<td>volatile-lfu</td>
+<td>在带有过期时间的键中选择最不常用的</td>
+</tr>
+<tr>
+<td>allkeys-lfu</td>
+<td>在所有键中选择最不常用的，不管数据有没有设置超时属性</td>
+</tr>
+<tr>
+<td>volatile-random</td>
+<td>在带有过期时间的键中随机选择</td>
+</tr>
+<tr>
+<td>allkeys-random</td>
+<td>随机删除所有键，知道腾出足够内存为止</td>
+</tr>
+<tr>
+<td>volatile-ttl</td>
+<td>根据键值对象的ttl属性，删除最近将要过期数据。如果没有，回退到noevitcion策略</td>
+</tr>
+<tr>
+<td>noeviction</td>
+<td>默认策略，不会删除任何数据，拒绝所有写入操作并返回客户端错误信息(error)OOM command not allowed when used memory, 此时Redis只响应读操作</td>
+</tr>
+</tbody></table>
+<p>如果没有设置ttl或者没有符合前提条件的key被淘汰，那么volatile-lru，volatile-random，volatile-ttl相当于noeviction（不做内存回收）。动态修改淘汰策略（先get一下）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis&gt; config set maxmemory-policy volatile-lru</span><br></pre></td></tr></table></figure>
+
+<p>建议使用volatile-lru，在保证正常服务的情况下，有限删除最近最少使用的key。</p>
+<h3 id="2-3-LRU淘汰原理"><a href="#2-3-LRU淘汰原理" class="headerlink" title="2.3 LRU淘汰原理"></a>2.3 LRU淘汰原理</h3><p>LRU是一个很常见的算法，比如InnoDB的Buffer Pool也用到了LRU。传统LRU：通过链表+HashMap实现，设置链表长度，如果新增或者被访问，就移动到头节点，超过链表长度，末尾的节点被删除。</p>
+<p><img src="/image/redis/%E5%86%85%E5%AD%98%E5%9B%9E%E6%94%B6/1.png"></p>
+<p>如果基于传统LRU算法实现redis LRU的话，需要额外的数据结构存储，消耗内存。所以Redis LRU对传统的LRU算法进行了改良，通过随机采样来调整算法的精度。如果淘汰策略是LRU，则根据篇日志的采样值maxmemory_samples（默认是5个），随机从数据库中选择m个key，淘汰其中热度最低的key对应的缓存数据。所以采样参数m配置的数值越大，就越能精确的查找到待淘汰的缓存数据，但是也消耗更多的CPU计算，执行效率降低。</p>
+<p>Redis中所有对象结构都有一个lru字段，且使用了unsigned的低24位，这个字段用来记录对象的热度。对象被创建时会记录lru值。在被访问的时候也会更新lru的值。但并不是获取系统当前的时间戳，而是设置位全局变量server.lruclock的值。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">redisObject</span>&#123;</span></span><br><span class="line">    <span class="type">unsigned</span> type:<span class="number">4</span>;</span><br><span class="line">    <span class="type">unsigned</span> encoding:<span class="number">4</span>;</span><br><span class="line">    <span class="type">unsigned</span> lru:LRU_BITS;</span><br><span class="line">    <span class="type">int</span> refcount;</span><br><span class="line">    <span class="type">void</span> *ptr;</span><br><span class="line">&#125; robj;</span><br></pre></td></tr></table></figure>
+
+<p>Redis中有个定时处理的函数serverCron，默认每100毫秒调用函数updateCachedTime更新一次全局变量的server.lruclock的值，它记录的是当前unix时间戳。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">updateCachedTime</span><span class="params">(<span class="type">int</span> update_daylight_info)</span>&#123;</span><br><span class="line">    server.ustime = ustime();</span><br><span class="line">    server.mstime = server.ustime / <span class="number">1000</span>;</span><br><span class="line">    server.unixtime = server.mstime / <span class="number">1000</span>;</span><br><span class="line">    <span class="keyword">if</span>(update_daylight_info)&#123;</span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">tm</span> <span class="title">tm</span>;</span></span><br><span class="line">        <span class="type">time_t</span> ut = server.unixtime;</span><br><span class="line">        localtime_r(&amp;ut,&amp;tm);</span><br><span class="line">        server.daylight_active = tm.tm_isdst;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><em>问题：为什么不获取精确的时间而是放在全局变量中？不会有延迟的问题吗？</em></p>
+<p>这样函数查询key调用lookupKey中更新数据的lru热度值时，就不用换每次调用系统函数time，可以提高执行效率。</p>
+<p>当对象里面已经有了LRU字段的值，就可以评估对象的热度了。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">unsigned</span> <span class="type">long</span> <span class="type">long</span> <span class="title function_">estimeteObjectIdleTime</span><span class="params">(robj *o)</span>&#123;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> <span class="type">long</span> lrulock = LRU_CLOCK();</span><br><span class="line">    <span class="keyword">if</span>(lruclock &gt;= o-&gt;lru)&#123;</span><br><span class="line">        <span class="keyword">return</span> (lruclock - o-&gt;lru) * LRU_CLOCK_RESOLUTION;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> (lruclock + (LRU_CLOCK_MAX - o-&gt;lru)) * LRU_CLOCK_RESOLUTION;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>函数estimateObjectIdleTime评估指定对象的lru热度，方法就是对象的lru值和全局的server.lruclock的差值越大（越久没有得到更新）,该对象热度越低。server.lruclock 只有24位，按秒位单位来标识才能存储194天。但超过24bit能表示的最大时间的时候，他会从头开始计算。在这种情况下，可能会出现对象的lru大于server.lruclocl的情况，如果这种情况出现那么就两个相加而不是相减来求最久的key。</p>
+<p>Redis LRU算法在sample为10的情况下，已经能接近传统LRU算法了。</p>
+<h3 id="2-4-LFU"><a href="#2-4-LFU" class="headerlink" title="2.4 LFU"></a>2.4 LFU</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">redisObject</span>&#123;</span></span><br><span class="line">    <span class="type">unsigned</span> type:<span class="number">4</span>;</span><br><span class="line">    <span class="type">unsigned</span> enncoding:<span class="number">4</span>;</span><br><span class="line">    <span class="type">unsigned</span> lru:LRU_BITS;</span><br><span class="line">    <span class="type">int</span> refcount;</span><br><span class="line">    <span class="type">void</span> *ptr;</span><br><span class="line">&#125; robj;</span><br></pre></td></tr></table></figure>
+
+<p>当这24bits 用作LFU时，其被分为两部分：高16位用来记录访问时间（单位为分钟，Idt-last decrement time）低8位用来记录访问频率，简称counter（logc-logistic counter）</p>
+<p>counter是用基于概率的对数计数器来实现的，8位可以标识百万次的访问频率。对象被读写的时候，lfu的值会被更新。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">updateLFU</span><span class="params">(robj *val)</span>&#123;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> counter = LFUDecrAndReturn(val);</span><br><span class="line">    counter = LFULogIncr(counter);</span><br><span class="line">    val-&gt;lru = (LFUGetTimeInMinutes()&lt;&lt;<span class="number">8</span>) | counter;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当然这里并不是访问一次，技术就加1。增长的速率由一个参数决定，lfu-log-factor越大，counter增长的越慢，redis.conf配置文件：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># lfu-log-factor 10</span></span><br></pre></td></tr></table></figure>
+
+<p>如果一段时间热点高，就一直保持这个热度，肯定也是不行的，体现不了整体频率。所以，没有被访问的时候，计数器还要递减。减少的值由衰减因子lfu-decay-time(分钟)来控制，如果值是1的话，N分钟没有访问，计数器就要减少N。lfu-decay-time越大，衰减越慢。Redis.conf配置文件</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># lfu-decay-time 1</span></span><br></pre></td></tr></table></figure>
+
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                
+                
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/redis/"># redis</a>
+                    
+                        <a href="/tags/%E7%BC%93%E5%AD%98/"># 缓存</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2023/02/28/redis/Redis%E6%8C%81%E4%B9%85%E5%8C%96%E6%9C%BA%E5%88%B6/">Redis持久化机制</a>
+            
+            
+            <a class="next" rel="next" href="/2023/02/27/springcloud/nacos/nacos%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83/">nacos注册中心</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© zhaojie | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

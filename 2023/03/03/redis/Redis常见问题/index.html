@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="zhaojie">
+
+
+
+
+
+<title>Redis常见问题 | Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Jie&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Jie&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">Redis常见问题</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">zhaojie</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">March 3, 2023&nbsp;&nbsp;9:18:00</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Redis/">Redis</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="1-数据一致性问题"><a href="#1-数据一致性问题" class="headerlink" title="1   数据一致性问题"></a>1   数据一致性问题</h2><h3 id="1-1-缓存使用场景"><a href="#1-1-缓存使用场景" class="headerlink" title="1.1  缓存使用场景"></a>1.1  缓存使用场景</h3><p>针对读多写少的高并发场景，可以使用缓存来提升查询速度。使用redis作为缓存的时候，一般流程是这样的：</p>
+<ol>
+<li>如果数据在redis存在，应用就可以直接从redis拿到数据，不用访问数据库。</li>
+</ol>
+<p><img src="/image/redis/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/1.png"></p>
+<ol start="2">
+<li>应用新增了数据，只保存在数据库中，这个时候redis没有这条数据。如果redis里面没有，先到数据库查询，然后写入到redis，再返回给应用。</li>
+</ol>
+<p><img src="/image/redis/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/2.png"></p>
+<h3 id="1-2-一致性问题的定义"><a href="#1-2-一致性问题的定义" class="headerlink" title="1.2  一致性问题的定义"></a>1.2  一致性问题的定义</h3><p>因为数据最终是以数据库为准的（这是原则），如果redis没有数据，就不存在这个问题。当redis和数据库都有同一条记录，而这条记录发生变化的时候，就可能出现一致性问题。一旦被缓存的数据发生变化（比如修改，删除）的时候，既要操作数据库的数据，也要操作redis的数据，才能让redis和数据库保持一致。所以问题来了。现在有两种选择：</p>
+<p>​    1.先操作redis的数据再操作数据库的数据</p>
+<p>​    2.先操作数据库的数据再操作redis的数据</p>
+<p>​    首先需要明确的是，不管选择哪一种方案，肯定是希望两个操作要么都成功，要么都不成功。但是，redis的数据和数据库是不可能通过事务达到统一的，只能根据相应的场景和所需要付出的代价来采取一些措施降低数据不一致的问题出现的概率，在数据一致性和性能之间取得一个权衡。</p>
+<p>​    比如，对于数据库的实时性一致性要求不是特别高的场合，比如T+1的报表，可以采用定时任务查询数据库数据同步到redis的方案。由于是以数据库的数据为准的，所以给缓存设置一个过期时间，删除redis的数据，也能保证最终一致性。既然提到了Redis和数据库一致性的问题，一般是希望尽可能靠近实时一致性，操作延迟带来的不一致的时间越少越好。</p>
+<h3 id="1-3-方案选择"><a href="#1-3-方案选择" class="headerlink" title="1.3  方案选择"></a>1.3  方案选择</h3><h4 id="1-3-1-redis：删除还是更新？"><a href="#1-3-1-redis：删除还是更新？" class="headerlink" title="1.3.1 redis：删除还是更新？"></a>1.3.1 redis：删除还是更新？</h4><p>这里补充一点：当存储的数据发生变化，redis的数据也要更新的时候，有两种方案，一种就是直接更新redis数据，调用set；还有一种是直接删除redis数据，让应用在下次查询的时候重新写入。</p>
+<p>​    更新缓存之前，是不是要经过其他表的查询，接口调用，计算才能得到最新的数据，而不是直接从数据库拿到的值。如果是的话，建议直接删除，这种方案更加简单，而且避免了数据库的数据和缓存不一致的情况。在一般情况下，也推荐使用删除的方案。所以，更新操作和删除操作，只要数据变化，都用删除。</p>
+<h4 id="1-3-2-先更新数据库，再删除缓存"><a href="#1-3-2-先更新数据库，再删除缓存" class="headerlink" title="1.3.2 先更新数据库，再删除缓存"></a>1.3.2 先更新数据库，再删除缓存</h4><p>正常情况：更新数据库成功，删除缓存成功。</p>
+<p>异常情况：</p>
+<p>​    1. 更新数据库失败，程序捕获异常，不会走到下一步，数据不会出现不一致。</p>
+<p>​    2. 更新数据成功，删除缓存失败。数据库是新数据，缓存是旧数据，发生了不一致的情况。</p>
+<p>​    对于这个问题，可以提供一个重试机制。比如：如果删除缓存失败，捕获这个异常，把需要删除的key发送到消息队列。然后自己创建一个消费者消费，尝试再次删除这个key。这种方式有个缺点，会对业务代码造成入侵。</p>
+<p>​    所以有了第二种方案(异步更新缓存)：因为更新数据库时会往binlog写入日志，所以可以通过一个服务来监听binlog的变化(比如阿里的canal)，然后在客户端完成删除key的操作。如果删除失败的话，在发送到消息队列。<a target="_blank" rel="noopener" href="https://gper.club/articles/7e7e7f7ff3g59gc6g6d">https://gper.club/articles/7e7e7f7ff3g59gc6g6d</a> (canal)。总之，对于后删除缓存失败的情况，我们的做法是不断地重试删除，直到成功。无论是重试还是异步删除，都是最终一致性地思想。</p>
+<h4 id="1-3-3-先删除缓存，再更新数据库"><a href="#1-3-3-先删除缓存，再更新数据库" class="headerlink" title="1.3.3 先删除缓存，再更新数据库"></a>1.3.3 先删除缓存，再更新数据库</h4><p>正常情况：删除缓存成功，更新数据库成功。</p>
+<p>异常情况：</p>
+<p>​    1.删除缓存，程序捕获异常，不会走到下一步，数据不会出现不一致。</p>
+<p>​    2.删除缓存成功，更新数据库失败。因为以数据库的数据为准，所以不存在数据不一致的情况。</p>
+<p>​    看起来好像没有问题，但是如果有程序并发操作的情况下：</p>
+<p>​    1）线程A需要更新数据，首先删除了redis缓存</p>
+<p>​    2）线程B查询数据，发现缓存不存在，到数据库查询旧值，写入redis，返回</p>
+<p>​    3）线程A更新了数据库</p>
+<p><img src="/image/redis/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/3.png"></p>
+<p>这个时候，redis 是旧值，数据库是新的值，发生了数据不一致的情况。</p>
+<p>​    这个是由线程并发造成的问题，能不能让对同一条数据的访问串行化呢？代码肯定保证不了，因为有多个线程，即使做了任务队列也可能有多个应用实例（应用做了集群部署）。数据库也保证不了，因为会有多个数据库的连接。只有一个数据库只提供一个连接的情况下，才能保证读写的操作的串行的，或者我们把所有的读写请求放到同一个内存队列当中，但是强制串行操作，吞吐量太低了。</p>
+<p>​    所以有一种延时双删的策略，在写入数据之后，再删除一次缓存。</p>
+<p>​    A线程：1）删除缓存。 2）更新数据库。 3）休眠500ms（这个时间，依据读取数据的耗时而定）。 4）再次删除缓存。 伪代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">write</span><span class="params">(String key, Object data)</span>&#123;</span><br><span class="line">    redis.delKey(key);</span><br><span class="line">    db.updateData(data);</span><br><span class="line">    Thread.sleep(<span class="number">500</span>);</span><br><span class="line">    redis.delKey(key);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-高并发问题"><a href="#2-高并发问题" class="headerlink" title="2  高并发问题"></a>2  高并发问题</h2><p>在redis存储的所有数据中，有一部分是被频繁访问的。有两种情况可能会导致热点问题的产生，一个是用户集中访问的数据，比如抢购商品，明星结婚和明星出轨的微博。还有一种就是在数据进行分片的情况下，负载不均衡，超过了单个服务器的承受能力。热点问题可能引起缓存服务的不可用，最终造成压力堆积到数据库。出于存储和流量优化的角度，必须要找到这些热点数据。</p>
+<h3 id="2-1-热点数据发现"><a href="#2-1-热点数据发现" class="headerlink" title="2.1  热点数据发现"></a>2.1  热点数据发现</h3><h4 id="2-1-1-客户端"><a href="#2-1-1-客户端" class="headerlink" title="2.1.1 客户端"></a>2.1.1 客户端</h4><p>比如可不可以在所有调用了get，set方法的地方，加上key的计数。但是这样的话，每一个地方都要修改，重复代码也多。如果用的是Jedis的客户端，可以修改Jedis的源码，在jedis的connection类的sendCommand()里面，用一个HashMap进行key的计数。但是这种方式有几个问题：</p>
+<p>​    1.会对客户端的代码造成入侵</p>
+<p>​    2.不知道要存多少个key，可能发生内存泄漏的问题。</p>
+<p>​    3.只能统计当前客户端的热点key。</p>
+<h4 id="2-1-2-代理层"><a href="#2-1-2-代理层" class="headerlink" title="2.1.2 代理层"></a>2.1.2 代理层</h4><p>第二种方式就是在代理层实现，比如TwemProxy或者Codis，但是不是所有的项目都使用了代理的架构。</p>
+<h4 id="2-1-3-服务端"><a href="#2-1-3-服务端" class="headerlink" title="2.1.3 服务端"></a>2.1.3 服务端</h4><p>第三种就是在服务端统计，redis有一个monitor的命令，可以监控到所有redis执行的命令。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">jedis.monitor(<span class="keyword">new</span> <span class="title class_">JedisMonitor</span>()&#123;</span><br><span class="line">   <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onCommand</span><span class="params">(String command)</span>&#123;</span><br><span class="line">        System.out.printLn(<span class="string">&quot;#monitor&quot;</span> + command);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>Facebook的开源项目redis-faina就是基于这个原理实现的。它是一个python脚本，可以分析monitor的数据。</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/facebookarchive/redis-faina.git">https://github.com/facebookarchive/redis-faina.git</a></p>
+<p>这种方法也会有两个问题：1）monitor命令在高并发的场景下，会影响性能，所以不适合长时间使用。2）只能统计一个redis节点的热点key。</p>
+<h4 id="2-1-4-机器层面"><a href="#2-1-4-机器层面" class="headerlink" title="2.1.4 机器层面"></a>2.1.4 机器层面</h4><p>还有一种方法就是机器层面的，通过对TCP协议进行抓包，也有一些开源的方案，比如ELK的packetbeat插件。发现了热点key之后，来看下热点数据在高并发的场景下可能会出现的问题，以及怎么去解决。</p>
+<h3 id="2-2-缓存雪崩"><a href="#2-2-缓存雪崩" class="headerlink" title="2.2  缓存雪崩"></a>2.2  缓存雪崩</h3><h4 id="2-2-1-什么是缓存雪崩"><a href="#2-2-1-什么是缓存雪崩" class="headerlink" title="2.2.1 什么是缓存雪崩"></a>2.2.1 什么是缓存雪崩</h4><p>缓存雪崩就是Redis的大量热点数据同时过期（失效），因为设置了相同的过期时间，刚好这个时候redis请求的并发量又很大，就会导致所有的请求落到数据库。</p>
+<h4 id="2-2-2-缓存雪崩的解决方案"><a href="#2-2-2-缓存雪崩的解决方案" class="headerlink" title="2.2.2 缓存雪崩的解决方案"></a>2.2.2 缓存雪崩的解决方案</h4><p>​    1）加互斥锁或者使用队列，针对同一个key只允许一个线程到数据库查询</p>
+<p>​    2）缓存定时预先更新，避免同时失效</p>
+<p>​    3）通过加随机数，使得key在不同的时间过期</p>
+<p>​    4）缓存永不过期</p>
+<h3 id="2-3-缓存穿透"><a href="#2-3-缓存穿透" class="headerlink" title="2.3  缓存穿透"></a>2.3  缓存穿透</h3><h4 id="2-3-1-缓存穿透何时发生"><a href="#2-3-1-缓存穿透何时发生" class="headerlink" title="2.3.1 缓存穿透何时发生"></a>2.3.1 缓存穿透何时发生</h4><p><img src="/image/redis/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/4.png"></p>
+<p>在这里redis起到了提升查询速度和保护数据库的作用。还有一种情况，数据在数据库和redis里面都不存在，可能是一次条件错误的查询。在这种情况下，因为数据库值不存在，所以肯定不会写入redis，那么下一次查询相同的key的时候，肯定还是会再到数据库查一次。那么这种循环查询数据库中不存在的值，并且每次使用的是相同的key的情况，该怎么避免应用到数据库查询？</p>
+<p>​    （1）缓存空数据 （2）缓存特殊字符串，比如&amp;&amp;</p>
+<p>​    可以在数据库缓存一个空字符串，或者缓存一个特殊的字符串。那么在应用里面拿到这个特殊字符串的时候，就知道数据库没有值了，也没有必要再到数据库查询了。但是这里需要设置一个过期时间，不然的话数据库已经新增了这一条记录，应用也还是拿不到值。</p>
+<p>​    这个是应用重复查询同一个不存在的值的情况，如果应用每一次查询的不存在的值是不一样的？即使每次都缓存特殊字符串也没用，因为它的值不一样，比如我们的用户系统登陆的场景，如果是恶意的请求，它每次都生成了一个符合ID规则的账号，但是这个账号在数据库是不存在的，那redis就完全失去了作用。这种因为每次查询的值都不存在导致的redis失效的情况，应该怎么去解决？</p>
+<h4 id="2-3-2-经典面试题"><a href="#2-3-2-经典面试题" class="headerlink" title="2.3.2 经典面试题"></a>2.3.2 经典面试题</h4><p>其实它也是一个通用的问题，关键就在于怎么知道请求的key在数据库中是否存在，如果数据量特别大的话，怎么去快速判断。</p>
+<p>​    这也是一个非常经典的面试题：如何在海量元素中（例如10亿无序，不定长，不重复）快速判断一个元素是否存在？</p>
+<p>​    如果是缓存穿透的这个问题，要避免到数据库查询不存在的数据，肯定要把这10亿放在别的地方。为了加快检索速度，要把数据放到内存里面来判断，问题来了：如果直接把这些元素的值放到基本的数据结构（List，Map，Tree）里面，比如一个元素一字节的字段，10亿的数据大概需要900G的内存空间，这个对于普通的服务器来说是承受不了的。所以，存储着几十亿个元素，不能直接存值，应该找到一种最简单的最节省空间的数据结构，用来标记这个元素有没有出现。（比如签到表顺序打勾）</p>
+<p>​    这个东西叫做位图，它是一个有序的数组，只有两个值，0和1：0代表不存在，1代表存在。</p>
+<p><img src="/image/redis/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/5.png"></p>
+<p>对于这个映射方法，有几个基本的要求：</p>
+<p>​    1）因为值长度是不固定的，希望不同长度的输入，可以得到固定长度的输出。</p>
+<p>​    2）转换成下标的时候，希望他在我的这个有序数组里面是分布均匀的，不然的话全部挤到一对去了，也没办法判断哪个元素存了，哪个元素没存。</p>
+<p>​    这个就是哈希函数，比如MD5，SHA-1等等这些都是常见的哈希算法。</p>
+<p>比如这6个元素，经过哈希函数和位运算，得到了相应的下标。</p>
+<p><img src="/image/redis/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/6.png"></p>
+<h4 id="2-3-3-哈希碰撞"><a href="#2-3-3-哈希碰撞" class="headerlink" title="2.3.3 哈希碰撞"></a>2.3.3 哈希碰撞</h4><p>这个时候，Tom和Mic经过计算得到的哈希值是一样的，那么再经过位运算得到的下标肯定是一样的，把这种情况叫做哈希冲突或者哈希碰撞。如果发生过了哈希碰撞，这个时候对于容器存值肯定是由影响的，从数据结构和映射方法这两个角度来分析，可以通过哪些方式去降低哈希碰撞的概率呢？</p>
+<p>第一种是扩大数组的长度或者说位图容量。因为函数是分布均匀的，所以，位图容量越大，再同一位置发生哈希碰撞的概率越小。是不是位图的容量越大越好？不管存多少个元素，都创建一个几万亿大小的位图，可以吗？当然不行，因为越大的位图容量，意味着越多的内存消耗，所以要建立一个合适大小的位图容量。</p>
+<p>除了扩大位图容量，还有第二种方法，只用一个哈希函数，现在对于每一个要存储的元素都用多个哈希函数计算，这样每次计算出来的下标都相同的概率就小很多了。</p>
+<p>同样的，可以引入很多个哈希函数，也会有问题，第一个就是它会填满位图的更多空间，第二个是计算是需要消耗时间的。</p>
+<p>所以总的来说，既要节省空间，又要很高的计算效率，就必须在位图容量和函数个数之间找到一个最佳的平衡。</p>
+<h4 id="2-3-4-布隆过滤器-BF-原理"><a href="#2-3-4-布隆过滤器-BF-原理" class="headerlink" title="2.3.4 布隆过滤器(BF)原理"></a>2.3.4 布隆过滤器(BF)原理</h4><p>当然，这个事情早就有人研究过了，在1970年的时候，有一个叫做布隆的前辈对于判断海量元素中元素是否存在的问题进行了研究，也就是到底需要多大的位图容量和多少个哈希函数，提出的这个容器就叫做布隆过滤器。</p>
+<p>布隆过滤器的工作原理：首先，布隆过滤器的本质就是刚才分析的，一个位数组码和若干个哈希函数。</p>
+<p><img src="/image/redis/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/7.png"></p>
+<p>集合中有三个元素，要把它存到布隆过滤器中去，怎么做？首先是a元素，这里用3次计算。b，c元素也一样。元素已经存进去之后，现在要来判断一个元素在这个容器里面是否存在，就要使用同样的三个函数进行计算。比如d元素，用第一个函数f1计算，发现这个位置上是1，没问题。第二个位置也是1，第三个位置也是1.如果经过三次计算得到的下标位置都是1，这种情况下，能不能确定d元素一定在这个容器中呢？实际上是不能的。比如这张图里面，这三个位置分别是把abc存进去的时候置成1的，所以即使d元素之前没有存进去，也会得到1，判断返回true。</p>
+<p>​    所以，这个是布隆过滤器的一个很重要的特性，因为哈希碰撞不可避免，所以它会存在一定的误判率。这种把本来不存在布隆过滤器中的元素误判为存在的情况，把它叫做假阳性(False Positive Probability，FPP)。</p>
+<p>​    再来看另一个元素，e元素。要判断它在容器中是否存在，一样的要用这三个函数去计算。第一个位置是1，第二个位置是1，第三个位置是0。E元素是不是一定不在这个容器中呢？可以确定一定不存在，如果说但是已经把e元素存到布隆过滤器中去了，那么这三个位置肯定是1，不会出现0.</p>
+<p>​    总结，布隆过滤器的特点；</p>
+<p>​    从容器的角度来说：</p>
+<ol>
+<li><p>如果布隆过滤器判断元素在集合中存在，不一定存在</p>
+</li>
+<li><p>如果布隆过滤器判断不存在，一定不存在</p>
+</li>
+</ol>
+<p>从元素的角度来说：</p>
+<ol start="3">
+<li><p>如果元素实际存在，布隆过滤器一定判断存在</p>
+</li>
+<li><p>如果元素实际不存在，布隆过滤器可能判断存在</p>
+</li>
+</ol>
+<h4 id="2-3-5-Guava-BF实现"><a href="#2-3-5-Guava-BF实现" class="headerlink" title="2.3.5 Guava BF实现"></a>2.3.5 Guava BF实现</h4><p>谷歌的Guava中就提供了一个现成的布隆过滤器。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.google.guava<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>guava<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>21.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>创建布隆过滤器</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">BloomFilter&lt;String&gt; bf = BloomFilter.create(Funnels.stringFunnel(Charsets.UTF_8), insertions);</span><br></pre></td></tr></table></figure>
+
+<p>布隆过滤器提供的存放元素的方法是put()。布隆过滤器提供的判断元素是否存在的方法是mightContain().</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(bf.mightContain(data))&#123;</span><br><span class="line">    <span class="keyword">if</span>(sets.contains(data))&#123;</span><br><span class="line">        <span class="comment">//判断存在实际存在的时候，命中</span></span><br><span class="line">        right++;</span><br><span class="line">        <span class="keyword">continue</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//判断存在但实际不存在的时候，错误</span></span><br><span class="line">    wrong++;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>布隆过滤器把误判率默认设置位0.03，也可以在创建的时候指定。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; BloomFilter&lt;T&gt; <span class="title function_">create</span><span class="params">(Funnel&lt;? <span class="built_in">super</span> T&gt;funnel, <span class="type">long</span> expectedInsertions)</span>&#123;</span><br><span class="line">    <span class="keyword">return</span> create(funnel, expectedInsertions, <span class="number">0.03D</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>位图的容量是基于元素个数和误判率计算出来的</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">long numBits = optimalNumOfBits(expectedInsertions, fpp);</span><br></pre></td></tr></table></figure>
+
+<p>根据位图数组的大小，进一步计算出了哈希函数的个数</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="variable">numHashFunctions</span> <span class="operator">=</span> optimalNumOfHashFunctions(expectedInsertions, numBits);</span><br></pre></td></tr></table></figure>
+
+<p>存储100万个元素只占用了0.87M的内存，生成了5个哈希函数。</p>
+<h4 id="2-3-6-bf在项目中的使用"><a href="#2-3-6-bf在项目中的使用" class="headerlink" title="2.3.6 bf在项目中的使用"></a>2.3.6 bf在项目中的使用</h4><p>布隆过滤器的工作位置</p>
+<p><img src="/image/redis/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/8.png"></p>
+<p>因为要判断数据库的值是否存在，所以第一步是加载数据库所有的数据。在去redis查询之前，现在布隆过滤器查询，如果bf说没有，那数据库肯定没有，也不用去查了。如果bf说有，才走之前的流程。</p>
+<h4 id="2-3-7-布隆过滤器的不足与变种"><a href="#2-3-7-布隆过滤器的不足与变种" class="headerlink" title="2.3.7 布隆过滤器的不足与变种"></a>2.3.7 布隆过滤器的不足与变种</h4><p>如果数据库删除了，布隆过滤器的数据也要删除。但是布隆过滤器里面没有提供删除的方法。为什么布隆过滤器不提供删除的方法呢？或者说，如果删除了布隆过滤器的元素，会发生什么问题？</p>
+<p><img src="/image/redis/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/9.png"></p>
+<p>比如把a删除了，那么三个位置都要改成0，但是再来判断b元素是否存在的时候，因为有一个位置变成了0，所以b元素也判断不存在。就是因为存在哈希碰撞，所以元素只能存入，不能删除。</p>
+<p>那如果要实现删除的功能，怎么做？类似于HashMap的链地址法，可以在每个下标位置上增加一个计数器。比如这个位置命中了两次，计数器就是2。当删除a元素的时候，先把计数器改成1，删除b元素的时候，计数器变成0，这个时候下标对应的位才置成0。</p>
+<p>实际上在布隆过滤器提出来的几十年中，出现了很多布隆过滤器的变种，这种通过计数器提供删除功能的bf叫做Counting Bloom Filter</p>
+<h4 id="2-3-8-布隆过滤器的其他应用场景"><a href="#2-3-8-布隆过滤器的其他应用场景" class="headerlink" title="2.3.8 布隆过滤器的其他应用场景"></a>2.3.8 布隆过滤器的其他应用场景</h4><p>布隆过滤器解决的问题是如何在海量元素中快速判断一个元素是否存在。所以除了解决缓存穿透的问题之外，还有很多其他的用途。</p>
+<p>比如爬虫，爬过的url不需要重复爬，那么在几十亿的url中，怎么判断一个url是不是已经爬过了？还有邮箱服务器，发送垃圾邮件的账号把它们叫做spamer，在这么多的邮箱账号中，怎么判断一个账号是不是spamer？等等一些场景，都可以使用到布隆过滤器。</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                
+                
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/redis/"># redis</a>
+                    
+                        <a href="/tags/%E7%BC%93%E5%AD%98/"># 缓存</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+            
+            <a class="next" rel="next" href="/2023/03/02/redis/Redis%E5%AE%A2%E6%88%B7%E7%AB%AF/">Redis客户端</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© zhaojie | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>
