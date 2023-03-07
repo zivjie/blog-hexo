@@ -260,11 +260,11 @@
         </header>
 
         <div class="post-content">
-            <p>Nacos版本：2.0.4</p>
+            <p><em>Nacos版本：2.0.4   nacos2.x已不支持ribbon，使用nacos2.x需要手动引入LoadBalancer</em></p>
 <p><a target="_blank" rel="noopener" href="https://nacos.io/zh-cn/docs/sdk.html">https://nacos.io/zh-cn/docs/sdk.html</a></p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#服务注册</span></span><br><span class="line">curl -X POST <span class="string">&#x27;http://localhost:8848/nacos/v1/ns/instance?serviceName=nacos.naming.serviceName&amp;ip=20.18.7.10&amp;port=8080&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#服务发现</span></span><br><span class="line">curl -X GET <span class="string">&#x27;http://localhost:8848/nacos/v1/ns/instance/list?serviceName=nacos.naming.serviceName&#x27;</span></span><br></pre></td></tr></table></figure>
 
-<h2 id="1-基本使用"><a href="#1-基本使用" class="headerlink" title="1.基本使用"></a>1.基本使用</h2><h3 id="1-1-基于Java-SDK的服务注册与发现"><a href="#1-1-基于Java-SDK的服务注册与发现" class="headerlink" title="1.1 基于Java SDK的服务注册与发现"></a>1.1 基于Java SDK的服务注册与发现</h3><p><a target="_blank" rel="noopener" href="https://nacos.io/zh-cn/docs/sdk.html">https://nacos.io/zh-cn/docs/sdk.html</a></p>
+<h2 id="1-基本使用"><a href="#1-基本使用" class="headerlink" title="1. 基本使用"></a>1. 基本使用</h2><h3 id="1-1-基于Java-SDK的服务注册与发现"><a href="#1-1-基于Java-SDK的服务注册与发现" class="headerlink" title="1.1 基于Java SDK的服务注册与发现"></a>1.1 基于Java SDK的服务注册与发现</h3><p><a target="_blank" rel="noopener" href="https://nacos.io/zh-cn/docs/sdk.html">https://nacos.io/zh-cn/docs/sdk.html</a></p>
 <p>（1）引入nacos-client包</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba.nacos<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>nacos-client<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>2.0.4<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
@@ -325,6 +325,13 @@
 <p><img src="/image/springcloud/nacos/%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83/nacos2.x-%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0.jpg"></p>
 <p>（2）Nacos 1.x</p>
 <p><img src="/image/springcloud/nacos/%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83/nacos1.x-%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0.jpg"></p>
+<h3 id="2-7-分布式架构"><a href="#2-7-分布式架构" class="headerlink" title="2.7 分布式架构"></a>2.7 分布式架构</h3><p>如果注册Nacos的client节点注册时ephemeral=true，那么Nacos集群对这个client节点的效果就是AP，采用distro协议实现；而注册Nacos的client节点注册时ephemeral=false，那么Nacos集群对这个节点的效果就是CP的，采用raft协议实现。根据client注册时的属性，AP，CP同时混合存在，只是对不同的client节点效果不同。Nacos可以很好的解决不同场景的业务需求。</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#false为永久实例，true表示临时实例开启，注册为临时实例，默认是true</span></span><br><span class="line"><span class="attr">spring.cloud.nacos.discovery.ephemeral</span> = <span class="string">true</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="2-7-1-AP架构-distro"><a href="#2-7-1-AP架构-distro" class="headerlink" title="2.7.1 AP架构-distro"></a>2.7.1 AP架构-distro</h4><p><img src="/image/springcloud/nacos/%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83/nacos2.x-%E5%88%86%E5%B8%83%E5%BC%8FAP%E6%9E%B6%E6%9E%84.jpg"></p>
+<h4 id="2-7-2-CP架构-raft"><a href="#2-7-2-CP架构-raft" class="headerlink" title="2.7.2 CP架构-raft"></a>2.7.2 CP架构-raft</h4><p><a target="_blank" rel="noopener" href="https://raft.github.io/">https://raft.github.io/</a></p>
+<p><a target="_blank" rel="noopener" href="http://thesecretlivesofdata.com/raft/">http://thesecretlivesofdata.com/raft/</a></p>
+<p><a target="_blank" rel="noopener" href="https://raft.github.io/#implementations/">https://raft.github.io/#implementations/</a></p>
 
         </div>
 
@@ -343,11 +350,11 @@
                 <span class="tag">
                     
                     
-                        <a href="/tags/java/"># java</a>
-                    
                         <a href="/tags/springcloud/"># springcloud</a>
                     
                         <a href="/tags/nacos/"># nacos</a>
+                    
+                        <a href="/tags/%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83/"># 服务注册中心</a>
                     
                         
                 </span>
@@ -363,7 +370,7 @@
                 <a class="prev" rel="prev" href="/2023/02/27/redis/Redis%E5%86%85%E5%AD%98%E5%9B%9E%E6%94%B6/">Redis内存回收</a>
             
             
-            <a class="next" rel="next" href="/2023/02/27/springcloud/nacos/nacos%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/">nacos配置中心</a>
+            <a class="next" rel="next" href="/2023/02/27/springcloud/nacos/nacos%E5%AE%89%E8%A3%85%E4%B8%8E%E9%85%8D%E7%BD%AE/">nacos安装与配置</a>
             
         </section>
 

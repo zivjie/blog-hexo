@@ -274,7 +274,7 @@
 <p>只要有了多个副本，就必然要面对副本一致性的问题。如果要所有的节点达成一致，必然要通过复制的方式实现。所以数据保持一致需要两个步骤：领导选举，数据复制。数据复制在redis主从复制中说过了，这里关注一下选举的实现。</p>
 <p>Raft算法是一个共识算法(consensus algorith)。Spring cloud的注册中心解决方案Consul也用到了Raft协议。Raft的核心思想：先到先得，少数服从多数。sentinel的raft实现跟原生的算法有所区别，但是大体思想一致。</p>
 <ol>
-<li><p>分布式环境中的节点有三个状态: Follower,Candidate(虚线外框),Leader(实现外框).</p>
+<li><p>分布式环境中的节点有三个状态: Follower,Candidate,Leader.</p>
 </li>
 <li><p>一开始所有的节点都是Follower状态.如果follower连接不到leader(leader挂了),它就会成为candidate。candidate请求其他节点的投票，其他的节点会投给它，如果它得到了大多数节点的投票，它就成为了主节点.这个过程就叫做leader election。</p>
 </li>
