@@ -1,264 +1,283 @@
+
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
 
 <head>
-    <meta charset="UTF-8">
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-<meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Francis">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="总结起来主要有三点：1.纯内存结构。2.请求处理单线程。3.多路复用机制 1  原因1.1 内存KV结构的内存数据库，时间复杂度是O(1)。 1.2 单线程这里说的单线程其实指的是处理客户端的请求是单线程的，可以把它叫做主线程。从4.0版本之后，还引入了一些线程处理其他的事情，比如清理脏数据，无用连接的释放，大key的删除。 ​    把处理请求的主线程设置成单线程有什么好处呢？ ​    1.没">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis为什么这么快">
+<meta property="og:url" content="http://www.zivjie.cn/2023/02/22/redis/Redis%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB/index.html">
+<meta property="og:site_name" content="Francis-Blog">
+<meta property="og:description" content="总结起来主要有三点：1.纯内存结构。2.请求处理单线程。3.多路复用机制 1  原因1.1 内存KV结构的内存数据库，时间复杂度是O(1)。 1.2 单线程这里说的单线程其实指的是处理客户端的请求是单线程的，可以把它叫做主线程。从4.0版本之后，还引入了一些线程处理其他的事情，比如清理脏数据，无用连接的释放，大key的删除。 ​    把处理请求的主线程设置成单线程有什么好处呢？ ​    1.没">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.zivjie.cn/img/Fantasy%20World.png">
+<meta property="article:published_time" content="2023-02-22T08:00:00.000Z">
+<meta property="article:modified_time" content="2023-03-08T02:19:37.467Z">
+<meta property="article:author" content="Francis">
+<meta property="article:tag" content="redis">
+<meta property="article:tag" content="缓存">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://www.zivjie.cn/img/Fantasy%20World.png">
+  
+  
+  
+  <title>Redis为什么这么快 - Francis-Blog</title>
 
-    <meta name="author" content="zhaojie">
-
-
-
-
-
-<title>Redis为什么这么快 | Blog</title>
-
-
-
-    <link rel="icon" href="/favicon.ico">
-
-
-
-
-    <!-- stylesheets list from _config.yml -->
-    
-    <link rel="stylesheet" href="/css/style.css">
-    
-
-
-
-    <!-- scripts list from _config.yml -->
-    
-    <script src="/js/script.js"></script>
-    
-    <script src="/js/tocbot.min.js"></script>
-    
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
 
 
-    
-    
-        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-    "HTML-CSS": {
-        preferredFont: "TeX",
-        availableFonts: ["STIX","TeX"],
-        linebreaks: { automatic:true },
-        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
-    },
-    tex2jax: {
-        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
-        processEscapes: true,
-        ignoreClass: "tex2jax_ignore|dno",
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    },
-    TeX: {
-        equationNumbers: { autoNumber: "AMS" },
-        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
-        Macros: { href: "{}" }
-    },
-    messageStyle: "none"
-    });
-</script>
-<!-- 给MathJax元素添加has-jax class -->
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Queue(function() {
-        var all = MathJax.Hub.getAllJax(), i;
-        for(i=0; i < all.length; i += 1) {
-            all[i].SourceElement().parentNode.className += ' has-jax';
-        }
-    });
-</script>
-<!-- 通过连接CDN加载MathJax的js代码 -->
-<script type="text/javascript" async
-        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
-</script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
 
 
-    
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
 
 
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.zivjie.cn","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
 <meta name="generator" content="Hexo 5.4.2"></head>
 
+
 <body>
-    <script>
-        // this function is used to check current theme before page loaded.
-        (() => {
-            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
-            const isDark = currentTheme === 'dark';
-            const pagebody = document.getElementsByTagName('body')[0]
-            if (isDark) {
-                pagebody.classList.add('dark-theme');
-                // mobile
-                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
-            } else {
-                pagebody.classList.remove('dark-theme');
-                // mobile
-                document.getElementById("mobile-toggle-theme").innerText = "· Light"
-            }
-        })();
-    </script>
+  
 
-    <div class="wrapper">
-        <header>
-    <nav class="navbar">
-        <div class="container">
-            <div class="navbar-header header-logo"><a href="/">Jie&#39;s Blog</a></div>
-            <div class="menu navbar-right">
-                
-                    <a class="menu-item" href="/archives">Posts</a>
-                
-                    <a class="menu-item" href="/category">Categories</a>
-                
-                    <a class="menu-item" href="/tag">Tags</a>
-                
-                    <a class="menu-item" href="/about">About</a>
-                
-                <input id="switch_default" type="checkbox" class="switch_default">
-                <label for="switch_default" class="toggleBtn"></label>
-            </div>
-        </div>
-    </nav>
+  <header>
+    
 
-    
-    <nav class="navbar-mobile" id="nav-mobile">
-        <div class="container">
-            <div class="navbar-header">
-                <div>
-                    <a href="/">Jie&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
-                </div>
-                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
-            </div>
-            <div class="menu" id="mobile-menu">
-                
-                    <a class="menu-item" href="/archives">Posts</a>
-                
-                    <a class="menu-item" href="/category">Categories</a>
-                
-                    <a class="menu-item" href="/tag">Tags</a>
-                
-                    <a class="menu-item" href="/about">About</a>
-                
-            </div>
-        </div>
-    </nav>
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Francis</strong>
+    </a>
 
-</header>
-<script>
-    var mobileBtn = function f() {
-        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
-        var mobileMenu = document.getElementById("mobile-menu");
-        if(toggleMenu.classList.contains("active")){
-           toggleMenu.classList.remove("active")
-            mobileMenu.classList.remove("active")
-        }else{
-            toggleMenu.classList.add("active")
-            mobileMenu.classList.add("active")
-        }
-    }
-</script>
-            <div class="main">
-                <div class="container">
-    
-    
-        <div class="post-toc">
-    <div class="tocbot-list">
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
     </div>
-    <div class="tocbot-list-menu">
-        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
-        <a onclick="go_top()">Back to top</a>
-        <a onclick="go_bottom()">Go to bottom</a>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Redis为什么这么快"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-02-22 16:00" pubdate>
+          2023年2月22日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          35 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
     </div>
+  </div>
 </div>
 
-<script>
-    var tocbot_timer;
-    var DEPTH_MAX = 6; // 为 6 时展开所有
-    var tocbot_default_config = {
-        tocSelector: '.tocbot-list',
-        contentSelector: '.post-content',
-        headingSelector: 'h1, h2, h3, h4, h5',
-        orderedList: false,
-        scrollSmooth: true,
-        onClick: extend_click,
-    };
+</div>
 
-    function extend_click() {
-        clearTimeout(tocbot_timer);
-        tocbot_timer = setTimeout(function() {
-            tocbot.refresh(obj_merge(tocbot_default_config, {
-                hasInnerContainers: true
-            }));
-        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
-    }
+  </header>
 
-    document.ready(function() {
-        tocbot.init(obj_merge(tocbot_default_config, {
-            collapseDepth: 1
-        }));
-    });
-
-    function expand_toc() {
-        var b = document.querySelector('.tocbot-toc-expand');
-        var expanded = b.getAttribute('data-expanded');
-        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
-        tocbot.refresh(obj_merge(tocbot_default_config, {
-            collapseDepth: expanded ? 1 : DEPTH_MAX
-        }));
-        b.innerText = expanded ? 'Expand all' : 'Collapse all';
-    }
-
-    function go_top() {
-        window.scrollTo(0, 0);
-    }
-
-    function go_bottom() {
-        window.scrollTo(0, document.body.scrollHeight);
-    }
-
-    function obj_merge(target, source) {
-        for (var item in source) {
-            if (source.hasOwnProperty(item)) {
-                target[item] = source[item];
-            }
-        }
-        return target;
-    }
-</script>
+  <main>
     
+      
 
-    
-    <article class="post-wrap">
-        <header class="post-header">
-            <h1 class="post-title">Redis为什么这么快</h1>
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Redis为什么这么快</h1>
             
-                <div class="post-meta">
-                    
-                        Author: <a itemprop="author" rel="author" href="/">zhaojie</a>
-                    
-
-                    
-                        <span class="post-time">
-                        Date: <a href="#">February 22, 2023&nbsp;&nbsp;16:00:00</a>
-                        </span>
-                    
-                    
-                        <span class="post-category">
-                    Category:
-                            
-                                <a href="/categories/Redis/">Redis</a>
-                            
-                        </span>
-                    
-                </div>
             
-        </header>
-
-        <div class="post-content">
-            <p>总结起来主要有三点：1.纯内存结构。2.请求处理单线程。3.多路复用机制</p>
+              <div class="markdown-body">
+                
+                <p>总结起来主要有三点：1.纯内存结构。2.请求处理单线程。3.多路复用机制</p>
 <h2 id="1-原因"><a href="#1-原因" class="headerlink" title="1  原因"></a>1  原因</h2><h3 id="1-1-内存"><a href="#1-1-内存" class="headerlink" title="1.1 内存"></a>1.1 内存</h3><p>KV结构的内存数据库，时间复杂度是O(1)。</p>
 <h3 id="1-2-单线程"><a href="#1-2-单线程" class="headerlink" title="1.2 单线程"></a>1.2 单线程</h3><p>这里说的单线程其实指的是处理客户端的请求是单线程的，可以把它叫做主线程。从4.0版本之后，还引入了一些线程处理其他的事情，比如清理脏数据，无用连接的释放，大key的删除。</p>
 <p>​    把处理请求的主线程设置成单线程有什么好处呢？</p>
@@ -269,13 +288,13 @@
 <h3 id="1-3-同步非阻塞IO"><a href="#1-3-同步非阻塞IO" class="headerlink" title="1.3 同步非阻塞IO"></a>1.3 同步非阻塞IO</h3><p>同步非阻塞IO，多路复用并发连接</p>
 <h2 id="2-单线程为什么这么快？"><a href="#2-单线程为什么这么快？" class="headerlink" title="2  单线程为什么这么快？"></a>2  单线程为什么这么快？</h2><p>因为redis是基于内存的操作，先从内存开始说起</p>
 <h3 id="2-1-虚拟存储器-虚拟内存Virtual-Memory"><a href="#2-1-虚拟存储器-虚拟内存Virtual-Memory" class="headerlink" title="2.1 虚拟存储器(虚拟内存Virtual Memory)"></a>2.1 虚拟存储器(虚拟内存Virtual Memory)</h3><p>计算机里面的内存叫做主存，硬盘叫做辅存。主存可看作一个很长的数组，一个字节一个单元，每个字节有一个唯一的地址，这个地址叫做物理地址（Physical Address）。早期的计算机中，如果CPU需要内存，使用物理寻址，直接访问主存储器。</p>
-<p><img src="/image/redis/redis%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB/1.png"></p>
+<p><img src="/image/redis/redis%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB/1.png" srcset="/img/loading.gif" lazyload></p>
 <p>这种方式有几个弊端：</p>
 <p>​    1.一般的操作系统都是多用户多任务的，所有的进程共享主存。如果每个进程都独占一块物理地址空间，主存很快就会被用完。我们希望在不同的时刻，不同的进程共用同一块物理地址空间。</p>
 <p>​    2.如果所有进程都是直接访问物理内存，那么一个进程就可以修改其他进程的内存数据，导致物理地址空间被破坏，程序运行就会出现异常。</p>
 <p>​    所以想了一个办法，在CPU和主存之间增加一个中间层。CPU不再使用物理地址访问主存，而是访问一个虚拟地址，由这个中间层把地址转换成物理地址，最终获得数据。这个中间层叫做MMU（Memory Management Unit），内存管理单元。</p>
 <p>​    具体的操作如下所示：</p>
-<p><img src="/image/redis/redis%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB/2.png"></p>
+<p><img src="/image/redis/redis%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB/2.png" srcset="/img/loading.gif" lazyload></p>
 <p>访问MMU就跟访问物理内存一样，所以把虚拟出来的地址叫做虚拟内存（Virtual Memory）。</p>
 <p>在每一个进程开始创建的时候，都会分配一段虚拟地址，然后通过虚拟地址和物理地址的映射来获取真实数据，这样进程就不会直接接触到物理地址，甚至不知道自己调用的哪块物理地址的数据。目前，大多数操作系统都使用了虚拟内存，如Windows系统的虚拟内存，Linux系统的交换空间等。Windows的虚拟内存（pagefile.sys）是磁盘空间的一部分。在32位系统上，虚拟地址空间大小是2^32=4G。在64位系统上，最大虚拟地址空间大小是多少？是不是2^64-1024*1024TB?实际上没有用到64位，因为用不到这么大的空间，而且会造成很大的系统开销。linux一般用低48位来表示虚拟地址空间，也就是2^48=256T.</p>
 <p>实际的物理内存可能远远小于虚拟内存的大小。总结：引入虚拟内存的作用：</p>
@@ -284,9 +303,9 @@
 <p>​    3.虚拟内存可以提供更大的地址空间，并且地址空间是连续的，使得程序编写，连接更加简单。</p>
 <p>​    Linux/GNU的虚拟内存又进一步划分成了两块</p>
 <h3 id="2-2-用户空间和内核空间"><a href="#2-2-用户空间和内核空间" class="headerlink" title="2.2 用户空间和内核空间"></a>2.2 用户空间和内核空间</h3><p>一部分是内核空间（Kernel-space）,一部分是用户空间（User-space）。</p>
-<p><img src="/image/redis/redis%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB/3.png"></p>
+<p><img src="/image/redis/redis%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB/3.png" srcset="/img/loading.gif" lazyload></p>
 <p>Linux系统中，虚拟地址布局如下：</p>
-<p><img src="/image/redis/redis%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB/4.png"></p>
+<p><img src="/image/redis/redis%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB/4.png" srcset="/img/loading.gif" lazyload></p>
 <p>进程的用户空间中存放的是用户程序的代码和数据，内核空间中存放的是内核代码和数据。不管内核空间还是用户空间，它们都处于虚拟内存空间中，都是对物理地址的映射。当进程运行在内核空间时就处于内核态，而进程运行在用户空间时则处于用户态。进程在内核空间可以访问受保护的内存空间，也可以访问底层硬件设备。也就是可以执行任意命令，调用系统的一切资源。在用户空间只能执行简单的运算，不能直接调用系统资源，必须通过系统接口（又称system call），才能向内核发出指令。所以，这样划分的目的是为了避免用户进程直接操作内核，保证内核安全。</p>
 <h3 id="2-3-进程切换（上下文切换）"><a href="#2-3-进程切换（上下文切换）" class="headerlink" title="2.3 进程切换（上下文切换）"></a>2.3 进程切换（上下文切换）</h3><p>多任务操作系统是怎么实现运行远大于CPU数量的任务个数的?当然，这些任务实际上并不是真的在同时运行，而是因为系统通过时间片算法，在很短的时间内，将CPU轮流分配给它们，造成多任务同时运行的错觉。在这个交替运行的过程中，为了控制进程的执行，内核必须有能力挂起正在CPU上运行的进程，以及恢复以前挂起的某个进程的执行。这个行为被称为进程切换。</p>
 <p>​    什么叫上下文（Context）？在每个任务运行前，CPU都需要知道任务从哪里加载，又从哪里开始运行，也就是说，需要系统事先帮它设置好CPU寄存器和程序计数器，这个叫做CPU的上下文。</p>
@@ -297,9 +316,9 @@
 <p>​    文件描述符是一个简单的非负整数，用以标名每个被进程打开的文件。linux系统里面有三个标准文件描述符：</p>
 <p>​    0：标准输入（键盘）；1：标准输出（显示器）；2：标准错误输出（显示器）。</p>
 <h3 id="2-6-传统IO数据拷贝"><a href="#2-6-传统IO数据拷贝" class="headerlink" title="2.6 传统IO数据拷贝"></a>2.6 传统IO数据拷贝</h3><p>以读操作为例：但应用程序执行read系统调用读取文件描述符（FD）的时候，如果这块数据已经存在于用户进程的页内存中，就直接从内存中读取数据。如果数据不存在，则先将数据从磁盘加载数据到内核缓冲区中，再从内核缓冲器拷贝到用户进程的页内存中。（两个拷贝，两次user和kernel的上下文切换）。</p>
-<p><img src="/image/redis/redis%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB/5.png"></p>
+<p><img src="/image/redis/redis%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB/5.png" srcset="/img/loading.gif" lazyload></p>
 <h3 id="2-7-Bocking-I-O"><a href="#2-7-Bocking-I-O" class="headerlink" title="2.7 Bocking I/O"></a>2.7 Bocking I/O</h3><p>当使用read或write对某个文件描述符进行过读写时，如果当前FD不可读，系统就不会对其他的操作做出响应，从硬件设备复制数据到内核缓冲区是阻塞的，从内核缓冲区拷贝到用户空间，也是阻塞的，知道copy complete，内核返回结果，用户进程才解除block的状态。</p>
-<p><img src="/image/redis/redis%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB/6.png"></p>
+<p><img src="/image/redis/redis%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB/6.png" srcset="/img/loading.gif" lazyload></p>
 <p>为了解决阻塞的问题，有几个思路</p>
 <p>​    1.在服务端创建多个线程或者使用线程池，但是在高并发的情况下需要的线程会很多，系统无法承受，而且创建和释放线程都需要消耗资源。</p>
 <p>​    2.由请求方定期轮询，在数据准备完毕后再从内核缓存区复制数据到用户空间（非阻塞IO），这种方式存在一定的延迟。</p>
@@ -308,9 +327,9 @@
 <p>​    多路指的是多个TCP连接（Socket或Channel）。</p>
 <p>​    复用指的是复用一个或多个线程。</p>
 <p>​    它的基本原理就是不再由应用程序自己监视连接，而是由内核替应用程序监视文件描述符。客户端再操作的时候，会产生具有不同事件类型的socket。在服务端，IO多路复用程序（IO Multiplexing Module）会把消息放入队列中，然后通过文件事件分派其（File event Dispatcher），转发到不同的事件处理器中。</p>
-<p><img src="/image/redis/redis%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB/7.png"></p>
+<p><img src="/image/redis/redis%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB/7.png" srcset="/img/loading.gif" lazyload></p>
 <p>多路复用有很多实现，以select为例，当用户进程调用了多路复用器，进程会被阻塞。内核会监视多路复用器负责的所有socket，当任何一个socket的数据准备好了，多路复用器就会返回。这时候用户进程再调用read操作，把数据从内核缓冲器拷贝到用户空间。</p>
-<p><img src="/image/redis/redis%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB/8.png"></p>
+<p><img src="/image/redis/redis%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB/8.png" srcset="/img/loading.gif" lazyload></p>
 <p>所以，IO多路复用的特点是通过一种机制让一个进程能同时等待多个文件描述符，而这些文件描述符其中的任意一个进入读就绪(readable)状态，select()函数就可以返回。多路复用需要操作系统的支持。redis的多路复用，提供了select，epoll，evport，kqueue几种选择，在编译的时候来选择一种。</p>
 <p>​    evport是Solaris系统内核提供支持的；</p>
 <p>​    epoll是Linux系统内核提供支持的；</p>
@@ -319,60 +338,377 @@
 <p>总结：redis抽象了一套AE事件模型，将IO事件和时间事件融入一起，同时借助多路复用机制的回调特性（Linux上用epoll），使得IO读写都是非阻塞的，实现高性能的网络处理能力。</p>
 <p>​    一直在说的redis新版本多线程的特性，意思并不是服务端接收客户端请求变成多线程了，它还是单线程的。严格意义上来说，redis从4.0之后就引入了多线程用来处理一些耗时长的工作和后台工作，那不然的话，如果真的只有一个线程，那些耗时的操作肯定会导致金额护短请求被阻塞。我们这里说的多线程，确切的说叫做多线程IO</p>
 <h3 id="2-9-多线程IO"><a href="#2-9-多线程IO" class="headerlink" title="2.9 多线程IO"></a>2.9 多线程IO</h3><p>服务端的数据返回给客户端，需要从内核空间copy数据到用户空间，然后会写道socket(write调用)，这个过程是非常耗时的。所以多线程IO指的就是把结果写道socket的这个环节是多线程的。处理请求依然是单线程的，所以不存在线程并发安全问题。</p>
-<p><img src="/image/redis/redis%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB/9.png"></p>
+<p><img src="/image/redis/redis%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB/9.png" srcset="/img/loading.gif" lazyload></p>
 <p>Redis本质上是一个存储系统。所有的存储系统在数据量过大的情况下都会面临存储瓶颈，包括MySQL，RabbitMQ等等。这里要解决两个问题：首先作为一个内存的KV系统，redis服务肯定不是无限制的使用内存，应该设置一个上限（max_memory）。第二个，数据应该有过期属性，这样就能清除不再使用的key。</p>
 
-        </div>
-
-        
-            <section class="post-copyright">
                 
-                
-                
-                
-
-            </section>
-        
-        <section class="post-tags">
+              </div>
+            
+            <hr/>
             <div>
-                <span>Tag(s):</span>
-                <span class="tag">
-                    
-                    
-                        <a href="/tags/redis/"># redis</a>
-                    
-                        <a href="/tags/%E7%BC%93%E5%AD%98/"># 缓存</a>
-                    
-                        
-                </span>
-            </div>
-            <div>
-                <a href="javascript:window.history.back();">back</a>
-                <span>· </span>
-                <a href="/">home</a>
-            </div>
-        </section>
-        <section class="post-nav">
-            
-                <a class="prev" rel="prev" href="/2023/02/22/lua/Lua-redis/">Lua脚本-redis</a>
-            
-            
-            <a class="next" rel="next" href="/2023/02/22/redis/Redis%E4%BA%8B%E5%8A%A1/">Redis事务</a>
-            
-        </section>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
 
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Redis/" class="category-chain-item">Redis</a>
+  
+  
 
-    </article>
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/redis/">#redis</a>
+      
+        <a href="/tags/%E7%BC%93%E5%AD%98/">#缓存</a>
+      
+    </div>
+  
 </div>
 
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Redis为什么这么快</div>
+      <div>http://www.zivjie.cn/2023/02/22/redis/Redis为什么这么快/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Francis</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年2月22日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/02/22/lua/Lua-redis/" title="Lua脚本-redis">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Lua脚本-redis</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/02/22/redis/Redis%E4%BA%8B%E5%8A%A1/" title="Redis事务">
+                        <span class="hidden-mobile">Redis事务</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
             </div>
-            <footer id="footer" class="footer">
-    <div class="copyright">
-        <span>© zhaojie | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+
+            
+          </article>
+        </div>
+      </div>
     </div>
-</footer>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
 
     </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
 </body>
-
 </html>

@@ -1,271 +1,289 @@
+
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
 
 <head>
-    <meta charset="UTF-8">
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-<meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Francis">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Nacos版本：2.0.4  nacos2.x已不支持ribbon，使用nacos2.x需要手动引入LoadBalancer 1 基本使用1.1 本地配置1.1.1 实现（1）application.yml 1lecturer: Test  （2）UserController 1234567891011121314151617&#x2F;&#x2F; @Value@Value(&quot;$&amp;#123;lecture">
+<meta property="og:type" content="article">
+<meta property="og:title" content="nacos配置中心">
+<meta property="og:url" content="http://www.zivjie.cn/2023/03/07/springcloud/nacos/nacos%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/index.html">
+<meta property="og:site_name" content="Francis-Blog">
+<meta property="og:description" content="Nacos版本：2.0.4  nacos2.x已不支持ribbon，使用nacos2.x需要手动引入LoadBalancer 1 基本使用1.1 本地配置1.1.1 实现（1）application.yml 1lecturer: Test  （2）UserController 1234567891011121314151617&#x2F;&#x2F; @Value@Value(&quot;$&amp;#123;lecture">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.zivjie.cn/img/Lonely%20Night%20.png">
+<meta property="article:published_time" content="2023-03-07T08:27:21.000Z">
+<meta property="article:modified_time" content="2023-03-08T02:21:12.056Z">
+<meta property="article:author" content="Francis">
+<meta property="article:tag" content="springcloud">
+<meta property="article:tag" content="nacos">
+<meta property="article:tag" content="配置中心">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://www.zivjie.cn/img/Lonely%20Night%20.png">
+  
+  
+  
+  <title>nacos配置中心 - Francis-Blog</title>
 
-    <meta name="author" content="zhaojie">
-
-
-
-
-
-<title>nacos配置中心 | Blog</title>
-
-
-
-    <link rel="icon" href="/favicon.ico">
-
-
-
-
-    <!-- stylesheets list from _config.yml -->
-    
-    <link rel="stylesheet" href="/css/style.css">
-    
-
-
-
-    <!-- scripts list from _config.yml -->
-    
-    <script src="/js/script.js"></script>
-    
-    <script src="/js/tocbot.min.js"></script>
-    
-
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
 
-    
-    
-        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-    "HTML-CSS": {
-        preferredFont: "TeX",
-        availableFonts: ["STIX","TeX"],
-        linebreaks: { automatic:true },
-        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
-    },
-    tex2jax: {
-        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
-        processEscapes: true,
-        ignoreClass: "tex2jax_ignore|dno",
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    },
-    TeX: {
-        equationNumbers: { autoNumber: "AMS" },
-        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
-        Macros: { href: "{}" }
-    },
-    messageStyle: "none"
-    });
-</script>
-<!-- 给MathJax元素添加has-jax class -->
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Queue(function() {
-        var all = MathJax.Hub.getAllJax(), i;
-        for(i=0; i < all.length; i += 1) {
-            all[i].SourceElement().parentNode.className += ' has-jax';
-        }
-    });
-</script>
-<!-- 通过连接CDN加载MathJax的js代码 -->
-<script type="text/javascript" async
-        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
-</script>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
 
 
-    
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
 
 
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.zivjie.cn","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
 <meta name="generator" content="Hexo 5.4.2"></head>
 
+
 <body>
-    <script>
-        // this function is used to check current theme before page loaded.
-        (() => {
-            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
-            const isDark = currentTheme === 'dark';
-            const pagebody = document.getElementsByTagName('body')[0]
-            if (isDark) {
-                pagebody.classList.add('dark-theme');
-                // mobile
-                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
-            } else {
-                pagebody.classList.remove('dark-theme');
-                // mobile
-                document.getElementById("mobile-toggle-theme").innerText = "· Light"
-            }
-        })();
-    </script>
+  
 
-    <div class="wrapper">
-        <header>
-    <nav class="navbar">
-        <div class="container">
-            <div class="navbar-header header-logo"><a href="/">Jie&#39;s Blog</a></div>
-            <div class="menu navbar-right">
-                
-                    <a class="menu-item" href="/archives">Posts</a>
-                
-                    <a class="menu-item" href="/category">Categories</a>
-                
-                    <a class="menu-item" href="/tag">Tags</a>
-                
-                    <a class="menu-item" href="/about">About</a>
-                
-                <input id="switch_default" type="checkbox" class="switch_default">
-                <label for="switch_default" class="toggleBtn"></label>
-            </div>
-        </div>
-    </nav>
+  <header>
+    
 
-    
-    <nav class="navbar-mobile" id="nav-mobile">
-        <div class="container">
-            <div class="navbar-header">
-                <div>
-                    <a href="/">Jie&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
-                </div>
-                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
-            </div>
-            <div class="menu" id="mobile-menu">
-                
-                    <a class="menu-item" href="/archives">Posts</a>
-                
-                    <a class="menu-item" href="/category">Categories</a>
-                
-                    <a class="menu-item" href="/tag">Tags</a>
-                
-                    <a class="menu-item" href="/about">About</a>
-                
-            </div>
-        </div>
-    </nav>
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Francis</strong>
+    </a>
 
-</header>
-<script>
-    var mobileBtn = function f() {
-        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
-        var mobileMenu = document.getElementById("mobile-menu");
-        if(toggleMenu.classList.contains("active")){
-           toggleMenu.classList.remove("active")
-            mobileMenu.classList.remove("active")
-        }else{
-            toggleMenu.classList.add("active")
-            mobileMenu.classList.add("active")
-        }
-    }
-</script>
-            <div class="main">
-                <div class="container">
-    
-    
-        <div class="post-toc">
-    <div class="tocbot-list">
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
     </div>
-    <div class="tocbot-list-menu">
-        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
-        <a onclick="go_top()">Back to top</a>
-        <a onclick="go_bottom()">Go to bottom</a>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="nacos配置中心"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-03-07 16:27" pubdate>
+          2023年3月7日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          36 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
     </div>
+  </div>
 </div>
 
-<script>
-    var tocbot_timer;
-    var DEPTH_MAX = 6; // 为 6 时展开所有
-    var tocbot_default_config = {
-        tocSelector: '.tocbot-list',
-        contentSelector: '.post-content',
-        headingSelector: 'h1, h2, h3, h4, h5',
-        orderedList: false,
-        scrollSmooth: true,
-        onClick: extend_click,
-    };
+</div>
 
-    function extend_click() {
-        clearTimeout(tocbot_timer);
-        tocbot_timer = setTimeout(function() {
-            tocbot.refresh(obj_merge(tocbot_default_config, {
-                hasInnerContainers: true
-            }));
-        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
-    }
+  </header>
 
-    document.ready(function() {
-        tocbot.init(obj_merge(tocbot_default_config, {
-            collapseDepth: 1
-        }));
-    });
-
-    function expand_toc() {
-        var b = document.querySelector('.tocbot-toc-expand');
-        var expanded = b.getAttribute('data-expanded');
-        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
-        tocbot.refresh(obj_merge(tocbot_default_config, {
-            collapseDepth: expanded ? 1 : DEPTH_MAX
-        }));
-        b.innerText = expanded ? 'Expand all' : 'Collapse all';
-    }
-
-    function go_top() {
-        window.scrollTo(0, 0);
-    }
-
-    function go_bottom() {
-        window.scrollTo(0, document.body.scrollHeight);
-    }
-
-    function obj_merge(target, source) {
-        for (var item in source) {
-            if (source.hasOwnProperty(item)) {
-                target[item] = source[item];
-            }
-        }
-        return target;
-    }
-</script>
+  <main>
     
+      
 
-    
-    <article class="post-wrap">
-        <header class="post-header">
-            <h1 class="post-title">nacos配置中心</h1>
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">nacos配置中心</h1>
             
-                <div class="post-meta">
-                    
-                        Author: <a itemprop="author" rel="author" href="/">zhaojie</a>
-                    
-
-                    
-                        <span class="post-time">
-                        Date: <a href="#">March 7, 2023&nbsp;&nbsp;16:27:21</a>
-                        </span>
-                    
-                    
-                        <span class="post-category">
-                    Category:
-                            
-                                <a href="/categories/springcloud/">springcloud</a>
-                            
-                                <a href="/categories/springcloud/nacos/">nacos</a>
-                            
-                        </span>
-                    
-                </div>
             
-        </header>
-
-        <div class="post-content">
-            <p><em>Nacos版本：2.0.4  nacos2.x已不支持ribbon，使用nacos2.x需要手动引入LoadBalancer</em></p>
+              <div class="markdown-body">
+                
+                <p><em>Nacos版本：2.0.4  nacos2.x已不支持ribbon，使用nacos2.x需要手动引入LoadBalancer</em></p>
 <h2 id="1-基本使用"><a href="#1-基本使用" class="headerlink" title="1 基本使用"></a>1 基本使用</h2><h3 id="1-1-本地配置"><a href="#1-1-本地配置" class="headerlink" title="1.1 本地配置"></a>1.1 本地配置</h3><h4 id="1-1-1-实现"><a href="#1-1-1-实现" class="headerlink" title="1.1.1 实现"></a>1.1.1 实现</h4><p>（1）application.yml</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">lecturer:</span> <span class="string">Test</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">lecturer:</span> <span class="hljs-string">Test</span><br></code></pre></td></tr></table></figure>
 
 <p>（2）UserController</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @Value</span></span><br><span class="line"><span class="meta">@Value(&quot;$&#123;lecturer&#125;&quot;)</span></span><br><span class="line"><span class="keyword">private</span> String lecturer;</span><br><span class="line"></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/local-config-value&quot;)</span></span><br><span class="line"><span class="keyword">public</span> String <span class="title function_">localConfigValue</span><span class="params">()</span>&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="string">&quot;lecturer: &quot;</span>+<span class="built_in">this</span>.lecturer;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// env</span></span><br><span class="line"><span class="meta">@Resource</span></span><br><span class="line"><span class="keyword">private</span> Environment environment;</span><br><span class="line"></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/local-config-env&quot;)</span></span><br><span class="line"><span class="keyword">public</span> String <span class="title function_">localConfigEnv</span><span class="params">()</span>&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="string">&quot;environment lecturer: &quot;</span>+<span class="built_in">this</span>.environment.getProperty(<span class="string">&quot;lecturer&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// @Value</span><br><span class="hljs-meta">@Value(&quot;$&#123;lecturer&#125;&quot;)</span><br><span class="hljs-keyword">private</span> String lecturer;<br><br><span class="hljs-meta">@RequestMapping(&quot;/local-config-value&quot;)</span><br><span class="hljs-keyword">public</span> String <span class="hljs-title function_">localConfigValue</span><span class="hljs-params">()</span>&#123;<br>	<span class="hljs-keyword">return</span> <span class="hljs-string">&quot;lecturer: &quot;</span>+<span class="hljs-built_in">this</span>.lecturer;<br>&#125;<br><br><span class="hljs-comment">// env</span><br><span class="hljs-meta">@Resource</span><br><span class="hljs-keyword">private</span> Environment environment;<br><br><span class="hljs-meta">@RequestMapping(&quot;/local-config-env&quot;)</span><br><span class="hljs-keyword">public</span> String <span class="hljs-title function_">localConfigEnv</span><span class="hljs-params">()</span>&#123;<br>	<span class="hljs-keyword">return</span> <span class="hljs-string">&quot;environment lecturer: &quot;</span>+<span class="hljs-built_in">this</span>.environment.getProperty(<span class="hljs-string">&quot;lecturer&quot;</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <h4 id="1-1-2-实现原理"><a href="#1-1-2-实现原理" class="headerlink" title="1.1.2 实现原理"></a>1.1.2 实现原理</h4><p><a target="_blank" rel="noopener" href="https://docs.spring.io/spring-boot/docs/2.7.6/reference/htmlsingle/#features.external-config">https://docs.spring.io/spring-boot/docs/2.7.6/reference/htmlsingle/#features.external-config</a></p>
 <p>（1）加载application.yml文件中的配置</p>
@@ -275,99 +293,425 @@
 <p>（3）比如在Program arguments中配置timeout=1000，</p>
 <p>观察environment中的 SimpleCommandLinePropertySource</p>
 <p>（4）@Value实现原理</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">（1）使用BeanPostProcessor解析类上的@Value字段</span><br><span class="line">（2）获取到字段上的@Value字段</span><br><span class="line">（3）解析@Value字段的value属性值，比如age</span><br><span class="line">（4）从environment中的属性配置源OriginTrackedMapPropertySource中寻找age的key</span><br><span class="line">（5）根据key获取到对应的value值</span><br><span class="line">（6）通过field反射的方式设置value值</span><br></pre></td></tr></table></figure>
+<figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs aspectj">（<span class="hljs-number">1</span>）使用BeanPostProcessor解析类上的<span class="hljs-meta">@Value</span>字段<br>（<span class="hljs-number">2</span>）获取到字段上的<span class="hljs-meta">@Value</span>字段<br>（<span class="hljs-number">3</span>）解析<span class="hljs-meta">@Value</span>字段的value属性值，比如age<br>（<span class="hljs-number">4</span>）从environment中的属性配置源OriginTrackedMapPropertySource中寻找age的key<br>（<span class="hljs-number">5</span>）根据key获取到对应的value值<br>（<span class="hljs-number">6</span>）通过field反射的方式设置value值<br></code></pre></td></tr></table></figure>
 
 <h3 id="1-2-在nacos上创建配置文件"><a href="#1-2-在nacos上创建配置文件" class="headerlink" title="1.2 在nacos上创建配置文件"></a>1.2 在nacos上创建配置文件</h3><p>（1）创建user-dev.yaml文件</p>
-<p><img src="/image/springcloud/nacos/%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/1.png"></p>
-<p><img src="/image/springcloud/nacos/%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/2.png"></p>
+<p><img src="/image/springcloud/nacos/%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/1.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/image/springcloud/nacos/%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/2.png" srcset="/img/loading.gif" lazyload></p>
 <p>（2）文件存储位置</p>
 <p>mysql     nacos库     config_info表</p>
 <p>nacos home</p>
-<h3 id="1-3-基于HTTP的配置管理"><a href="#1-3-基于HTTP的配置管理" class="headerlink" title="1.3 基于HTTP的配置管理"></a>1.3 基于HTTP的配置管理</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 发布配置</span></span><br><span class="line">curl -X POST <span class="string">&quot;http://127.0.0.1:8848/nacos/v1/cs/configs?</span></span><br><span class="line"><span class="string">dataId=nacos.cfg.dataId&amp;group=test&amp;content=HelloWorld&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#获取配置</span></span><br><span class="line">curl -X POST <span class="string">&quot;http://127.0.0.1:8848/nacos/v1/cs/configs?</span></span><br><span class="line"><span class="string">dataId=nacos.cfg.dataId&amp;group=test&amp;content=HelloWorld&quot;</span></span><br></pre></td></tr></table></figure>
+<h3 id="1-3-基于HTTP的配置管理"><a href="#1-3-基于HTTP的配置管理" class="headerlink" title="1.3 基于HTTP的配置管理"></a>1.3 基于HTTP的配置管理</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># 发布配置</span><br>curl -X POST <span class="hljs-string">&quot;http://127.0.0.1:8848/nacos/v1/cs/configs?</span><br><span class="hljs-string">dataId=nacos.cfg.dataId&amp;group=test&amp;content=HelloWorld&quot;</span><br><br><span class="hljs-comment">#获取配置</span><br>curl -X POST <span class="hljs-string">&quot;http://127.0.0.1:8848/nacos/v1/cs/configs?</span><br><span class="hljs-string">dataId=nacos.cfg.dataId&amp;group=test&amp;content=HelloWorld&quot;</span><br></code></pre></td></tr></table></figure>
 
 <h3 id="1-4-基于Java-SDK的配置管理"><a href="#1-4-基于Java-SDK的配置管理" class="headerlink" title="1.4 基于Java SDK的配置管理"></a>1.4 基于Java SDK的配置管理</h3><p><a target="_blank" rel="noopener" href="https://nacos.io/zh-cn/docs/sdk.html">https://nacos.io/zh-cn/docs/sdk.html</a></p>
 <p>（1）引入nacos-client包</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba.nacos<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>nacos-client<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>2.0.4<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>com.alibaba.nacos<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>nacos-client<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>2.0.4<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
 
 <p>（2）编写Java代码</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">COnfigExample</span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">serverAddr</span> <span class="operator">=</span> <span class="string">&quot;localhost&quot;</span>;</span><br><span class="line">        <span class="type">String</span> <span class="variable">dataId</span> <span class="operator">=</span> <span class="string">&quot;redis.yaml&quot;</span>;</span><br><span class="line">        <span class="type">String</span> <span class="variable">group</span> <span class="operator">=</span> <span class="string">&quot;DEFAULT_GROUP&quot;</span>;</span><br><span class="line">        <span class="type">Properties</span> <span class="variable">properties</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Properties</span>();</span><br><span class="line">        properties.put(PropertyKeyConst.SERVER_ADDR, serverAddr);</span><br><span class="line">        <span class="type">ConfigService</span> <span class="variable">configService</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">NacosFactory</span>.createConfigService(properties);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">//添加监听</span></span><br><span class="line">        configService.addListencer(dataId, group, <span class="keyword">new</span> <span class="title class_">Listence</span>()&#123;</span><br><span class="line">           <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">receiveConfigInfo</span><span class="params">(String configInfo)</span>&#123;</span><br><span class="line">                System.out.printLn(<span class="string">&quot;receive: &quot;</span> + configInfo);</span><br><span class="line">            &#125;</span><br><span class="line">            </span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> Executor <span class="title function_">getExecutor</span><span class="params">()</span>&#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">//发布配置</span></span><br><span class="line">        <span class="type">boolean</span> <span class="variable">isPublishOK</span> <span class="operator">=</span> configService.publishConfig(dataId, group, <span class="string">&quot;redis.host: 120.0.0.1:6379&quot;</span>);</span><br><span class="line">        System.out.printLn(isPublishOK);</span><br><span class="line">        </span><br><span class="line">        Threan.sleep(<span class="number">3000</span>);</span><br><span class="line">        <span class="comment">//获取配置</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">content</span> <span class="operator">=</span> configService.getConfig(dataId, group, <span class="number">5000</span>);</span><br><span class="line">        System.out.printLn(content);</span><br><span class="line">        </span><br><span class="line">        System.in.read();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">COnfigExample</span>&#123;<br>    <br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> Exception&#123;<br>        <span class="hljs-type">String</span> <span class="hljs-variable">serverAddr</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;localhost&quot;</span>;<br>        <span class="hljs-type">String</span> <span class="hljs-variable">dataId</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;redis.yaml&quot;</span>;<br>        <span class="hljs-type">String</span> <span class="hljs-variable">group</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;DEFAULT_GROUP&quot;</span>;<br>        <span class="hljs-type">Properties</span> <span class="hljs-variable">properties</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Properties</span>();<br>        properties.put(PropertyKeyConst.SERVER_ADDR, serverAddr);<br>        <span class="hljs-type">ConfigService</span> <span class="hljs-variable">configService</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">NacosFactory</span>.createConfigService(properties);<br>        <br>        <span class="hljs-comment">//添加监听</span><br>        configService.addListencer(dataId, group, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Listence</span>()&#123;<br>           <span class="hljs-meta">@Override</span><br>            <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">receiveConfigInfo</span><span class="hljs-params">(String configInfo)</span>&#123;<br>                System.out.printLn(<span class="hljs-string">&quot;receive: &quot;</span> + configInfo);<br>            &#125;<br>            <br>            <span class="hljs-meta">@Override</span><br>            <span class="hljs-keyword">public</span> Executor <span class="hljs-title function_">getExecutor</span><span class="hljs-params">()</span>&#123;<br>                <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;<br>            &#125;<br>        &#125;);<br>        <br>        <span class="hljs-comment">//发布配置</span><br>        <span class="hljs-type">boolean</span> <span class="hljs-variable">isPublishOK</span> <span class="hljs-operator">=</span> configService.publishConfig(dataId, group, <span class="hljs-string">&quot;redis.host: 120.0.0.1:6379&quot;</span>);<br>        System.out.printLn(isPublishOK);<br>        <br>        Threan.sleep(<span class="hljs-number">3000</span>);<br>        <span class="hljs-comment">//获取配置</span><br>        <span class="hljs-type">String</span> <span class="hljs-variable">content</span> <span class="hljs-operator">=</span> configService.getConfig(dataId, group, <span class="hljs-number">5000</span>);<br>        System.out.printLn(content);<br>        <br>        System.in.read();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>（3）通过dashboard修改redis.yaml文件中的配置内容，观察监听器的回调打印信息</p>
 <h3 id="1-5-user服务基于SC的配置管理"><a href="#1-5-user服务基于SC的配置管理" class="headerlink" title="1.5 user服务基于SC的配置管理"></a>1.5 user服务基于SC的配置管理</h3><p>（1）引入依赖</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-alibaba-nacos-config<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>com.alibaba.cloud<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-cloud-starter-alibaba-nacos-config<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
 
 <p>（2）在resources目录下创建bootstrap.yaml文件，并写配置</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">cloud:</span></span><br><span class="line">    <span class="attr">nacos:</span></span><br><span class="line">      <span class="attr">config:</span></span><br><span class="line">        <span class="attr">server-addr:</span> <span class="string">localhost:8848</span></span><br><span class="line">        <span class="attr">file-extension:</span> <span class="string">yaml</span></span><br><span class="line">  <span class="attr">application:</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">user</span></span><br><span class="line">  <span class="attr">profiles:</span></span><br><span class="line">    <span class="attr">active:</span> <span class="string">dev</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">spring:</span><br>  <span class="hljs-attr">cloud:</span><br>    <span class="hljs-attr">nacos:</span><br>      <span class="hljs-attr">config:</span><br>        <span class="hljs-attr">server-addr:</span> <span class="hljs-string">localhost:8848</span><br>        <span class="hljs-attr">file-extension:</span> <span class="hljs-string">yaml</span><br>  <span class="hljs-attr">application:</span><br>    <span class="hljs-attr">name:</span> <span class="hljs-string">user</span><br>  <span class="hljs-attr">profiles:</span><br>    <span class="hljs-attr">active:</span> <span class="hljs-string">dev</span><br></code></pre></td></tr></table></figure>
 
-<p><img src="/image/springcloud/nacos/%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/3.png"></p>
+<p><img src="/image/springcloud/nacos/%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/3.png" srcset="/img/loading.gif" lazyload></p>
 <p>（3）启动user服务，如若报错如下信息，则在pom文件中添加bootstrap starter，并重新启动user服 务</p>
-<p><img src="/image/springcloud/nacos/%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/4.png"></p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-bootstrap<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><img src="/image/springcloud/nacos/%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/4.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.springframework.cloud<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-cloud-starter-bootstrap<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
 
 <p>（4）创建访问接口</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//@Value的方式获取</span></span><br><span class="line"><span class="meta">@Value(&quot;$&#123;age&#125;&quot;)</span></span><br><span class="line"><span class="keyword">private</span> String age;</span><br><span class="line"></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/nacos-config-value&quot;)</span></span><br><span class="line"><span class="keyword">public</span> String <span class="title function_">nacosConfigValue</span><span class="params">()</span>&#123;</span><br><span class="line">    <span class="keyword">return</span> age;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//Env的方式获取</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/nacos-config-env&quot;)</span></span><br><span class="line"><span class="keyword">public</span> String <span class="title function_">nacosConfigEnv</span><span class="params">()</span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">this</span>.environment.getProperty(<span class="string">&quot;age&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//@Value的方式获取</span><br><span class="hljs-meta">@Value(&quot;$&#123;age&#125;&quot;)</span><br><span class="hljs-keyword">private</span> String age;<br><br><span class="hljs-meta">@RequestMapping(&quot;/nacos-config-value&quot;)</span><br><span class="hljs-keyword">public</span> String <span class="hljs-title function_">nacosConfigValue</span><span class="hljs-params">()</span>&#123;<br>    <span class="hljs-keyword">return</span> age;<br>&#125;<br><br><span class="hljs-comment">//Env的方式获取</span><br><span class="hljs-meta">@RequestMapping(&quot;/nacos-config-env&quot;)</span><br><span class="hljs-keyword">public</span> String <span class="hljs-title function_">nacosConfigEnv</span><span class="hljs-params">()</span>&#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">this</span>.environment.getProperty(<span class="hljs-string">&quot;age&quot;</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>（5）访问/user/nacos-config-value和/user/nacos-config-env </p>
 <p>（6）通过dashboard修改age的值，不重启项目的情况下 访问/user/nacos-config-env，发现已经更新 访问/user/nacos-config-value，发现没有更新，在UserController上添加@RefreshScope注解后再尝试</p>
 <h3 id="1-6-当前服务的通用配置"><a href="#1-6-当前服务的通用配置" class="headerlink" title="1.6 当前服务的通用配置"></a>1.6 当前服务的通用配置</h3><p>创建user.yaml文件，nacos会自动加载user、user-dev.yaml、user.yaml三个配置文件</p>
 <h3 id="1-7-不同服务的公共配置"><a href="#1-7-不同服务的公共配置" class="headerlink" title="1.7 不同服务的公共配置"></a>1.7 不同服务的公共配置</h3><p>（1）创建公共配置文件mysql.yaml和es.yaml</p>
 <p>（2）在bootstrap.yaml文件中添加配置</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">cloud:</span></span><br><span class="line">    <span class="attr">nacos:</span></span><br><span class="line">      <span class="attr">config:</span></span><br><span class="line">        <span class="attr">server-addr:</span> <span class="string">localhost:8848</span></span><br><span class="line">        <span class="attr">file-extension:</span> <span class="string">yaml</span></span><br><span class="line">        <span class="string">shared-configs[0]:</span></span><br><span class="line">          <span class="attr">data-id:</span> <span class="string">mysql.yaml</span></span><br><span class="line">          <span class="attr">refresh:</span> <span class="literal">true</span></span><br><span class="line">        <span class="string">extension-configs[0]:</span></span><br><span class="line">          <span class="attr">data-id:</span> <span class="string">es.yaml</span></span><br><span class="line">          <span class="attr">refresh:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">application:</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">user</span></span><br><span class="line">  <span class="attr">profiles:</span></span><br><span class="line">    <span class="attr">active:</span> <span class="string">dev</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">spring:</span><br>  <span class="hljs-attr">cloud:</span><br>    <span class="hljs-attr">nacos:</span><br>      <span class="hljs-attr">config:</span><br>        <span class="hljs-attr">server-addr:</span> <span class="hljs-string">localhost:8848</span><br>        <span class="hljs-attr">file-extension:</span> <span class="hljs-string">yaml</span><br>        <span class="hljs-string">shared-configs[0]:</span><br>          <span class="hljs-attr">data-id:</span> <span class="hljs-string">mysql.yaml</span><br>          <span class="hljs-attr">refresh:</span> <span class="hljs-literal">true</span><br>        <span class="hljs-string">extension-configs[0]:</span><br>          <span class="hljs-attr">data-id:</span> <span class="hljs-string">es.yaml</span><br>          <span class="hljs-attr">refresh:</span> <span class="hljs-literal">true</span><br>  <span class="hljs-attr">application:</span><br>    <span class="hljs-attr">name:</span> <span class="hljs-string">user</span><br>  <span class="hljs-attr">profiles:</span><br>    <span class="hljs-attr">active:</span> <span class="hljs-string">dev</span><br></code></pre></td></tr></table></figure>
 
 <p>（3）启动user服务观察日志并访问</p>
-<p><img src="/image/springcloud/nacos/%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/5.png"></p>
+<p><img src="/image/springcloud/nacos/%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/5.png" srcset="/img/loading.gif" lazyload></p>
 
-        </div>
-
-        
-            <section class="post-copyright">
                 
-                
-                
-                
-
-            </section>
-        
-        <section class="post-tags">
+              </div>
+            
+            <hr/>
             <div>
-                <span>Tag(s):</span>
-                <span class="tag">
-                    
-                    
-                        <a href="/tags/springcloud/"># springcloud</a>
-                    
-                        <a href="/tags/nacos/"># nacos</a>
-                    
-                        <a href="/tags/%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/"># 配置中心</a>
-                    
-                        
-                </span>
-            </div>
-            <div>
-                <a href="javascript:window.history.back();">back</a>
-                <span>· </span>
-                <a href="/">home</a>
-            </div>
-        </section>
-        <section class="post-nav">
-            
-            
-            <a class="next" rel="next" href="/2023/03/07/springcloud/openfegin/openfegin/">OpenFeign</a>
-            
-        </section>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
 
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/springcloud/" class="category-chain-item">springcloud</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/springcloud/nacos/" class="category-chain-item">nacos</a>
+  
+  
 
-    </article>
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/springcloud/">#springcloud</a>
+      
+        <a href="/tags/nacos/">#nacos</a>
+      
+        <a href="/tags/%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/">#配置中心</a>
+      
+    </div>
+  
 </div>
 
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>nacos配置中心</div>
+      <div>http://www.zivjie.cn/2023/03/07/springcloud/nacos/nacos配置中心/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Francis</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年3月7日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/03/08/jvm/jvm%E5%88%9D%E8%AF%86/" title="jvm初识">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">jvm初识</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/03/07/springcloud/openfegin/openfegin/" title="OpenFeign">
+                        <span class="hidden-mobile">OpenFeign</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
             </div>
-            <footer id="footer" class="footer">
-    <div class="copyright">
-        <span>© zhaojie | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+
+            
+          </article>
+        </div>
+      </div>
     </div>
-</footer>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
 
     </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
 </body>
-
 </html>
