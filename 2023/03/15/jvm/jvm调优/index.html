@@ -1,0 +1,954 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Francis">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1 常用命令1. jps—查看java进程  2. jinfo： （1）实时查看和调整JVM配置参数 （2）用法：jinfo -flag name PID    查看某个java进程的name属性的值 ​           例：jinfo -flag MaxHeapSize PID ​                  jinfo -flag UseG1GC PID （3）修改：参数只有被标记为">
+<meta property="og:type" content="article">
+<meta property="og:title" content="jvm调优">
+<meta property="og:url" content="http://www.zivjie.cn/2023/03/15/jvm/jvm%E8%B0%83%E4%BC%98/index.html">
+<meta property="og:site_name" content="Francis-Blog">
+<meta property="og:description" content="1 常用命令1. jps—查看java进程  2. jinfo： （1）实时查看和调整JVM配置参数 （2）用法：jinfo -flag name PID    查看某个java进程的name属性的值 ​           例：jinfo -flag MaxHeapSize PID ​                  jinfo -flag UseG1GC PID （3）修改：参数只有被标记为">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.zivjie.cn/img/Sci-Fi%20Energy%20Core.png">
+<meta property="article:published_time" content="2023-03-15T05:18:00.000Z">
+<meta property="article:modified_time" content="2023-03-15T06:31:08.185Z">
+<meta property="article:author" content="Francis">
+<meta property="article:tag" content="jvm">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://www.zivjie.cn/img/Sci-Fi%20Energy%20Core.png">
+  
+  
+  
+  <title>jvm调优 - Francis-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.zivjie.cn","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Francis</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="jvm调优"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-03-15 13:18" pubdate>
+          2023年3月15日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          11k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          94 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">jvm调优</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="1-常用命令"><a href="#1-常用命令" class="headerlink" title="1 常用命令"></a>1 常用命令</h2><p><strong>1. jps—查看java进程</strong></p>
+<p><img src="/image/jvm/jvm%E8%B0%83%E4%BC%98/1.png" srcset="/img/loading.gif" lazyload></p>
+<p><strong>2. jinfo：</strong></p>
+<p>（1）实时查看和调整JVM配置参数</p>
+<p>（2）用法：jinfo -flag name PID    查看某个java进程的name属性的值</p>
+<p>​           例：jinfo -flag MaxHeapSize PID</p>
+<p>​                  jinfo -flag UseG1GC PID</p>
+<p>（3）修改：参数只有被标记为manageable的flags可以被实时修改</p>
+<p>​           例：jinfo -flag [+|-] PID</p>
+<p>​                   jinfo -flag <name>=<value> PID</p>
+<p>（4）查看曾今赋过值的一些参数</p>
+<pre><code class="hljs">               jinfo -flags PID
+</code></pre>
+<p><img src="/image/jvm/jvm%E8%B0%83%E4%BC%98/2.png" srcset="/img/loading.gif" lazyload></p>
+<p><strong>3. jstat</strong></p>
+<p>（1）查看虚拟机性能统计信息</p>
+<p>（2）查看类装载信息：</p>
+<p>​    jstat -class PID 1000 10 查看某个java进程的类装载信息，每1000毫秒输出一次，共输出10次</p>
+<p><img src="/image/jvm/jvm%E8%B0%83%E4%BC%98/3.png" srcset="/img/loading.gif" lazyload></p>
+<p>（3）查看垃圾收集信息 ：jstat -gc PID 1000 10</p>
+<p><strong>4. jstack</strong></p>
+<p>（1）查看线程堆栈信息</p>
+<p>（2）用法：jstack PID</p>
+<p><img src="/image/jvm/jvm%E8%B0%83%E4%BC%98/4.png" srcset="/img/loading.gif" lazyload></p>
+<p>（3）排查死锁案例</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">DeadLockDemo</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span>&#123;<br>        <span class="hljs-type">DeadLock</span> <span class="hljs-variable">d1</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">DeadLock</span>(<span class="hljs-literal">true</span>);<br>        <span class="hljs-type">DeadLock</span> <span class="hljs-variable">d2</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">DeadLock</span>(<span class="hljs-literal">false</span>);<br>        <span class="hljs-type">Thread</span> <span class="hljs-variable">t1</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(d1);<br>        <span class="hljs-type">Thread</span> <span class="hljs-variable">t2</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(d2);<br>        t1.start();<br>        t2.start();<br>    &#125;<br>&#125;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyLock</span>&#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-type">Object</span> <span class="hljs-variable">obj1</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>();<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-type">Object</span> <span class="hljs-variable">obj2</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>();<br>&#125;<br><span class="hljs-comment">//死锁代码</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">DeadLock</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Runable</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-type">boolean</span> flag;<br>    DeadLock(<span class="hljs-type">boolean</span> flag)&#123;<br>        <span class="hljs-built_in">this</span>.flag = flag;<br>    &#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">run</span><span class="hljs-params">()</span>&#123;<br>        <span class="hljs-keyword">if</span>(flag)&#123;<br>            <span class="hljs-keyword">while</span>(<span class="hljs-literal">true</span>)&#123;<br>                <span class="hljs-keyword">synchronized</span>(MyLock.obj1)&#123;<br>                    System.out.printLn(Thread.currentThread().getName() + <span class="hljs-string">&quot; -------if获得obj1的锁&quot;</span>)；<br>                    <span class="hljs-keyword">synchronized</span>(MyLock.obj2)&#123;<br>                    	System.out.printLn(Thread.currentThread().getName() + <span class="hljs-string">&quot; -------否则获得obj2的锁&quot;</span>)<br>                	&#125;<br>                &#125;<br>            &#125;<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-keyword">while</span>(<span class="hljs-literal">true</span>)&#123;<br>                <span class="hljs-keyword">synchronized</span>(MyLock.obj2)&#123;<br>                    System.out.printLn(Thread.currentThread().getName() + <span class="hljs-string">&quot; -------if获得obj2的锁&quot;</span>)；<br>                    <span class="hljs-keyword">synchronized</span>(MyLock.obj1)&#123;<br>                    	System.out.printLn(Thread.currentThread().getName() + <span class="hljs-string">&quot; -------否则获得obj1的锁&quot;</span>)<br>                	&#125;<br>                &#125;<br>            &#125;<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="/image/jvm/jvm%E8%B0%83%E4%BC%98/5.png" srcset="/img/loading.gif" lazyload></p>
+<p>jstack分析：</p>
+<p><img src="/image/jvm/jvm%E8%B0%83%E4%BC%98/6.png" srcset="/img/loading.gif" lazyload></p>
+<p>把打印信息拉到最后发现</p>
+<p><img src="/image/jvm/jvm%E8%B0%83%E4%BC%98/7.png" srcset="/img/loading.gif" lazyload></p>
+<p><strong>5. jmap</strong></p>
+<p>（1）生成堆转储快照</p>
+<p>（2）打印出堆内存相关信息</p>
+<p>​    jmap -heap PID</p>
+<p>​    jinfo -flag UsePSAdaptiveSurvivorSizePolicy 35352</p>
+<p>​    -XX:SurvivorRatio=8</p>
+<p><img src="/image/jvm/jvm%E8%B0%83%E4%BC%98/8.png" srcset="/img/loading.gif" lazyload></p>
+<p>（3）dump出堆内存相关信息</p>
+<p>​    jmap -dump:format=b,file=heap.hprof PID</p>
+<p><img src="/image/jvm/jvm%E8%B0%83%E4%BC%98/9.png" srcset="/img/loading.gif" lazyload></p>
+<p>（4）要是在发生堆内存溢出的时候，能自动dump出该文件就好了</p>
+<p>​    一般在开发中，JVM参数可以加上下面两句，这样内存溢出时，会自动dump出该文件</p>
+<p>​    -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=heap.hprof</p>
+<p>​    设置堆内存大小: -Xms20M -Xmx20M</p>
+<p>​    启动，然后访问localhost:9090/heap，使得堆内存溢出</p>
+<h2 id="2-执行引擎"><a href="#2-执行引擎" class="headerlink" title="2 执行引擎"></a>2 执行引擎</h2><p>Person.java源码文件是Java这门高级开发语言，对程序员友好，方便我们开发。</p>
+<p>​    javac编译器将Person.java源码文件编译成class文件[我们把这里的编译称为前期编译]，交给JVM运行，因为JVM只能认识class字节码文件。同时在不同的操作系统上安装对应版本的JDK，里面包含了各自屏蔽操作系统底层细节的JVM，这样同一份class文件就能运行在不同的操作系统平台之上，得益于JVM。这也是Write Once，Run Anywhere的原因所在。</p>
+<p>​    最终JVM需要把字节码指令转换为机器码，可以理解为是0101这样的机器语言，这样才能运行在不同的机器上，那么由字节码转变为机器码是谁来做的呢？说白了就是谁来执行这些字节码指令的呢？这就是执行引擎。</p>
+<p><img src="/image/jvm/jvm%E8%B0%83%E4%BC%98/10.png" srcset="/img/loading.gif" lazyload></p>
+<p><strong>1. 解释执行</strong></p>
+<p>​    Interpreter，解释器逐条把字节码翻译成机器码并执行，跨平台的保证。 刚开始执行引擎只采用了解释执行的，但是后来发现某些方法或者代码块被调用执行的特别频繁时，就会把这些代码认定为“热点代码”。</p>
+<p><strong>2. 即时编译器</strong></p>
+<p>​    Just-In-Time compilation(JIT)，即时编译器先将字节码编译成对应平台的可执行文件，运行速度快。即时编译器会把这些热点代码编译成与本地平台关联的机器码，并且进行各层次的优化，保存到内存中。</p>
+<p><strong>3. JVM采用哪种方式</strong></p>
+<p>​    JVM采取的是混合模式，也就是解释+编译的方式，对于大部分不常用的代码，不需要浪费时间将其编译成机器码，只需要用到的时候再以解释的方式运行；对于小部分的热点代码，可以采取编译的方式，追求更高的运行效率。</p>
+<p><strong>4. 即时编译器类型</strong></p>
+<p>（1）HotSpot虚拟机里面内置了两个JIT：C1和C2</p>
+<p>​    C1也称为Client Compiler，适用于执行时间短或者对启动性能有要求的程序</p>
+<p>​    C2也称为Server Compiler，适用于执行时间长或者对峰值性能有要求的程序</p>
+<p>（2）Java7开始，HotSpot会使用分层编译的方式</p>
+<p>​    也就是会结合C1的启动性能优势和C2的峰值性能优势，热点方法会先被C1编译，然后热点方法中的热点会被C2再次编译。</p>
+<p><strong>5. AOT和Graal VM</strong></p>
+<p>（1）AOT</p>
+<p>​    在Java9中，引入了AOT(Ahead-Of-Time)编译器，即时编译器是在程序运行过程中，将字节码翻译成机器码。而AOT是在程序运行之前，将字节码转换为机器码。</p>
+<p>​    优势：这样不需要在运行过程中消耗计算机资源来进行即时编译</p>
+<p>​    劣势：AOT 编译无法得知程序运行时的信息，因此也无法进行基于类层次分析的完全虚方法内联，或者基于程序 profile 的投机性优化（并非硬性限制，我们可以通过限制运行范围，或者利用上一次运行的程序 profile 来绕开这两个限制）</p>
+<p>（2）Graal VM</p>
+<p>​    官网：<a target="_blank" rel="noopener" href="https://www.oracle.com/tools/graalvm-enterprise-edition.html">https://www.oracle.com/tools/graalvm-enterprise-edition.html</a></p>
+<p>​    在Java10中，新的JIT编译器Graal被引入</p>
+<p>​    它是一个以Java为主要编程语言，面向字节码的编译器。跟C++实现的C1和C2相比，模块化更加明显，也更加容易维护。</p>
+<p>​    Graal既可以作为动态编译器，在运行时编译热点方法；也可以作为静态编译器，实现AOT编译。</p>
+<p>​    除此之外，它还移除了编程语言之间的边界，并且支持通过即时编译技术，将混杂了不同的编程语言的代码编译到同一段二进制码之中，从而实现不同语言之间的无缝切换。</p>
+<h2 id="3-工具"><a href="#3-工具" class="headerlink" title="3 工具"></a>3 工具</h2><h3 id="3-1-jconsole"><a href="#3-1-jconsole" class="headerlink" title="3.1 jconsole"></a>3.1 jconsole</h3><p>jconsole工具是JDK自带的可视化监控工具。查看java应用程序的运行概况、监控堆信息、永久区使用情况、类加载情况等。命令行中输入：jconsole。</p>
+<h3 id="3-2-jvisualvm"><a href="#3-2-jvisualvm" class="headerlink" title="3.2 jvisualvm"></a>3.2 jvisualvm</h3><p>命令行中输入：jvisualvm。Visual GC插件下载地址：<a target="_blank" rel="noopener" href="https://visualvm.github.io/pluginscenters.html%E3%80%82">https://visualvm.github.io/pluginscenters.html。</a></p>
+<ol>
+<li><p>监控本地进程：可以监控本地的java进程的CPU，类，线程等</p>
+</li>
+<li><p>监控远端java进程：</p>
+</li>
+</ol>
+<p>​       1）在visualvm中选中“远程”，右击“添加”</p>
+<p>​       2）主机名上写服务器的ip地址，比如39.100.39.63，然后点击“确定”</p>
+<p>​       3）右击该主机”39.100.39.63”，添加“JMX”，就是通过JMX技术具体监控远端服务器哪个Java进程</p>
+<p>​       4）要想让服务器上的tomcat被连接，需要改一下Catalina.sh这个文件。</p>
+<p>​       注意下面的8998不要和服务器上其他端口冲突。</p>
+<p>​        5）在../conf文件中添加两个文件jmxremote.access和jmxremote.password</p>
+<p>​    jmxremote.access：guest readonly</p>
+<p>​                   manager readwrite</p>
+<p>​    jmxremote.password：guest guest</p>
+<p>​                     manager manager</p>
+<p>​    授予权限：chmod 600 jmxremot</p>
+<pre><code class="hljs">    6）将连接服务器地址改为公网ip地址
+</code></pre>
+<p>​        7）设置上述端口对应的阿里云安全策略和防火墙策略</p>
+<pre><code class="hljs">    8）启动tomcat，来到bin目录：./startup.sh
+
+    9）查看tomcat启动日志以及端口监听
+</code></pre>
+<p>​       tail -f ../logs/catalina.out      lsof -i tcp:8080</p>
+<p>​        10）查看8998监听情况，可以发现多开了几个端口</p>
+<p>​       lsof -i:8998 得到PID         netstat -antup | grep PID</p>
+<pre><code class="hljs">    11）在刚才的JMX中输入8998端口，并且输入用户名和密码则登录成功
+</code></pre>
+<h3 id="3-3-arthas"><a href="#3-3-arthas" class="headerlink" title="3.3 arthas"></a>3.3 arthas</h3><p><a target="_blank" rel="noopener" href="https://github.com/alibaba/arthas">https://github.com/alibaba/arthas</a></p>
+<p>Arthas 是Alibaba开源的Java诊断工具，采用命令行交互模式，是排查jvm相关问题的利器。</p>
+<p>（1）下载安装</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sh">curl -o https://alibaba.github.io/arthas/arthas-boot.jar<br>java -jar artjas-boot.jar<br>or<br>java -jar arthas-boot.jar -h<br><span class="hljs-comment"># 然后可以选择一个java进程</span><br></code></pre></td></tr></table></figure>
+
+<p>（2）常用命令</p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc">version：查看版本号<br>help：查看命名帮助信息<br>cls：清空屏幕<br>session：查看当前会话信息<br><span class="hljs-section">quit：推出客户端</span><br><span class="hljs-section">-----</span><br>dashboard：当前进程的实时数据面板<br>thread：当前JVM的线程堆栈信息<br>jvm：查看当前JVM的信息<br><span class="hljs-section">sysprop：查看JVM的系统属性</span><br><span class="hljs-section">-----</span><br>sc：查看JVM已经加载的类信息<br>dump：dump已经加载类的byte code到指定目录<br><span class="hljs-section">jad：反编译指定已加载类的源码</span><br><span class="hljs-section">-----</span><br>monitor：方法执行监控<br>watch：方法执行数据观测<br>trace：方法内部调用路径，并输出方法路径上的每个节点上耗时<br>stack：输出当前方法被调用的调用路径<br>...<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-4-内存分析"><a href="#3-4-内存分析" class="headerlink" title="3.4 内存分析"></a>3.4 内存分析</h3><ol>
+<li>MAT</li>
+</ol>
+<p>​    Java堆分析器，用于查找内存泄漏。Heap Dump，称为堆转储文件，是Java进程在某个时间内的快照。它在触发快照的时候保存了很多信息：Java对象和类信息。通常在写Heap Dump文件前会触发一次Full GC。</p>
+<p>下载地址 ：<a target="_blank" rel="noopener" href="https://www.eclipse.org/mat/downloads.php">https://www.eclipse.org/mat/downloads.php</a></p>
+<p>1）获取dump文件</p>
+<p>​    手动：jmap -dump:format=b,file=heap.hprof 44808</p>
+<p>​    自动：-XX:+HeapDumpOnOutOfMemoryError  -XX:HeapDumpPath=heap.hprof</p>
+<p>2）使用</p>
+<p><strong>Histogram</strong>：可以列出内存中的对象，对象的个数及其大小</p>
+<p>​       Class Name:类名称，java类名</p>
+<p>​       Objects:类的对象的数量，这个对象被创建了多少个</p>
+<p>​       Shallow Heap:一个对象内存的消耗大小，不包含对其他对象的引用</p>
+<p>​       Retained Heap:是shallow Heap的总和，即该对象被GC之后所能回收到内存的总和</p>
+<p>​       右击类名—&gt;List Objects—&gt;with incoming references—&gt;列出该类的实例</p>
+<p>​       右击Java对象—&gt;Merge Shortest Paths to GC Roots—&gt;exclude all …—&gt;找到GC Root以及原因</p>
+<p><strong>Leak Suspects</strong>：查找并分析内存泄漏的可能原因</p>
+<p><strong>Top Consumers</strong>：列出大对象</p>
+<h3 id="3-5-GC日志分析"><a href="#3-5-GC日志分析" class="headerlink" title="3.5 GC日志分析"></a>3.5 GC日志分析</h3><p>要想分析日志的信息，得先拿到GC日志文件才行。比如打开windows中的catalina.bat，在第一行加上</p>
+<p>​    XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps</p>
+<p>​    -Xloggc:$CATALINA_HOME/logs/gc.log</p>
+<p>1.不同收集器的日志</p>
+<p>​    这样使用startup.bat启动tomcat的时候就能够在当前目录下拿到gc.log文件，可以看到默认使用的是ParallelGC。</p>
+<p>​    （1）Parallel GC 吞吐量优先</p>
+<p>​       【2019-06-10T23:21:53.305+0800: 1.303: [GC (Allocation Failure) [PSYoungGen:65536K[Young区回  收前]-&gt;10748K[Young区回收后]76288K[Young区总大小]] 65536K[整个堆回收前]-&gt;15039K[整个堆回    收后]251392K[整个堆总大小], 0.0113277 secs] [Times:user=0.00 sys=0.00, real=0.01 secs]】</p>
+<p>​       注意如果回收的差值中间有出入，说明这部分空间是Old区释放出来的。</p>
+<p>（2）CMS 停顿时间优先</p>
+<p>​    参数设置：-XX:+UseConcMarkSweepGC -Xloggc:cms-gc.log</p>
+<p>​    重启tomcat获取gc日志，这里的日志格式和上面差不多，不作分析。</p>
+<p>​    （3）G1 停顿时间优先</p>
+<p>​    G1日志格式参考链接：<a target="_blank" rel="noopener" href="https://blogs.oracle.com/poonam/understanding-g1-gc-logs%E3%80%82">https://blogs.oracle.com/poonam/understanding-g1-gc-logs。</a></p>
+<p>​    参数设置：-XX:+UseG1GC -Xloggc:g1-gc.log</p>
+<p>-XX:+UseG1GC # 使用了G1垃圾收集器</p>
+<p>​    # 什么时候发生的GC，相对的时间刻，GC发生的区域young，总共花费的时间，0.00478s，</p>
+<p>​    # It is a stop-the-world activity and all</p>
+<p>​    # the application threads are stopped at a safepoint during this time.</p>
+<p>​    2019-12-18T16:06:46.508+0800: 0.458: [GC pause (G1 Evacuation Pause)(young), 0.0047804 secs]</p>
+<p>​    # 多少个垃圾回收线程，并行的时间</p>
+<p>​    [Parallel Time: 3.0 ms, GC Workers: 4]</p>
+<p>​    # GC线程开始相对于上面的0.458的时间刻</p>
+<p>​    [GC Worker Start (ms): Min: 458.5, Avg: 458.5, Max: 458.5, Diff: 0.0]</p>
+<p>​    # This gives us the time spent by each worker thread scanning the roots</p>
+<p>​    # (globals, registers, thread stacks and VM data structures).</p>
+<p>​    [Ext Root Scanning (ms): Min: 0.2, Avg: 0.4, Max: 0.7, Diff: 0.5, Sum: 1.7]</p>
+<p>​    # Update RS gives us the time each thread spent in updating the RememberedSets.</p>
+<p>​    [Update RS (ms): Min: 0.0, Avg: 0.0, Max: 0.0, Diff: 0.0, Sum: 0.0]</p>
+<p>​    …</p>
+<p>​    # 主要是Eden区变大了，进行了调整</p>
+<p>​    [Eden: 14.0M(14.0M)-&gt;0.0B(16.0M) Survivors: 0.0B-&gt;2048.0K Heap: 14.0M(256.0M)-&gt;3752.5K(256.0M)]</p>
+<ol start="2">
+<li>GCViewer</li>
+</ol>
+<p>​    java -jar gcviewer-1.36-SNAPSHOT.jar</p>
+<p><img src="/image/jvm/jvm%E8%B0%83%E4%BC%98/11.png" srcset="/img/loading.gif" lazyload></p>
+<ol start="3">
+<li><p>gceasy ： <a target="_blank" rel="noopener" href="http://gceasy.io/">http://gceasy.io</a></p>
+<p><img src="/image/jvm/jvm%E8%B0%83%E4%BC%98/12.png" srcset="/img/loading.gif" lazyload></p>
+</li>
+<li><p>gcplot  <a target="_blank" rel="noopener" href="https://it.gcplot.com/">https://it.gcplot.com/</a></p>
+</li>
+</ol>
+<h2 id="4-性能优化"><a href="#4-性能优化" class="headerlink" title="4 性能优化"></a>4 性能优化</h2><h3 id="4-1-内存"><a href="#4-1-内存" class="headerlink" title="4.1 内存"></a>4.1 内存</h3><ol>
+<li>内存分配</li>
+</ol>
+<p>​    正常情况下不需要设置，那如果是促销或者秒杀的场景呢？</p>
+<p>​    每台机器配置2c4G，以每秒3000笔订单为例，整个过程持续60秒</p>
+<ol start="2">
+<li>内存溢出，一般会有两个原因：</li>
+</ol>
+<p>​    （1）大并发情况下</p>
+<p>​    （2）内存泄露导致内存溢出</p>
+<p>​    3. 大并发【秒杀】</p>
+<p>​        浏览器缓存、本地缓存、验证码</p>
+<p>​        CDN静态资源服务器</p>
+<p>​        集群+负载均衡</p>
+<p>​        动静态资源分离、限流[基于令牌桶、漏桶算法]</p>
+<p>​        应用级别缓存、接口防刷限流、队列、Tomcat性能优化</p>
+<p>​        异步消息中间件</p>
+<p>​        Redis热点数据对象缓存</p>
+<p>​        分布式锁、数据库锁</p>
+<p>​        5分钟之内没有支付，取消订单、恢复库存等</p>
+<p>​    4. 内存泄漏导致内存溢出</p>
+<p>​    ThreadLocal引起的内存泄露，最终导致内存溢出</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">TLController</span> &#123;<br>    <span class="hljs-meta">@RequestMapping(&quot;/tl&quot;)</span><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">tl</span><span class="hljs-params">(HttpServletRequest request)</span>&#123;<br>        ThreadLocal&lt;Byte[]&gt; tl = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ThreadLocal</span>&lt;&gt;();<br>        tl.set(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Byte</span>[<span class="hljs-number">1024</span>*<span class="hljs-number">1024</span>]);<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;OK&quot;</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>​    （1）上传到阿里云服务器</p>
+<p>​       jvm-case-0.0.1-SNAPSHOT.jar</p>
+<p>​    （2）启动</p>
+<p>​       java -jar -Xms1000M -Xmx1000M -XX:+HeapDumpOnOutOfMemoryError -</p>
+<p>​       XX:HeapDumpPath=jvm.hprof jvm-case-0.0.1-SNAPSHOT.jar</p>
+<p>​    （3）使用jmeter模拟10000次并发</p>
+<p>​       39.100.39.63:8080/tl</p>
+<p>​    （4）top命令查看</p>
+<p>​       top</p>
+<p>​       top -Hp PID</p>
+<p>​    （5）jstack查看线程情况，发现没有死锁或者IO阻塞的情况</p>
+<p>​       jstack PID</p>
+<p>​       java -jar arthas.jar —&gt; thread</p>
+<p>​    （6）查看堆内存的使用，发现堆内存的使用率已经高达88.95%</p>
+<p>​       jmap -heap PID</p>
+<p>​       java -jar arthas.jar —&gt; dashboard</p>
+<p>​    （7）此时可以大体判断出来，发生了内存泄露从而导致的内存溢出，那怎么排查呢？</p>
+<p>​       jmap -histo:live PID | more</p>
+<p>​       获取到jvm.hprof文件，上传到指定的工具分析，比如heaphero.io</p>
+<h3 id="4-2-GC（这里以G1垃圾收集器调优为例）"><a href="#4-2-GC（这里以G1垃圾收集器调优为例）" class="headerlink" title="4.2 GC（这里以G1垃圾收集器调优为例）"></a>4.2 GC（这里以G1垃圾收集器调优为例）</h3><p><a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/8/docs/technotes/guides/vm/G1.html#use_cases">https://docs.oracle.com/javase/8/docs/technotes/guides/vm/G1.html#use_cases</a></p>
+<p>​    （1）50%以上的堆被存活对象占用</p>
+<p>​    （2）对象分配和晋升的速度变化非常大</p>
+<p>​    （3）垃圾回收时间比较长</p>
+<p><strong>G1调优</strong></p>
+<p>（1）使用G1GC垃圾收集器: -XX:+UseG1GC</p>
+<p>修改配置参数，获取到gc日志，使用GCViewer分析吞吐量和响应时间</p>
+<p><img src="/image/jvm/jvm%E8%B0%83%E4%BC%98/13.png" srcset="/img/loading.gif" lazyload></p>
+<p>（2）调整内存大小再获取gc日志分析</p>
+<p>​       -XX:MetaspaceSize=100M</p>
+<p>​       -Xms300M</p>
+<p>​       -Xmx300M</p>
+<p>​       比如设置堆内存的大小，获取到gc日志，使用GCViewer分析吞吐量和响应时间</p>
+<p><img src="/image/jvm/jvm%E8%B0%83%E4%BC%98/14.png" srcset="/img/loading.gif" lazyload></p>
+<p>（3）调整最大停顿时间</p>
+<p>​    -XX:MaxGCPauseMillis=200 设置最大GC停顿时间指标</p>
+<p>​    比如设置最大停顿时间，获取到gc日志，使用GCViewer分析吞吐量和响应时间</p>
+<p><img src="/image/jvm/jvm%E8%B0%83%E4%BC%98/15.png" srcset="/img/loading.gif" lazyload></p>
+<p>（4）启动并发GC时堆内存占用百分比</p>
+<p>​       -XX:InitiatingHeapOccupancyPercent=45</p>
+<p>​       G1用它来触发并发GC周期,基于整个堆的使用率,而不只是某一代内存的使用比例。值为 0 则表示 “一直执行GC循环)’. 默认值为 45 (例如, 全部的 45% 或者使用了45%).</p>
+<p>​       比如设置该百分比参数，获取到gc日志，使用GCViewer分析吞吐量和响应时间</p>
+<p><img src="/image/jvm/jvm%E8%B0%83%E4%BC%98/16.png" srcset="/img/loading.gif" lazyload></p>
+<p>​    <strong>G1调优最佳实战</strong></p>
+<p>​    官网：<a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/8/docs/technotes/guides/vm/gctuning/g1_gc_tuning.html#recommendations">https://docs.oracle.com/javase/8/docs/technotes/guides/vm/gctuning/g1_gc_tuning.html#recommendations</a></p>
+<p>（1）不要手动设置新生代和老年代的大小，只要设置整个堆的大小</p>
+<p>​    why：<a target="_blank" rel="noopener" href="https://blogs.oracle.com/poonam/increased-heap-usage-with-g1-gc">https://blogs.oracle.com/poonam/increased-heap-usage-with-g1-gc</a></p>
+<p>​    G1收集器在运行过程中，会自己调整新生代和老年代的大小，其实是通过adapt代的大小来调整对象晋升的速度和年龄，从而达到为收集器设置的暂停时间目标，如果手动设置了大小就意味着放弃了G1的自动调优</p>
+<p>​    （2）不断调优暂停时间目标</p>
+<p>​    一般情况下这个值设置到100ms或者200ms都是可以的(不同情况下会不一样)，但如果设置成50ms就不太合理。暂停时间设置的太短，就会导致出现G1跟不上垃圾产生的速度。最终退化成Full GC。所以对这个参数的调优是一个持续的过程，逐步调整到最佳状态。暂停时间只是一个目标，并不能总是得到满足。</p>
+<p>​    （3）使用-XX:ConcGCThreads=n来增加标记线程的数量</p>
+<p>​    IHOP如果阀值设置过高，可能会遇到转移失败的风险，比如对象进行转移时空间不足。如果阀值设置过低，就会使标记周期运行过于频繁，并且有可能混合收集期回收不到空间。IHOP值如果设置合理，但是在并发周期时间过长时，可以尝试增加并发线程数，调高ConcGCThreads。</p>
+<p>​    （4）MixedGC调优</p>
+<p>​    -XX:InitiatingHeapOccupancyPercent</p>
+<p>​    -XX:G1MixedGCLiveThresholdPercent</p>
+<p>​    -XX:G1MixedGCCountTarger</p>
+<p>​    -XX:G1OldCSetRegionThresholdPercent</p>
+<p>​    （5）适当增加堆内存大小</p>
+<p>​    （6）不正常的Full GC</p>
+<p>​    有时候会发现系统刚刚启动的时候，就会发生一次Full GC，但是老年代空间比较充足，一般是由Metaspace区域引起的。可以通过MetaspaceSize适当增加其大家，比如256M。</p>
+<h3 id="4-3-CPU占用率高"><a href="#4-3-CPU占用率高" class="headerlink" title="4.3 CPU占用率高"></a>4.3 CPU占用率高</h3><p>（1）top</p>
+<p>（2）top -Hp PID</p>
+<p>​       查看进程中占用CPU高的线程id，即tid</p>
+<p>（3）jstack PID | grep tid</p>
+<h2 id="5-JVM性能优化指南"><a href="#5-JVM性能优化指南" class="headerlink" title="5 JVM性能优化指南"></a>5 JVM性能优化指南</h2><p><img src="/image/jvm/jvm%E8%B0%83%E4%BC%98/17.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="6-常见问题"><a href="#6-常见问题" class="headerlink" title="6 常见问题"></a>6 常见问题</h2><ol>
+<li>内存泄漏与内存溢出的区别</li>
+</ol>
+<p>​    内存泄漏是指不再使用的对象无法得到及时的回收，持续占用内存空间，从而造成内存空间的浪费。</p>
+<p>​    内存泄漏很容易导致内存溢出，但内存溢出不一定是内存泄漏导致的。</p>
+<ol start="2">
+<li>young gc会有stw吗？</li>
+</ol>
+<p>​    不管什么 GC，都会发送 stop-the-world，区别是发生的时间长短。而这个时间跟垃圾收集器又有关系，Serial、PartNew、Parallel Scavenge 收集器无论是串行还是并行，都会挂起用户线程，而 CMS和 G1 在并发标记时，是不会挂起用户线程的，但其它时候一样会挂起用户线程，stop the world 的时间相对来说就小很多了。</p>
+<ol start="3">
+<li>major gc和full gc的区别</li>
+</ol>
+<p>​    Major GC在很多参考资料中是等价于 Full GC 的，也可以发现很多性能监测工具中只有 Minor GC和 Full GC。一般情况下，一次 Full GC 将会对年轻代、老年代、元空间以及堆外内存进行垃圾回收。触发 Full GC 的原因有很多：当年轻代晋升到老年代的对象大小，并比目前老年代剩余的空间大小还要大时，会触发 Full GC；当老年代的空间使用率超过某阈值时，会触发 Full GC；当元空间不足时（JDK1.7永久代不足），也会触发 Full GC；当调用 System.gc() 也会安排一次 Full GC。</p>
+<ol start="4">
+<li>什么是直接内存</li>
+</ol>
+<p>​    Java的NIO库允许Java程序使用直接内存。直接内存是在java堆外的、直接向系统申请的内存空间。通常访问直接内存的速度会优于Java堆。因此出于性能的考虑，读写频繁的场合可能会考虑使用直接内存。由于直接内存在java堆外，因此它的大小不会直接受限于Xmx指定的最大堆大小，但是系统内存是有限的，Java堆和直接内存的总和依然受限于操作系统能给出的最大内存。</p>
+<ol start="5">
+<li>垃圾判断的方式</li>
+</ol>
+<p>​    引用计数法：指的是如果某个地方引用了这个对象就+1，如果失效了就-1，当为0就会回收但是JVM没有用这种方式，因为无法判定相互循环引用（A引用B,B引用A）的情况。</p>
+<p>​    引用链法： 通过一种GC ROOT的对象（方法区中静态变量引用的对象等-static变量）来判断，如果有一条链能够到达GC ROOT就说明，不能到达GC ROOT就说明可以回收。</p>
+<ol start="6">
+<li>不可达的对象一定要被回收吗？</li>
+</ol>
+<p>​    即使在可达性分析法中不可达的对象，也并非是“非死不可”的，这时候它们暂时处于“缓刑阶段”，要真正宣告一个对象死亡，至少要经历两次标记过程；可达性分析法中不可达的对象被第一次标记并且进行一次筛选，筛选的条件是此对象是否有必要执行 finalize 方法。当对象没有覆盖 finalize 方法，或finalize 方法已经被虚拟机调用过时，虚拟机将这两种情况视为没有必要执行。被判定为需要执行的对象将会被放在一个队列中进行第二次标记，除非这个对象与引用链上的任何一个对象建立关联，否则就会被真的回收。</p>
+<ol start="7">
+<li>为什么要区分新生代和老年代？</li>
+</ol>
+<p>​    当前虚拟机的垃圾收集都采用分代收集算法，这种算法没有什么新的思想，只是根据对象存活周期的不同将内存分为几块。一般将 java 堆分为新生代和老年代，这样我们就可以根据各个年代的特点选择合适的垃圾收集算法。比如在新生代中，每次收集都会有大量对象死去，所以可以选择复制算法，只需要付出少量对象的复制成本就可以完成每次垃圾收集。而老年代的对象存活几率是比较高的，而且没有额外的空间对它进行分配担保，所以我们必须选择“标记-清除”或“标记-整理”算法进行垃圾收集。</p>
+<ol start="8">
+<li>G1与CMS的区别是什么</li>
+</ol>
+<p>​    CMS 主要集中在老年代的回收，而 G1 集中在分代回收，包括了年轻代的 Young GC 以及老年代的 Mix GC；G1 使用了 Region 方式对堆内存进行了划分，且基于标记整理算法实现，整体减少了垃圾碎片的</p>
+<p>产生；在初始化标记阶段，搜索可达对象使用到的 Card Table，其实现方式不一样。</p>
+<ol start="9">
+<li>方法区中的无用类回收</li>
+</ol>
+<p>  方法区主要回收的是无用的类，那么如何判断一个类是无用的类的呢？</p>
+<p>​    判定一个常量是否是“废弃常量”比较简单，而要判定一个类是否是“无用的类”的条件则相对苛刻许多。</p>
+<p>​    类需要同时满足下面 3 个条件才能算是 “无用的类” :</p>
+<p>​    a-该类所有的实例都已经被回收，也就是 Java 堆中不存在该类的任何实例。</p>
+<p>​    b-加载该类的 ClassLoader 已经被回收。</p>
+<p>​    c-该类对应的 java.lang.Class 对象没有在任何地方被引用，无法在任何地方通过反射访问该类的方法。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/jvm/" class="category-chain-item">jvm</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/jvm/">#jvm</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>jvm调优</div>
+      <div>http://www.zivjie.cn/2023/03/15/jvm/jvm调优/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Francis</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年3月15日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/03/16/springcloud/sentinel/sentinel%E5%85%A5%E9%97%A8/" title="sentinel入门">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">sentinel入门</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/03/13/springcloud/gateway/gateway/" title="gateway">
+                        <span class="hidden-mobile">gateway</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
