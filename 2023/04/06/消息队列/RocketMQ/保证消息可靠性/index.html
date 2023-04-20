@@ -25,7 +25,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://www.zivjie.cn/img/wyy1.png">
 <meta property="article:published_time" content="2023-04-06T09:00:21.000Z">
-<meta property="article:modified_time" content="2023-04-06T09:14:01.683Z">
+<meta property="article:modified_time" content="2023-04-11T07:45:05.841Z">
 <meta property="article:author" content="Francis">
 <meta property="article:tag" content="消息队列">
 <meta property="article:tag" content="RocketMQ">
@@ -300,7 +300,7 @@
 <p><a target="_blank" rel="noopener" href="https://github.com/openmessaging/dledger">https://github.com/openmessaging/dledger</a></p>
 <p>DLedger作为RocketMQ的消息存储</p>
 <p>搭建：<a target="_blank" rel="noopener" href="https://rocketmq.apache.org/zh/docs/bestPractice/02dledger">https://rocketmq.apache.org/zh/docs/bestPractice/02dledger</a></p>
-<p><img src="/image/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/RocketMQ/%E5%8F%AF%E9%9D%A0%E6%80%A7/1.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/image/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/RocketMQ/%E5%8F%AF%E9%9D%A0%E6%80%A7/RocketMQ%E6%9E%B6%E6%9E%84-DLedger.jpg" srcset="/img/loading.gif" lazyload></p>
 <h2 id="4-Consumer保证消息高可靠性"><a href="#4-Consumer保证消息高可靠性" class="headerlink" title="4 Consumer保证消息高可靠性"></a>4 Consumer保证消息高可靠性</h2><h3 id="4-1-消息重试机制"><a href="#4-1-消息重试机制" class="headerlink" title="4.1 消息重试机制"></a>4.1 消息重试机制</h3><p>当一条消息初次消费失败，消息队列 RocketMQ 会自动进行消息重试；达到最大重试次数后，若消费依然失败，则表明消费者在正常情况下无法正确地消费该消息，此时，消息队列 RocketMQ 不会立刻将消息丢弃，而是将其发送到该消费者对应的特殊队列中。在消息队列 RocketMQ 中，这种正常情况下无法被消费的消息称为死信消息（Dead-LetterMessage）</p>
 <p>存储死信消息的特殊队列称为死信队列 （Dead-Letter Queue）。 一条消息进入死信队列，意味着某些因素导致消费者无法正常消费该消息，因此，通常需要对其进行特殊处理。排查可疑因素并解决问题后，可以在消息队列 RocketMQ控制台重新发送该消息，让消费者 重新消费一次。</p>
 <h3 id="4-2-给Broker一个反馈"><a href="#4-2-给Broker一个反馈" class="headerlink" title="4.2 给Broker一个反馈"></a>4.2 给Broker一个反馈</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java">consumer.registerMessageListener(<span class="hljs-keyword">new</span> <span class="hljs-title class_">MessageListenerConcurrently</span>() &#123;<br>   <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> ConsumeConcurrentlyStatus <span class="hljs-title function_">consumeMessage</span><span class="hljs-params">(List&lt;MessageExt&gt; msgs, ConsumeConcurrentlyContext context)</span>&#123;<br>        <span class="hljs-keyword">try</span>&#123;<br>            System.out.println(msgs);<br>            <span class="hljs-keyword">return</span> ConsumeConcurrentlyStatus.CONSUME_SUCCESS;<br>        &#125; <span class="hljs-keyword">catch</span> (Exception e)&#123;<br>            e.printStackTrace();<br>            <span class="hljs-keyword">return</span> ConsumeConcurrentlyStatus.RECONSUME_LATER;<br>        &#125;<br>    &#125;<br>&#125;);<br></code></pre></td></tr></table></figure>
@@ -409,6 +409,12 @@
                 <div class="post-prevnext my-3">
                   <article class="post-prev col-6">
                     
+                    
+                      <a href="/2023/04/08/nginx/nginx%E5%AE%89%E8%A3%85/" title="nginx安装">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">nginx安装</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
                     
                   </article>
                   <article class="post-next col-6">
