@@ -1,0 +1,710 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Francis">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1 本地配置原理https:&#x2F;&#x2F;docs.spring.io&#x2F;spring-boot&#x2F;docs&#x2F;2.7.2&#x2F;reference&#x2F;htmlsingle&#x2F;#features.external-config （1）加载application.properties文件 123PropertySourceLoader#load()	-&gt;PropertiesPropertySourceLoader#lo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Zookeeper实现配置中心">
+<meta property="og:url" content="http://www.zivjie.cn/2023/05/16/%E4%B8%AD%E9%97%B4%E4%BB%B6/zookeeper/Zookeeper%E5%AE%9E%E7%8E%B0%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/index.html">
+<meta property="og:site_name" content="Francis-Blog">
+<meta property="og:description" content="1 本地配置原理https:&#x2F;&#x2F;docs.spring.io&#x2F;spring-boot&#x2F;docs&#x2F;2.7.2&#x2F;reference&#x2F;htmlsingle&#x2F;#features.external-config （1）加载application.properties文件 123PropertySourceLoader#load()	-&gt;PropertiesPropertySourceLoader#lo">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.zivjie.cn/img/Artic%20Sunset.png">
+<meta property="article:published_time" content="2023-05-16T07:43:00.000Z">
+<meta property="article:modified_time" content="2023-05-29T05:43:56.471Z">
+<meta property="article:author" content="Francis">
+<meta property="article:tag" content="Zookeeper">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://www.zivjie.cn/img/Artic%20Sunset.png">
+  
+  
+  
+  <title>Zookeeper实现配置中心 - Francis-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.zivjie.cn","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Francis</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Zookeeper实现配置中心"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-05-16 15:43" pubdate>
+          2023年5月16日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          7.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          62 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Zookeeper实现配置中心</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="1-本地配置原理"><a href="#1-本地配置原理" class="headerlink" title="1 本地配置原理"></a>1 本地配置原理</h2><p><a target="_blank" rel="noopener" href="https://docs.spring.io/spring-boot/docs/2.7.2/reference/htmlsingle/#features.external-config">https://docs.spring.io/spring-boot/docs/2.7.2/reference/htmlsingle/#features.external-config</a></p>
+<p>（1）加载application.properties文件</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java">PropertySourceLoader#load()<br>	-&gt;PropertiesPropertySourceLoader#load()<br>		-&gt;OriginTrackedMapPropertySource<br></code></pre></td></tr></table></figure>
+
+<p>（2）查看Environment的属性配置源</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java">SpringApplication#run()<br>	-&gt;debug: configureIgnoreBeanInfo(environment)<br></code></pre></td></tr></table></figure>
+
+<p>（3）比如在Program arguments中配置hello=hi，environment中的 SimpleCommandLinePropertySource</p>
+<p>（4）@Value实现原理</p>
+<figure class="highlight livescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs livescript">（<span class="hljs-number">1</span>）使用BeanPostProcessor解析类上的@Value字段<br>（<span class="hljs-number">2</span>）获取到字段上的@Value字段<br>（<span class="hljs-number">3</span>）解析@Value字段的value属性值，比如age<br>（<span class="hljs-number">4</span>）从environment中的属性配置源OriginTrackedMapPropertySource中寻找age的key<br>（<span class="hljs-number">5</span>）根据key获取到对应的value值<br>（<span class="hljs-number">6</span>）通过field反射的方式设置value值<br><br>源码：<br>AutowiredAnnotationBeanPostProcessor<span class="hljs-comment">#inject()</span><br>	-&gt;resolveFieldValue(field, bean, beanName)   <span class="hljs-comment">#设置条件:</span><br>		beanName.equals<span class="hljs-function"><span class="hljs-params">(<span class="hljs-string">&quot;orderController&quot;</span>)</span></span><br><span class="hljs-function">		-&gt;</span>AutowiredAnnotationBeanPostProcessor.this.beanFactory.resolveDependency(<br>			-&gt;DefaultListableBeanFactory<span class="hljs-comment">#resolveDependency</span><br>				-&gt;this.doResolveDependency(descriptor...)<br>					<span class="hljs-comment"># 获取到@Value属性上的value，比如age</span><br>					-&gt;<span class="hljs-built_in">Object</span> value = getAutowireCandidateResolver().getSuggestedValue(descriptor) <br>					<span class="hljs-comment"># 根据age从env中寻找与之对应的值</span><br>					-&gt; <span class="hljs-built_in">String</span> strVal = resolveEmbeddedValue((<span class="hljs-built_in">String</span>) value)<br>					<span class="hljs-comment">#AutowiredAnnotationBeanPostProcessor#inject最后一段逻辑 通过反射给目标字段赋值</span><br>					-&gt; field<span class="hljs-comment">#set(bean,value) </span><br></code></pre></td></tr></table></figure>
+
+<h2 id="2-spring生态中的扩展机制"><a href="#2-spring生态中的扩展机制" class="headerlink" title="2 spring生态中的扩展机制"></a>2 spring生态中的扩展机制</h2><h3 id="2-1-常见扩展机制"><a href="#2-1-常见扩展机制" class="headerlink" title="2.1  常见扩展机制"></a>2.1  常见扩展机制</h3><blockquote>
+<p>所谓的扩展机制就是不修改Spring生态源码，也能够把一些想要的代码放到启动流程中</p>
+</blockquote>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm">ApplicationContextInitializer<br>事件监听机制<br><span class="hljs-keyword">BeanPostProcessor</span><br><span class="hljs-keyword"></span><span class="hljs-keyword">BeanFactoryPostProcessor</span><br><span class="hljs-keyword"></span>ApplicationRunner<br>...<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-2-举例使用ApplicationContextInitializer"><a href="#2-2-举例使用ApplicationContextInitializer" class="headerlink" title="2.2 举例使用ApplicationContextInitializer"></a>2.2 举例使用ApplicationContextInitializer</h3><p>（1）自定义ApplicationContextInitializer</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ZkConfigApplicationContextInitializer</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">ApplicationContextInitializer</span> &#123;<br>	<span class="hljs-meta">@Override</span><br>	<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">initialize</span><span class="hljs-params">(ConfigurableApplicationContext context)</span> &#123;<br>            <br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>resources/META-INF/spring.factories</p>
+<p>SPI:读取所有spring.factories文件中的ApplicationContextInitializer类型，并实例化存放到list集合中</p>
+</blockquote>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs stylus">org<span class="hljs-selector-class">.springframework</span><span class="hljs-selector-class">.context</span>.ApplicationContextInitializer=\com<span class="hljs-selector-class">.jack</span><span class="hljs-selector-class">.handwrittenzookeeperconfig</span><span class="hljs-selector-class">.initializer</span>.ZkConfigApplicationContextInitializer<br></code></pre></td></tr></table></figure>
+
+<h2 id="3-Zookeeper实现配置中心"><a href="#3-Zookeeper实现配置中心" class="headerlink" title="3 Zookeeper实现配置中心"></a>3 Zookeeper实现配置中心</h2><h3 id="3-1-启动Spring-Boot拉取zk-Server数据"><a href="#3-1-启动Spring-Boot拉取zk-Server数据" class="headerlink" title="3.1 启动Spring Boot拉取zk Server数据"></a>3.1 启动Spring Boot拉取zk Server数据</h3><h4 id="3-1-1-准备数据"><a href="#3-1-1-准备数据" class="headerlink" title="3.1.1 准备数据"></a>3.1.1 准备数据</h4><blockquote>
+<p>/jack-config/product-service</p>
+</blockquote>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><br>	<span class="hljs-attr">&quot;id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;1&quot;</span><span class="hljs-punctuation">,</span><br>	<span class="hljs-attr">&quot;product&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;mobile&quot;</span><span class="hljs-punctuation">,</span><br>	<span class="hljs-attr">&quot;price&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;3000&quot;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="3-1-2-Curator连接ZK并获取指定节点数据"><a href="#3-1-2-Curator连接ZK并获取指定节点数据" class="headerlink" title="3.1.2  Curator连接ZK并获取指定节点数据"></a>3.1.2  Curator连接ZK并获取指定节点数据</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.apache.curator<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>curator-recipes<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>5.2.1<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ZkConfigApplicationContextInitializer</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">ApplicationContextInitializer</span> &#123;<br>	<span class="hljs-meta">@Override</span><br>	<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">initialize</span><span class="hljs-params">(ConfigurableApplicationContext context)</span> &#123;<br>		System.out.println(<span class="hljs-string">&quot;我被调用了...&quot;</span>);<br>    	String connectStr=<span class="hljs-string">&quot;192.168.0.8:2181&quot;</span>;<br>        <span class="hljs-type">CuratorFramework</span> <span class="hljs-variable">curatorFramework</span> <span class="hljs-operator">=</span> CuratorFrameworkFactory<br>				.builder()<br>				.connectionTimeoutMs(<span class="hljs-number">20000</span>)<br>				.connectString(connectStr)<br>				.retryPolicy(<span class="hljs-keyword">new</span> <span class="hljs-title class_">ExponentialBackoffRetry</span>(<span class="hljs-number">1000</span>, <span class="hljs-number">3</span>))<br>				.build();<br>		curatorFramework.start();<br>		<span class="hljs-keyword">try</span> &#123;<br>			<span class="hljs-type">byte</span>[] bytes = curatorFramework.getData().forPath(<span class="hljs-string">&quot;/jackconfig/product-service&quot;</span>);<br>			<span class="hljs-comment">// String字符串的Json转成Map</span><br>			Map&lt;String,Object&gt; map = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectMapper</span>().readValue(<span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>(bytes), Map.class);<br>			System.out.println(<span class="hljs-string">&quot;从zookeeper server获取到的值为: &quot;</span>+map);<br>		&#125; <span class="hljs-keyword">catch</span> (Exception e)&#123;<br>			e.printStackTrace();<br>		&#125;<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-2-将map以属性源的形式保存到env中"><a href="#3-2-将map以属性源的形式保存到env中" class="headerlink" title="3.2 将map以属性源的形式保存到env中"></a>3.2 将map以属性源的形式保存到env中</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 将map转换成MapPropertySource</span><br><span class="hljs-type">MapPropertySource</span> <span class="hljs-variable">mapPropertySource</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">MapPropertySource</span>(<span class="hljs-string">&quot;product-serviceremote-env&quot;</span>, map);<br><span class="hljs-type">ConfigurableEnvironment</span> <span class="hljs-variable">environment</span> <span class="hljs-operator">=</span> context.getEnvironment();<br>environment.getPropertySources().addFirst(mapPropertySource);<br>System.out.println(<span class="hljs-string">&quot;env新增MapPropertySource成功.&quot;</span>);<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-3-添加对节点-jack-config-product-service的监听"><a href="#3-3-添加对节点-jack-config-product-service的监听" class="headerlink" title="3.3  添加对节点/jack-config/product-service的监听"></a>3.3  添加对节点/jack-config/product-service的监听</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 永久的监听</span><br><span class="hljs-type">CuratorCache</span> <span class="hljs-variable">curatorCache</span> <span class="hljs-operator">=</span> CuratorCache.build(curatorFramework, <span class="hljs-string">&quot;/jack-config/product-service&quot;</span>, CuratorCache.Options.SINGLE_NODE_CACHE);<br><span class="hljs-type">CuratorCacheListener</span> <span class="hljs-variable">listener</span> <span class="hljs-operator">=</span> CuratorCacheListener.builder().forAll(<span class="hljs-keyword">new</span> <span class="hljs-title class_">CuratorCacheListener</span>() &#123;<br>	<span class="hljs-comment">// 一旦对应 /jack-config/product-service ZNode发生变化，就会回调这个方法</span><br>	<span class="hljs-meta">@Override</span><br>	<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">event</span><span class="hljs-params">(Type type, ChildData oldData, ChildData data)</span> &#123;<br>		<span class="hljs-keyword">if</span>(type.equals(Type.NODE_CHANGED))&#123;<br>			System.out.println(<span class="hljs-string">&quot;ZNode数据更新了, 事件类型为: &quot;</span> + type);<br>		&#125;<br>	&#125;<br>&#125;).build();<br>curatorCache.listenable().addListener(listener);<br>curatorCache.start();<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-4-获取到更新后的数据并重新赋值给environment"><a href="#3-4-获取到更新后的数据并重新赋值给environment" class="headerlink" title="3.4 获取到更新后的数据并重新赋值给environment"></a>3.4 获取到更新后的数据并重新赋值给environment</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">CuratorCacheListener</span> <span class="hljs-variable">listener</span> <span class="hljs-operator">=</span> CuratorCacheListener.builder().forAll(<span class="hljs-keyword">new</span> <span class="hljs-title class_">CuratorCacheListener</span>() &#123;<br>	<span class="hljs-comment">// 一旦对应 /jack-config/product-service ZNode发生变化，就会回调这个方法</span><br>	<span class="hljs-meta">@Override</span><br>	<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">event</span><span class="hljs-params">(Type type, ChildData oldData, ChildData data)</span> &#123;<br>		<span class="hljs-keyword">if</span>(type.equals(Type.NODE_CHANGED))&#123;<br>			System.out.println(<span class="hljs-string">&quot;ZNode数据更新了, 事件类型为: &quot;</span> + type);<br>			<span class="hljs-keyword">try</span> &#123;<br>				Map&lt;String, Object&gt; updateMap = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectMapper</span>().readValue(<span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>(data.getData()), Map.class);<br>				System.out.println(<span class="hljs-string">&quot;更新后的数据map为: &quot;</span>+updateMap);<br>				environment.getPropertySources().replace(<span class="hljs-string">&quot;product-service-remote-env&quot;</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">MapPropertySource</span>(<span class="hljs-string">&quot;product-service-remote-enve&quot;</span>, updateMap));<br>			&#125; <span class="hljs-keyword">catch</span> (Exception e)&#123;<br>				e.printStackTrace();<br>			&#125;<br>		&#125;<br>	&#125;<br>&#125;).build();<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-5-更新-Value字段"><a href="#3-5-更新-Value字段" class="headerlink" title="3.5 更新@Value字段"></a>3.5 更新@Value字段</h3><p>（1）FieldDetail</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">FieldDetail</span> &#123;<br>	<span class="hljs-keyword">private</span> Field field; <span class="hljs-comment">// 具体哪个字段</span><br>	<span class="hljs-keyword">private</span> Object instance; <span class="hljs-comment">// 属于哪个实例</span><br>	<span class="hljs-keyword">public</span> <span class="hljs-title function_">FieldDetail</span><span class="hljs-params">(Field field, Object instance)</span> &#123;<br>		<span class="hljs-built_in">this</span>.field = field;<br>		<span class="hljs-built_in">this</span>.instance = instance;<br>	&#125;<br>	<span class="hljs-keyword">public</span> Field <span class="hljs-title function_">getField</span><span class="hljs-params">()</span> &#123;<br>		<span class="hljs-keyword">return</span> field;<br>	&#125;<br>	<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setField</span><span class="hljs-params">(Field field)</span> &#123;<br>		<span class="hljs-built_in">this</span>.field = field;<br>	&#125;<br>	<span class="hljs-keyword">public</span> Object <span class="hljs-title function_">getInstance</span><span class="hljs-params">()</span> &#123;<br>		<span class="hljs-keyword">return</span> instance;<br>	&#125;<br>	<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setInstance</span><span class="hljs-params">(Object instance)</span> &#123;<br>		<span class="hljs-built_in">this</span>.instance = instance;<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>（2）定义需要保存下来类的注解</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Target(ElementType.TYPE)</span><br><span class="hljs-meta">@Retention(RetentionPolicy.RUNTIME)</span><br><span class="hljs-meta">@Documented</span><br><span class="hljs-keyword">public</span> <span class="hljs-meta">@interface</span> JackRefreshScope &#123;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>（3）添加到目标类上，比如ProductController</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span><br><span class="hljs-meta">@RequestMapping(&quot;/product&quot;)</span><br><span class="hljs-meta">@JackRefreshScope</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductController</span> &#123;<br></code></pre></td></tr></table></figure>
+
+<p>（4）使用后置处理器进行逻辑判断并保存</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Component</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ParseJackRefreshScopeBeanPostProcessor</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">BeanPostProcessor</span> &#123;<br>	<span class="hljs-keyword">private</span> Map&lt;String, FieldDetail&gt; fieldDetailMap=<span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>	<span class="hljs-keyword">public</span> Map&lt;String, FieldDetail&gt; <span class="hljs-title function_">getFieldDetailMap</span><span class="hljs-params">()</span> &#123;<br>		<span class="hljs-keyword">return</span> fieldDetailMap;<br>	&#125;<br>	<span class="hljs-meta">@Override</span><br>	<span class="hljs-keyword">public</span> Object <span class="hljs-title function_">postProcessAfterInitialization</span><span class="hljs-params">(Object bean, String beanName)</span> <span class="hljs-keyword">throws</span> BeansException &#123;<br>		Class&lt;?&gt; clazz = bean.getClass();<br>		<span class="hljs-keyword">if</span>(clazz.isAnnotationPresent(JackRefreshScope.class))&#123;<br>			System.out.println(clazz); <span class="hljs-comment">// class com.jack.controller.ProductController</span><br>			<span class="hljs-keyword">for</span> (Field field : clazz.getDeclaredFields()) &#123;<br>				<span class="hljs-keyword">if</span>(field.isAnnotationPresent(Value.class))&#123;<br>					<span class="hljs-type">Value</span> <span class="hljs-variable">value</span> <span class="hljs-operator">=</span> field.getAnnotation(Value.class);<br>					String val=value.value(); <span class="hljs-comment">// 获取到了对应的value值 $&#123;id&#125; ---&gt; id</span><br>					val=val.substring(<span class="hljs-number">2</span>,val.indexOf(<span class="hljs-string">&quot;&#125;&quot;</span>)); <span class="hljs-comment">// id</span><br>					System.out.println(<span class="hljs-string">&quot;val: &quot;</span>+val);<br>					<span class="hljs-comment">// 保存 val 对应的Field和Field所在的clazz</span><br>					<span class="hljs-built_in">this</span>.fieldDetailMap.put(val,<span class="hljs-keyword">new</span> <span class="hljs-title class_">FieldDetail</span>(field,bean));<br>				&#125;<br>			&#125;<br>			System.out.println(<span class="hljs-string">&quot;&quot;</span>);<br>		&#125;<br>		<span class="hljs-keyword">return</span> BeanPostProcessor.<span class="hljs-built_in">super</span>.postProcessAfterInitialization(bean,beanName);<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>（5）完善ZkConfigApplicationContextInitializer最后的逻辑</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 获取到有哪些字段可能需要更新</span><br><span class="hljs-type">ParseJackRefreshScopeBeanPostProcessor</span> <span class="hljs-variable">parseJackRefreshScopeBeanPostProcessor</span> <span class="hljs-operator">=</span> context.getBean(<span class="hljs-string">&quot;parseJackRefreshScopeBeanPostProcessor&quot;</span>, ParseJackRefreshScopeBeanPostProcessor.class);<br>Map&lt;String, FieldDetail&gt; fieldDetailMap = parseJackRefreshScopeBeanPostProcessor.getFieldDetailMap();<br><span class="hljs-keyword">for</span> (String key : fieldDetailMap.keySet()) &#123;<br>	<span class="hljs-keyword">if</span>(updateMap.containsKey(key))&#123; <span class="hljs-comment">// 判断远端发送过来的map数据中的key</span><br>		<span class="hljs-type">String</span> <span class="hljs-variable">value</span> <span class="hljs-operator">=</span> environment.getProperty(key);<br>		<span class="hljs-type">Field</span> <span class="hljs-variable">field</span> <span class="hljs-operator">=</span> fieldDetailMap.get(key).getField();<br>		field.setAccessible(<span class="hljs-literal">true</span>);<br>		<span class="hljs-comment">// 反射更新字段的值</span><br>		field.set(fieldDetailMap.get(key).getInstance(),value);<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/" class="category-chain-item">中间件</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/Zookeeper/" class="category-chain-item">Zookeeper</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Zookeeper/">#Zookeeper</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Zookeeper实现配置中心</div>
+      <div>http://www.zivjie.cn/2023/05/16/中间件/zookeeper/Zookeeper实现配置中心/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Francis</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年5月16日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/05/17/%E4%B8%AD%E9%97%B4%E4%BB%B6/zookeeper/Zookeeper%E5%AE%9E%E7%8E%B0%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83/" title="Zookeeper实现注册中心">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Zookeeper实现注册中心</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/05/16/%E4%B8%AD%E9%97%B4%E4%BB%B6/zookeeper/Zookeeper-API/" title="Zookeeper-API">
+                        <span class="hidden-mobile">Zookeeper-API</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,1013 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Francis">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1 初始MongoDBMongoDB是一个以JSON为数据模型的文档数据库，文档来自于”JSON Document”，并非一般理解的PDF、WORD文档。是由上市公司MongoDB Inc.开发，位于美国纽约。是一个应用数据库，非关系型数据库，即NOSQL。主要特点：建模可选，JSON数据模型比较适合开发者，横向扩展可以支持很大数据量和并发，理论无上限。MongoDB的文档指的是JSON对象，对应">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MongoDB入门">
+<meta property="og:url" content="http://www.zivjie.cn/2023/05/10/%E6%95%B0%E6%8D%AE%E5%BA%93/MongoDB/MongoDB%E5%85%A5%E9%97%A8/index.html">
+<meta property="og:site_name" content="Francis-Blog">
+<meta property="og:description" content="1 初始MongoDBMongoDB是一个以JSON为数据模型的文档数据库，文档来自于”JSON Document”，并非一般理解的PDF、WORD文档。是由上市公司MongoDB Inc.开发，位于美国纽约。是一个应用数据库，非关系型数据库，即NOSQL。主要特点：建模可选，JSON数据模型比较适合开发者，横向扩展可以支持很大数据量和并发，理论无上限。MongoDB的文档指的是JSON对象，对应">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.zivjie.cn/img/%E4%B8%8E%E4%B8%80%E6%9C%88%E6%83%B3%E8%B0%81.png">
+<meta property="article:published_time" content="2023-05-10T07:09:00.000Z">
+<meta property="article:modified_time" content="2023-05-29T05:34:27.029Z">
+<meta property="article:author" content="Francis">
+<meta property="article:tag" content="MongoDB">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://www.zivjie.cn/img/%E4%B8%8E%E4%B8%80%E6%9C%88%E6%83%B3%E8%B0%81.png">
+  
+  
+  
+  <title>MongoDB入门 - Francis-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.zivjie.cn","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Francis</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="MongoDB入门"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-05-10 15:09" pubdate>
+          2023年5月10日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          10k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          85 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">MongoDB入门</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="1-初始MongoDB"><a href="#1-初始MongoDB" class="headerlink" title="1 初始MongoDB"></a>1 初始MongoDB</h2><p>MongoDB是一个以JSON为数据模型的文档数据库，文档来自于”JSON Document”，并非一般理解的PDF、WORD文档。是由上市公司MongoDB Inc.开发，位于美国纽约。是一个应用数据库，非关系型数据库，即NOSQL。主要特点：建模可选，JSON数据模型比较适合开发者，横向扩展可以支持很大数据量和并发，理论无上限。MongoDB的文档指的是JSON对象，对应Java中更像是一个Object对象的概念，而不是文件的概念。</p>
+<p>MongoDB的使用场景：电商，物联网，内容管理(Web前端)，社交，航空业，电信业等。</p>
+<h3 id="1-1-MongoDB特点"><a href="#1-1-MongoDB特点" class="headerlink" title="1.1 MongoDB特点"></a>1.1 MongoDB特点</h3><p>数据模型不一样：MongoDB是JSON模型。</p>
+<p>开发模式不一样：传统的数据库是需要建模的，MongoDB是不要求先建模的，可以按照程序的模型，直接把程序的数据模型直接扔到MongoDB就可以直接保存，支持数据库的操作。</p>
+<p>面向对象的数据模型：在Java和Python中都是使用面向对象的方式开发，一般后端返回给前端的数据交互都是JSON，所以MongoDB数据库模型是直接和Java对象吻合的，JSON其实就是一种对象。</p>
+<h3 id="1-2-MongoDB-VS-关系型数据库"><a href="#1-2-MongoDB-VS-关系型数据库" class="headerlink" title="1.2 MongoDB VS 关系型数据库"></a>1.2 MongoDB VS 关系型数据库</h3><table>
+<thead>
+<tr>
+<th></th>
+<th>MongoDB</th>
+<th>RDBMS</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>数据模型</td>
+<td>文档类型</td>
+<td>关系类型</td>
+</tr>
+<tr>
+<td>数据库类型</td>
+<td>OLTP</td>
+<td>OLTP</td>
+</tr>
+<tr>
+<td>CRUD操作</td>
+<td>MQL/SQL</td>
+<td>SQL</td>
+</tr>
+<tr>
+<td>高可用</td>
+<td>复制集</td>
+<td>集群模式</td>
+</tr>
+<tr>
+<td>横向扩展能力</td>
+<td>通过原生分片完善支持</td>
+<td>中间件/应用入侵式</td>
+</tr>
+<tr>
+<td>索引支持</td>
+<td>B树，全文索引，地理位置索引，多键值索引，TTL索引</td>
+<td>B树</td>
+</tr>
+<tr>
+<td>开发难度</td>
+<td>容易</td>
+<td>困难</td>
+</tr>
+<tr>
+<td>数据容量</td>
+<td>没有理论上限</td>
+<td>千万、亿</td>
+</tr>
+<tr>
+<td>扩展方式</td>
+<td>垂直扩展+水平扩展</td>
+<td>垂直扩展</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>OLTP: OLTP(Online Transaction Processing)数据库，也称交易型数据库，是能够提供实时在线处理事务时保证强一致性（ACID） 的关系型数据库。事务(Transaction)是操作数据库中数据的操作序列，要求保证ACID，即原子性(Atomicity)、 一致性 (Consistency)、隔离性(Isolation)、持久性(Durability)。</p>
+</blockquote>
+<p>OLTP(Online Transaction Processing)) 是用来做前端交互式应用的</p>
+<p>OLAP(Online analytical processing) 是在线分析处理，顾名思义就是OLAP是用于数据分析的</p>
+<h2 id="2-MongoDB优势"><a href="#2-MongoDB优势" class="headerlink" title="2 MongoDB优势"></a>2 MongoDB优势</h2><ol>
+<li>JSON 结构和对象模型接近，开发代码量低 </li>
+<li> JSON 的动态模型意味着更容易响应新的业务需求 </li>
+<li>复制集提供99.999% 高可用 </li>
+<li>分表架构支持海量数据和无缝扩容</li>
+</ol>
+<h2 id="3-MongoDB安装与使用"><a href="#3-MongoDB安装与使用" class="headerlink" title="3 MongoDB安装与使用"></a>3 MongoDB安装与使用</h2><h3 id="3-1-MongoDB安装"><a href="#3-1-MongoDB安装" class="headerlink" title="3.1 MongoDB安装"></a>3.1 MongoDB安装</h3><p>下载地址：<a target="_blank" rel="noopener" href="https://www.mongodb.com/try/download/community">https://www.mongodb.com/try/download/community</a></p>
+<p>安装：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-built_in">mkdir</span> -p /data /data/db<br><span class="hljs-built_in">mkdir</span> -p /data /data/logs<br><span class="hljs-built_in">cd</span> data<br><br><span class="hljs-comment">#https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-rhel70-4.2.24.tgz</span><br>curl -O https://fastdl.mongodb.org/linux/mongodblinux-x86_64-rhel70-4.2.24.tgz<br>tar -xvf mongodb-linux-x86_64-rhel70-4.2.24.tgz<br><br><span class="hljs-comment">#设置环境变量</span><br><span class="hljs-built_in">export</span> PATH=<span class="hljs-variable">$PATH</span>:/data/mongodb-linux-x86_64-rhel70-4.2.24/bin<br>vim /etc/profile<br><span class="hljs-built_in">source</span> /etc/profile<br><span class="hljs-built_in">cd</span> /data/mongodb-linux-x86_64-rhel70-4.2.24/bin<br></code></pre></td></tr></table></figure>
+
+<p>修改配置文件：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-attr">dbpath</span> = <span class="hljs-string">/data/db #数据文件存放目录</span><br><span class="hljs-attr">logpath</span> = <span class="hljs-string">/data/logs/mongodb.log #日志文件存放目录</span><br><span class="hljs-attr">port</span> = <span class="hljs-string">27017 #端口</span><br><span class="hljs-attr">fork</span> = <span class="hljs-string">true #以守护程序的方式启用，即在后台运行</span><br><span class="hljs-comment">#auth=true #需要认证。如果放开注释，就必须创建MongoDB的账号，使用账号与密码才可远程访问，第一次安装建议注释</span><br><span class="hljs-attr">bind_ip</span>=<span class="hljs-string">0.0.0.0 #允许远程访问，或者直接注释，127.0.0.1是只允许本地访问</span><br></code></pre></td></tr></table></figure>
+
+<p>启动mongodb:</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># 以command line 设置参数的方式启动</span><br>mongod --dbpath /data/db --port 27017 --logpath /data/logs/mongod.log --fork -bind_ip 0.0.0.0<br><span class="hljs-comment"># 以文件方式启动</span><br>mongod -f mongodb.conf<br><br><span class="hljs-comment">#测试安装结果</span><br>mongod<br><br><span class="hljs-comment">#关闭</span><br>pkill mongod<br>mongod --shutdown<br><br><span class="hljs-comment">#测试启动结果</span><br>netstat -nltp | grep mongod<br>ps -ef | grep mongo<br><br><span class="hljs-comment">#开放端口</span><br>firewall-cmd --zone=public --add-port=27017/tcp --permanent<br>firewall-cmd --zone=public --add-port=28017/tcp --permanent<br><span class="hljs-comment"># 使配置生效</span><br>firewall-cmd --reload<br><span class="hljs-comment"># 查看开放端口操作是否成功</span><br>firewall-cmd --zone=public --list-ports<br></code></pre></td></tr></table></figure>
+
+<p>浏览器访问：ip:27017</p>
+<p>导入样本数据：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment">#官网下载</span><br><span class="hljs-comment">#解压</span><br>tar -xvf dump.tar.gz<br><span class="hljs-comment">#还原数据</span><br>mongorestore -h localhost:27017<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-2-基本操作"><a href="#3-2-基本操作" class="headerlink" title="3.2 基本操作"></a>3.2 基本操作</h3><figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs stata">&gt;<span class="hljs-keyword">use</span> DATABASE_NAME<br>如果数据库不存在，则创建数据库，否则切换到指定数据库。<br>&gt;<span class="hljs-keyword">use</span> crud<br>switched to <span class="hljs-keyword">db</span> crud<br>&gt;<span class="hljs-keyword">db</span><br>crud<br></code></pre></td></tr></table></figure>
+
+<h4 id="3-2-1-使用-insert-完成插入操作"><a href="#3-2-1-使用-insert-完成插入操作" class="headerlink" title="3.2.1 使用 insert 完成插入操作"></a>3.2.1 使用 insert 完成插入操作</h4><figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">使用 <span class="hljs-keyword">insert</span> 完成插入操作<br>操作格式：<br>db.&lt;集合&gt;.insertOne(&lt;<span class="hljs-type">JSON</span>对象&gt;)<br>db.&lt;集合&gt;.insertMany([&lt;<span class="hljs-type">JSON</span> <span class="hljs-number">1</span>&gt;, &lt;<span class="hljs-type">JSON</span> <span class="hljs-number">2</span>&gt;, …&lt;<span class="hljs-type">JSON</span> n&gt;])<br>示例：<br>db.fruit.insertOne(&#123;<span class="hljs-type">name</span>: &quot;apple&quot;&#125;)<br>db.fruit.insertMany([<br>   &#123;<span class="hljs-type">name</span>: &quot;apple&quot;&#125;,<br>   &#123;<span class="hljs-type">name</span>: &quot;pear&quot;&#125;,<br>   &#123;<span class="hljs-type">name</span>: &quot;orange&quot;&#125;<br>])<br></code></pre></td></tr></table></figure>
+
+<h4 id="3-2-2-使用-find-查询文档"><a href="#3-2-2-使用-find-查询文档" class="headerlink" title="3.2.2 使用 find 查询文档"></a>3.2.2 使用 find 查询文档</h4><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs stylus">关于 find:<br> find 是 MongoDB 中查询数据的基本指令，相当于 SQL 中的SELECT。<br> find 返回的是游标。<br> find 示例：<br>	db<span class="hljs-selector-class">.movies</span><span class="hljs-selector-class">.find</span>( &#123; <span class="hljs-string">&quot;year&quot;</span> : <span class="hljs-number">1975</span> &#125; ) <span class="hljs-comment">//单条件查询</span><br>	db<span class="hljs-selector-class">.movies</span><span class="hljs-selector-class">.find</span>( &#123; <span class="hljs-string">&quot;year&quot;</span> : <span class="hljs-number">1989</span>, <span class="hljs-string">&quot;title&quot;</span> : <span class="hljs-string">&quot;Batman&quot;</span>&#125; ) <span class="hljs-comment">//多条件and查询</span><br>	db<span class="hljs-selector-class">.movies</span><span class="hljs-selector-class">.find</span>( &#123; <span class="hljs-variable">$and</span> : <span class="hljs-selector-attr">[ &#123;<span class="hljs-string">&quot;title&quot;</span> : <span class="hljs-string">&quot;Batman&quot;</span>&#125;, &#123;<span class="hljs-string">&quot;category&quot;</span> : <span class="hljs-string">&quot;action&quot;</span> &#125;]</span> &#125; ) <span class="hljs-comment">// and的另一种形式</span><br>	db<span class="hljs-selector-class">.movies</span><span class="hljs-selector-class">.find</span>( &#123; <span class="hljs-variable">$or</span>: <span class="hljs-selector-attr">[&#123;<span class="hljs-string">&quot;year&quot;</span> : 1989&#125;, &#123;<span class="hljs-string">&quot;title&quot;</span> :<span class="hljs-string">&quot;Batman&quot;</span>&#125;]</span> &#125; ) <span class="hljs-comment">//多条件or查询</span><br>	db<span class="hljs-selector-class">.movies</span><span class="hljs-selector-class">.find</span>( &#123; <span class="hljs-string">&quot;title&quot;</span> : /^B/&#125; ) <span class="hljs-comment">//按正则表达式查找</span><br></code></pre></td></tr></table></figure>
+
+<p>空的查询文档{}会匹配集合的全部内容。若是不指定查询文档，默认就是{}</p>
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>linit(n)</td>
+<td>限制查询结果返回数量n</td>
+</tr>
+<tr>
+<td>skip(n)</td>
+<td>跳过指定数目的文档</td>
+</tr>
+<tr>
+<td>sort({key:1 or -1})</td>
+<td>对查询结果进行排序</td>
+</tr>
+<tr>
+<td>explain()</td>
+<td>用于获取查询执行过程报告</td>
+</tr>
+<tr>
+<td>snapshot()</td>
+<td>对查询结果使用快照</td>
+</tr>
+<tr>
+<td>count()</td>
+<td>查询文档的总数量</td>
+</tr>
+</tbody></table>
+<p>游标使用过程：</p>
+<p>（1）声明游标：var cursor=db.collectioName.find({query}, {projection})</p>
+<p>（2）打开游标：cursor.hasNext()判断游标是否已经取到尽头</p>
+<p>（3）读取数据：cursor.Next()取出游标的下一个文档</p>
+<p>（4）关闭游标：cursor.close()此步骤可省略,通常为自动关闭,也可 以显示关闭</p>
+<p>（5）使用print输出游标结果集</p>
+<p>示例： </p>
+<p>1.声明游标 var cursor = db.orders.find() </p>
+<p>2.使用printjson输出游标结果集： while (cursor.hasNext()) { print(tojson(cursor.next())) }</p>
+<p><strong>查询条件对照表</strong></p>
+<table>
+<thead>
+<tr>
+<th>SQL</th>
+<th>MQL</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>a = 1</td>
+<td>{ a : 1 }</td>
+</tr>
+<tr>
+<td>a &lt;&gt; 1</td>
+<td>{ a: {$ne: 1}}</td>
+</tr>
+<tr>
+<td>a &gt; 1</td>
+<td>{ a: {$gt: 1}}</td>
+</tr>
+<tr>
+<td>a &gt;= 1</td>
+<td>{ a: {$gte: 1}}</td>
+</tr>
+<tr>
+<td>a &lt; 1</td>
+<td>{ a: {$lt: 1}}</td>
+</tr>
+<tr>
+<td>a &lt;= 1</td>
+<td>{ a: {$lte: 1}}</td>
+</tr>
+</tbody></table>
+<p><strong>查询逻辑对照表</strong></p>
+<table>
+<thead>
+<tr>
+<th>SQL</th>
+<th>MQL</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>a = 1 ADN b = 1</td>
+<td>{a: 1,b: 1} 或{$and: [{a:1}，{b: 1}]}</td>
+</tr>
+<tr>
+<td>a = 1 OR b = 1</td>
+<td>{$or:[{a:1},{b:1}]}</td>
+</tr>
+<tr>
+<td>a IS NULL</td>
+<td>{a: {$exists: false}}</td>
+</tr>
+<tr>
+<td>a IN (1,2,3)</td>
+<td>{a:{$in: [1,2,3]}}</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>查询逻辑逻辑运算符</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>$lt: 存在并小于</td>
+</tr>
+<tr>
+<td>$lte: 存在并小于等于</td>
+</tr>
+<tr>
+<td>$gt: 存在并大于</td>
+</tr>
+<tr>
+<td>$gte: 存在并大于等于</td>
+</tr>
+<tr>
+<td>$ne: 不存在或存在但不等于</td>
+</tr>
+<tr>
+<td>$in: 存在并在指定数组中</td>
+</tr>
+<tr>
+<td>$nin: 不存在或不在指定数组中</td>
+</tr>
+<tr>
+<td>$or: 匹配两个或多个条件中的一个</td>
+</tr>
+<tr>
+<td>$and: 匹配全部条件</td>
+</tr>
+</tbody></table>
+<h4 id="3-2-3-使用-find-搜索子文档"><a href="#3-2-3-使用-find-搜索子文档" class="headerlink" title="3.2.3 使用 find 搜索子文档"></a>3.2.3 使用 find 搜索子文档</h4><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs routeros"><span class="hljs-built_in">find</span> 支持使用“field.sub_field”的形式查询子文档。假设有一个文档：<br>db.fruit.insertOne(&#123;<br>    name: <span class="hljs-string">&quot;apple&quot;</span>,<br>    <span class="hljs-keyword">from</span>: &#123;<br>        country: <span class="hljs-string">&quot;China&quot;</span>,<br>        province: <span class="hljs-string">&quot;Guangdon&quot;</span><br>   &#125;<br>&#125;)<br>考虑以下查询的意义：<br>db.fruit.<span class="hljs-built_in">find</span>( &#123; <span class="hljs-string">&quot;from.country&quot;</span> : <span class="hljs-string">&quot;China&quot;</span> &#125; ) 上面这条是要查询 要查询子文档，<span class="hljs-keyword">from</span>.country<br>db.fruit.<span class="hljs-built_in">find</span>( &#123; <span class="hljs-string">&quot;from&quot;</span> : &#123;country: <span class="hljs-string">&quot;China&quot;</span>&#125; &#125;) 这条要找文档里面有一个<span class="hljs-keyword">from</span>字段，<span class="hljs-keyword">from</span>字段的值为<span class="hljs-attribute">country</span>=<span class="hljs-string">&quot;China&quot;</span><br>如果要查询子文档，必须在子文档里写上路径<br></code></pre></td></tr></table></figure>
+
+<h4 id="3-2-4-使用-find-搜索数组"><a href="#3-2-4-使用-find-搜索数组" class="headerlink" title="3.2.4 使用 find 搜索数组"></a>3.2.4 使用 find 搜索数组</h4><figure class="highlight mel"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs mel">find 支持对数组中的元素进行搜索。假设有一个文档：<br>db.fruit.insert([<br>   &#123; <span class="hljs-string">&quot;name&quot;</span> : <span class="hljs-string">&quot;Apple&quot;</span>, <span class="hljs-keyword">color</span>: [<span class="hljs-string">&quot;red&quot;</span>, <span class="hljs-string">&quot;green&quot;</span> ] &#125;,<br>   &#123; <span class="hljs-string">&quot;name&quot;</span> : <span class="hljs-string">&quot;Mango&quot;</span>, <span class="hljs-keyword">color</span>: [<span class="hljs-string">&quot;yellow&quot;</span>, <span class="hljs-string">&quot;green&quot;</span>] &#125;<br>])<br>考虑以下查询的意义：db.fruit.find(&#123;<span class="hljs-keyword">color</span>: <span class="hljs-string">&quot;red&quot;</span>&#125;) <span class="hljs-comment">//查找颜色为红色的水果有哪些</span><br>db.fruit.find(&#123;$or: [&#123;<span class="hljs-keyword">color</span>: <span class="hljs-string">&quot;red&quot;</span>&#125;, &#123;<span class="hljs-keyword">color</span>:<span class="hljs-string">&quot;yellow&quot;</span>&#125;]&#125;) <span class="hljs-comment">// 查找颜色为红色和黄色的水果有哪些</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="3-2-5-使用-find-搜索数组中的对象"><a href="#3-2-5-使用-find-搜索数组中的对象" class="headerlink" title="3.2.5 使用 find 搜索数组中的对象"></a>3.2.5 使用 find 搜索数组中的对象</h4><figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs stata">考虑以下文档，在其中搜索<br><span class="hljs-keyword">db</span>.movies.insertOne( &#123;<br>    <span class="hljs-string">&quot;title&quot;</span> : <span class="hljs-string">&quot;Raiders of the Lost Ark&quot;</span>,<br>    <span class="hljs-string">&quot;filming_locations&quot;</span> : [<br>       &#123; <span class="hljs-string">&quot;city&quot;</span> : <span class="hljs-string">&quot;Los Angeles&quot;</span>, <span class="hljs-string">&quot;state&quot;</span> : <span class="hljs-string">&quot;CA&quot;</span>, <span class="hljs-string">&quot;country&quot;</span> : <span class="hljs-string">&quot;USA&quot;</span> &#125;,<br>       &#123; <span class="hljs-string">&quot;city&quot;</span> : <span class="hljs-string">&quot;Rome&quot;</span>, <span class="hljs-string">&quot;state&quot;</span> : <span class="hljs-string">&quot;Lazio&quot;</span>, <span class="hljs-string">&quot;country&quot;</span> : <span class="hljs-string">&quot;Italy&quot;</span> &#125;,<br>       &#123; <span class="hljs-string">&quot;city&quot;</span> : <span class="hljs-string">&quot;Florence&quot;</span>, <span class="hljs-string">&quot;state&quot;</span> : <span class="hljs-string">&quot;SC&quot;</span>, <span class="hljs-string">&quot;country&quot;</span> : <span class="hljs-string">&quot;USA&quot;</span> &#125;<br>     ]<br>&#125;)<br><span class="hljs-comment">// 查找城市是 Rome 的记录</span><br><span class="hljs-keyword">db</span>.movies.find(&#123;<span class="hljs-string">&quot;filming_locations.city&quot;</span>: <span class="hljs-string">&quot;Rome&quot;</span>&#125;).pretty()<br></code></pre></td></tr></table></figure>
+
+<h4 id="3-2-6-模糊查询Like"><a href="#3-2-6-模糊查询Like" class="headerlink" title="3.2.6 模糊查询Like"></a>3.2.6 模糊查询Like</h4><figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs gradle">db.movies.<span class="hljs-keyword">find</span>(&#123;<span class="hljs-string">&quot;filming_locations.city&quot;</span>: <span class="hljs-regexp">/Rome/</span>&#125;).pretty()<br>采用 <span class="hljs-regexp">/ /</span>,中间就是模糊查询的内容，比如：“<span class="hljs-regexp">/ Rome /</span>”，查询名字包含：Rome,如果是以什么开头就在左边增加^ 反之亦然<br></code></pre></td></tr></table></figure>
+
+<h4 id="3-2-7-正则使用"><a href="#3-2-7-正则使用" class="headerlink" title="3.2.7 正则使用"></a>3.2.7 正则使用</h4><figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs arcade">&#123;&lt;field&gt;: &#123;<span class="hljs-symbol">$rege</span>x: <span class="hljs-regexp">/pattern/</span>, <span class="hljs-symbol">$optio</span>ns: <span class="hljs-string">&#x27;&#x27;</span>&#125; &#125;<br>db.movies.<span class="hljs-built_in">find</span>(&#123;<span class="hljs-string">&quot;filming_locations.city&quot;</span>: &#123;<span class="hljs-symbol">$rege</span>x:<span class="hljs-regexp">/Rome/</span>&#125; &#125;).pretty()<br></code></pre></td></tr></table></figure>
+
+<h4 id="3-2-8-使用-find-搜索数组中的对象，相当于是内联外联"><a href="#3-2-8-使用-find-搜索数组中的对象，相当于是内联外联" class="headerlink" title="3.2.8 使用 find 搜索数组中的对象，相当于是内联外联"></a>3.2.8 使用 find 搜索数组中的对象，相当于是内联外联</h4><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs routeros">在数组中搜索子对象的多个字段时，如果使用 <span class="hljs-variable">$elemMatch</span>，它表示必须是同一个子对象满足多个条件。考虑以下两个查询：<br>db.getCollection(<span class="hljs-string">&#x27;movies&#x27;</span>).<span class="hljs-built_in">find</span>(&#123;<br>        <span class="hljs-string">&quot;filming_locations.city&quot;</span>: <span class="hljs-string">&quot;Rome&quot;</span>,<br>        <span class="hljs-string">&quot;filming_locations.country&quot;</span>: <span class="hljs-string">&quot;USA&quot;</span><br>&#125;)<br>db.getCollection(<span class="hljs-string">&#x27;movies&#x27;</span>).<span class="hljs-built_in">find</span>(&#123; <span class="hljs-string">&quot;filming_locations&quot;</span>: &#123; <span class="hljs-variable">$elemMatch</span>:&#123;<span class="hljs-string">&quot;city&quot;</span>:<span class="hljs-string">&quot;Rome&quot;</span>, <span class="hljs-string">&quot;country&quot;</span>: <span class="hljs-string">&quot;USA&quot;</span>&#125;&#125;&#125;)<br></code></pre></td></tr></table></figure>
+
+<h4 id="3-2-9-控制-find-返回的字段"><a href="#3-2-9-控制-find-返回的字段" class="headerlink" title="3.2.9 控制 find 返回的字段"></a>3.2.9 控制 find 返回的字段</h4><figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">find</span> 可以指定只返回指定的字段：_id字段必须明确指明不返回，否则默认返回；在 MongoDB 中我们称这为投影（projection）；<br> <span class="hljs-attribute">db</span>.movies.find(&#123;<span class="hljs-string">&quot;category&quot;</span>: <span class="hljs-string">&quot;action&quot;</span>&#125;,&#123;<span class="hljs-string">&quot;_id&quot;</span>:<span class="hljs-number">0</span> (<span class="hljs-number">0</span>代表不返回id), title:<span class="hljs-number">1</span> (<span class="hljs-number">1</span> 代表返回title)&#125;)<br> <span class="hljs-attribute">db</span>.movies.find(&#123;&#125;,&#123;<span class="hljs-string">&quot;_id&quot;</span>:<span class="hljs-number">0</span> , title:<span class="hljs-number">1</span> &#125;)<br></code></pre></td></tr></table></figure>
+
+<h4 id="3-2-10-使用-remove-删除文档"><a href="#3-2-10-使用-remove-删除文档" class="headerlink" title="3.2.10 使用 remove 删除文档"></a>3.2.10 使用 remove 删除文档</h4><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs stylus">remove 命令需要配合查询条件使用；<br>● 匹配查询条件的的文档会被删除；<br>● 指定一个空文档条件会删除所有文档；<br>● 以下示例：<br>db<span class="hljs-selector-class">.testcol</span><span class="hljs-selector-class">.remove</span>( &#123; <span class="hljs-selector-tag">a</span> : <span class="hljs-number">1</span> &#125; ) <span class="hljs-comment">// 删除a等于1的记录</span><br>db<span class="hljs-selector-class">.testcol</span><span class="hljs-selector-class">.remove</span>( &#123; <span class="hljs-selector-tag">a</span> : &#123; <span class="hljs-variable">$lt</span> : <span class="hljs-number">5</span> &#125; &#125; ) <span class="hljs-comment">// 删除a小于5的记录</span><br>db<span class="hljs-selector-class">.testcol</span><span class="hljs-selector-class">.remove</span>( &#123;&#125; ) <span class="hljs-comment">// 删除所有记录</span><br>db<span class="hljs-selector-class">.testcol</span><span class="hljs-selector-class">.remove</span>() <span class="hljs-comment">//报错</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="3-2-11-使用-update-更新文档"><a href="#3-2-11-使用-update-更新文档" class="headerlink" title="3.2.11 使用 update 更新文档"></a>3.2.11 使用 update 更新文档</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs php">Update 操作执行格式：db.&lt;集合&gt;.<span class="hljs-title function_ invoke__">update</span>(&lt;查询条件&gt;, &lt;更新字段&gt;)<br>以下数据为例：<br>db.fruit.<span class="hljs-title function_ invoke__">insertMany</span>([<br>   &#123;<span class="hljs-attr">name</span>: <span class="hljs-string">&quot;apple&quot;</span>&#125;,<br>   &#123;<span class="hljs-attr">name</span>: <span class="hljs-string">&quot;pear&quot;</span>&#125;,<br>   &#123;<span class="hljs-attr">name</span>: <span class="hljs-string">&quot;orange&quot;</span>&#125;<br>])<br>db.fruit.<span class="hljs-title function_ invoke__">updateOne</span>(&#123;<span class="hljs-attr">name</span>: <span class="hljs-string">&quot;apple&quot;</span>&#125;, &#123;<span class="hljs-variable">$set</span>: &#123;<span class="hljs-attr">from</span>:<span class="hljs-string">&quot;China&quot;</span>&#125;&#125;)<br>查询 name 为 apple 的记录，将找到记录的 <span class="hljs-keyword">from</span> 设置为 China<br><br>使用 updateOne 表示无论条件匹配多少条记录，始终只更新第一条；<br>使用 updateMany 表示条件匹配多少条就更新多少条；<br>updateOne/updateMany 方法要求更新条件部分必须具有以下之一，否则将报错：<br><span class="hljs-variable">$set</span>/<span class="hljs-variable">$unset</span><br><span class="hljs-variable">$push</span>/<span class="hljs-variable">$pushAll</span>/<span class="hljs-variable">$pop</span><br><span class="hljs-variable">$pull</span>/<span class="hljs-variable">$pullAll</span><br><span class="hljs-variable">$addToSet</span><br><span class="hljs-comment">// 报错</span><br>db.fruit.<span class="hljs-title function_ invoke__">updateOne</span>(&#123;<span class="hljs-attr">name</span>: <span class="hljs-string">&quot;apple&quot;</span>&#125;, &#123;<span class="hljs-attr">from</span>: <span class="hljs-string">&quot;China&quot;</span>&#125;)<br></code></pre></td></tr></table></figure>
+
+<h4 id="3-2-12-使用-update-更新数组"><a href="#3-2-12-使用-update-更新数组" class="headerlink" title="3.2.12 使用 update 更新数组"></a>3.2.12 使用 update 更新数组</h4><figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs arcade">● <span class="hljs-symbol">$pus</span>h: 增加一个对象到数组底部<br>● <span class="hljs-symbol">$pus</span>hAll: 增加多个对象到数组底部<br>● <span class="hljs-symbol">$pop</span>: 从数组底部删除一个对象<br>● <span class="hljs-symbol">$pull</span>: 如果匹配指定的值，从数组中删除相应的对象<br>● <span class="hljs-symbol">$pullAll</span>: 如果匹配任意的值，从数据中删除相应的对象<br>● <span class="hljs-symbol">$addToSet</span>: 如果不存在则增加一个值到数组<br></code></pre></td></tr></table></figure>
+
+<h4 id="3-2-13-使用-drop-删除集合"><a href="#3-2-13-使用-drop-删除集合" class="headerlink" title="3.2.13 使用 drop 删除集合"></a>3.2.13 使用 drop 删除集合</h4><figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs stata">● 使用 <span class="hljs-keyword">db</span>.&lt;集合&gt;.<span class="hljs-keyword">drop</span>() 来删除一个集合<br>● 集合中的全部文档都会被删除<br>● 集合相关的索引也会被删除<br><span class="hljs-keyword">db</span>.colToBeDropped.<span class="hljs-keyword">drop</span>()<br></code></pre></td></tr></table></figure>
+
+<h4 id="3-2-14-使用-dropDatabase-删除数据库"><a href="#3-2-14-使用-dropDatabase-删除数据库" class="headerlink" title="3.2.14 使用 dropDatabase 删除数据库"></a>3.2.14 使用 dropDatabase 删除数据库</h4><figure class="highlight gauss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs gauss">● 使用 db.dropDatabase() 来删除数据库<br>● 数据库相应文件也会被删除，磁盘空间将被释放<br><span class="hljs-keyword">use</span> tempDB<br>db.dropDatabase()<br><span class="hljs-keyword">show</span> collections <span class="hljs-comment">// No collections</span><br><span class="hljs-keyword">show</span> dbs <span class="hljs-comment">// The db is gone</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="3-3-SpringBoot整合"><a href="#3-3-SpringBoot整合" class="headerlink" title="3.3 SpringBoot整合"></a>3.3 SpringBoot整合</h3><p>添加pom依赖</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.springframework.boot<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-boot-starter-data-mongodb<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.projectlombok<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>lombok<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.springframework.boot<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>     <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>commons-lang<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>commons-lang<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>配置文件</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-comment">## 端口号</span><br><span class="hljs-attr">server.port</span>=<span class="hljs-string">8084</span><br><span class="hljs-comment">## 服务名称</span><br><span class="hljs-attr">spring.application.name</span>=<span class="hljs-string">mongodb-application</span><br><span class="hljs-comment">## mongodb配置</span><br><span class="hljs-attr">spring.data.mongodb.host</span>=<span class="hljs-string">47.113.147.179</span><br><span class="hljs-attr">spring.data.mongodb.port</span>=<span class="hljs-string">27017</span><br><span class="hljs-comment">#spring.data.mongodb.username=</span><br><span class="hljs-comment">#spring.data.mongodb.password=</span><br><span class="hljs-attr">spring.data.mongodb.database</span>=<span class="hljs-string">springboot_db</span><br><span class="hljs-comment">#spring.data.mongodb.uri=mongodb://name:password@localhost:27017/test</span><br></code></pre></td></tr></table></figure>
+
+<p>使用</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Autowired</span><br><span class="hljs-keyword">private</span> MongoTemplate mongoTemplate;<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-4-聚合查询"><a href="#3-4-聚合查询" class="headerlink" title="3.4 聚合查询"></a>3.4 聚合查询</h3><blockquote>
+<p>分析性、统计型的场景、复杂数据的计算和处理</p>
+</blockquote>
+<p>MongoDB 聚合框架（Aggregation Framework）是一个计算框架，它可以：作用在一个或几个集合上；对集合中的数据进行的一系列运算，比如数据的计算；将这些数据转化为期望的形式，比如类型的处理。从效果而言，聚合框架相当于 SQL 查询中的：GROUP BY，LEFT OUTER JOIN，AS 等</p>
+<h4 id="3-4-1-管道-Pipeline-和步骤-Stage"><a href="#3-4-1-管道-Pipeline-和步骤-Stage" class="headerlink" title="3.4.1 管道(Pipeline)和步骤(Stage)"></a>3.4.1 管道(Pipeline)和步骤(Stage)</h4><p>整个聚合运算过程称为管道（Pipeline），它是由多个步骤 （Stage）组成的， 每个管道：</p>
+<ol>
+<li>接受一系列文档（原始数据）；</li>
+<li> 每个步骤对这些文档进行一系列运算；</li>
+<li> 结果文档输出给下一个步骤；</li>
+</ol>
+<h4 id="3-4-2-聚合运算的基本格式"><a href="#3-4-2-聚合运算的基本格式" class="headerlink" title="3.4.2 聚合运算的基本格式"></a>3.4.2 聚合运算的基本格式</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sh">pipeline = [<span class="hljs-variable">$stage1</span>, <span class="hljs-variable">$stage2</span>, ...<span class="hljs-variable">$stageN</span>]; // 这个pipeline 就是一系列的计算步骤组成<br>db.&lt;COLLECTION&gt;.aggregate(<br>   pipeline,<br>   &#123; options &#125;<br>);<br></code></pre></td></tr></table></figure>
+
+<p><strong>常见步骤</strong></p>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>作用</th>
+<th>SQL等价运算符</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>$match</td>
+<td>过滤</td>
+<td>WHERE</td>
+</tr>
+<tr>
+<td>$project</td>
+<td>投影</td>
+<td>AS</td>
+</tr>
+<tr>
+<td>$sort</td>
+<td>排序</td>
+<td>ORDER BY</td>
+</tr>
+<tr>
+<td>$group</td>
+<td>分组</td>
+<td>GROUP BY</td>
+</tr>
+<tr>
+<td>$skip/$limit</td>
+<td>结果限制</td>
+<td>SKIP/LIMIT</td>
+</tr>
+<tr>
+<td>$lookup</td>
+<td>左外连接</td>
+<td>LEFT OUTER JOIN</td>
+</tr>
+<tr>
+<td>$unwind</td>
+<td>展开数组</td>
+<td></td>
+</tr>
+<tr>
+<td>$graphLookup</td>
+<td>图搜索</td>
+<td></td>
+</tr>
+<tr>
+<td>$facet/$bucket</td>
+<td>分面搜索</td>
+<td></td>
+</tr>
+</tbody></table>
+<p><strong>常见步骤中的运算符</strong></p>
+<table>
+<thead>
+<tr>
+<th>$match</th>
+<th>$project</th>
+<th>$group</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>查询过滤 $eq/ $gt/ $gte/ $lt/ $lte/</td>
+<td>选择需要的或者排除不 需要的字段 $map/ $reduce/ $filter</td>
+<td>聚合计算 $sum/ $avg</td>
+</tr>
+<tr>
+<td>$and/ $or/ $not/ $in</td>
+<td>$range</td>
+<td>$push/ $addToSet</td>
+</tr>
+<tr>
+<td>$geoWithin/ $intersect …</td>
+<td>$multipy/ $divide/ $substract/ $add …</td>
+<td>$first/ $last/ $max/ $min …</td>
+</tr>
+</tbody></table>
+<p><strong>MQL 常用步骤与 SQL 对比</strong></p>
+<p><img src="/image/MongoDB/1.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/image/MongoDB/2.png" srcset="/img/loading.gif" lazyload></p>
+<h4 id="3-4-3-MQL特有步骤-unwind"><a href="#3-4-3-MQL特有步骤-unwind" class="headerlink" title="3.4.3 MQL特有步骤 $unwind"></a>3.4.3 MQL特有步骤 $unwind</h4><p>在做报表的时候，可能需要把用户的分数展出来，可以利用 MongoDB的 $unwind 把整个数组的数据展出来变成一行一行展示。</p>
+<p><img src="/image/MongoDB/3.png" srcset="/img/loading.gif" lazyload></p>
+<h4 id="3-4-4-MQL特有步骤-bucket"><a href="#3-4-4-MQL特有步骤-bucket" class="headerlink" title="3.4.4 MQL特有步骤 $bucket"></a>3.4.4 MQL特有步骤 $bucket</h4><p>如果是在做电商目录和产品数量会非常有用，需要统计一下商品，100块钱的商品有多少、200的有多少，这个运算的话就不需要一个个去查询，然后再后面通过union或者是程序代码来汇总了.</p>
+<p><img src="/image/MongoDB/4.png" srcset="/img/loading.gif" lazyload></p>
+<h4 id="3-4-5-MQL-特有步骤-facet"><a href="#3-4-5-MQL-特有步骤-facet" class="headerlink" title="3.4.5 MQL 特有步骤 $facet"></a>3.4.5 MQL 特有步骤 $facet</h4><p>更高阶的应用，把$bucket 组合起来使用，比如需要统计更多纬度和更复杂的需求的时候，这个$facet ，可以把多个纬度的需求放在同一个查询来完成</p>
+<p><img src="/image/MongoDB/5.png" srcset="/img/loading.gif" lazyload></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/" class="category-chain-item">数据库</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/MongoDB/" class="category-chain-item">MongoDB</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/MongoDB/">#MongoDB</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>MongoDB入门</div>
+      <div>http://www.zivjie.cn/2023/05/10/数据库/MongoDB/MongoDB入门/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Francis</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年5月10日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/05/12/%E6%95%B0%E6%8D%AE%E5%BA%93/MongoDB/MongoDB%E9%AB%98%E7%BA%A7%E5%BA%94%E7%94%A8/" title="MongoDB高级应用">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">MongoDB高级应用</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/05/10/%E4%B8%AD%E9%97%B4%E4%BB%B6/minio/Minio%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/" title="Minio原理分析">
+                        <span class="hidden-mobile">Minio原理分析</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

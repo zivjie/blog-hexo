@@ -1,0 +1,790 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Francis">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1 MinIO介绍 官网：https:&#x2F;&#x2F;min.io&#x2F; 官方示例：https:&#x2F;&#x2F;gitcode.net&#x2F;mirrors&#x2F;minio&#x2F;minio-java&#x2F;-&#x2F;tree&#x2F;master 下载(国内加速镜像)：https:&#x2F;&#x2F;dl.min.io&#x2F;  MinIO是一个分布式文件存储系统，基于Apache License V2.0协议开发，Go语言编写。完全兼容Amazon S3。易于使用、快速与其他应">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Minio初识">
+<meta property="og:url" content="http://www.zivjie.cn/2023/04/26/%E4%B8%AD%E9%97%B4%E4%BB%B6/minio/Minio%E5%88%9D%E8%AF%86/index.html">
+<meta property="og:site_name" content="Francis-Blog">
+<meta property="og:description" content="1 MinIO介绍 官网：https:&#x2F;&#x2F;min.io&#x2F; 官方示例：https:&#x2F;&#x2F;gitcode.net&#x2F;mirrors&#x2F;minio&#x2F;minio-java&#x2F;-&#x2F;tree&#x2F;master 下载(国内加速镜像)：https:&#x2F;&#x2F;dl.min.io&#x2F;  MinIO是一个分布式文件存储系统，基于Apache License V2.0协议开发，Go语言编写。完全兼容Amazon S3。易于使用、快速与其他应">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.zivjie.cn/img/%E7%94%98%E5%9F%8E.png">
+<meta property="article:published_time" content="2023-04-26T01:28:00.000Z">
+<meta property="article:modified_time" content="2023-05-29T05:42:31.823Z">
+<meta property="article:author" content="Francis">
+<meta property="article:tag" content="Minio">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://www.zivjie.cn/img/%E7%94%98%E5%9F%8E.png">
+  
+  
+  
+  <title>Minio初识 - Francis-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.zivjie.cn","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Francis</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Minio初识"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-04-26 09:28" pubdate>
+          2023年4月26日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          8.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          70 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Minio初识</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="1-MinIO介绍"><a href="#1-MinIO介绍" class="headerlink" title="1 MinIO介绍"></a>1 MinIO介绍</h2><blockquote>
+<p>官网：<a target="_blank" rel="noopener" href="https://min.io/">https://min.io/</a></p>
+<p>官方示例：<a target="_blank" rel="noopener" href="https://gitcode.net/mirrors/minio/minio-java/-/tree/master">https://gitcode.net/mirrors/minio/minio-java/-/tree/master</a></p>
+<p>下载(国内加速镜像)：<a target="_blank" rel="noopener" href="https://dl.min.io/">https://dl.min.io/</a></p>
+</blockquote>
+<p>MinIO是一个分布式文件存储系统，基于Apache License V2.0协议开发，Go语言编写。完全兼容Amazon S3。易于使用、快速与其他应用结合。为海量数据存储、人工智能、大数据分析而设计。</p>
+<p>优点：</p>
+<ol>
+<li>高性能   2. 可扩展性  3. 云原生支持  4. 代码开源</li>
+</ol>
+<p>特性：</p>
+<ol>
+<li>纠删编码   2. 提供bit rot保护   3.数据加密保护   4.连续复制  5.WORM防篡改   6. 全局统一性   7.多云网关</li>
+</ol>
+<h2 id="2-环境搭建"><a href="#2-环境搭建" class="headerlink" title="2 环境搭建"></a>2 环境搭建</h2><h3 id="2-1-单机"><a href="#2-1-单机" class="headerlink" title="2.1 单机"></a>2.1 单机</h3><ol>
+<li>下载MinIO</li>
+</ol>
+<p>地址-1：<a target="_blank" rel="noopener" href="https://dl.min.io/">https://dl.min.io/</a>  (建议)  (server ==&gt; minio ==&gt; release ==&gt; linux-amd64 ==&gt; minio)</p>
+<p>地址-2：<a target="_blank" rel="noopener" href="https://min.io/download#/linux">https://min.io/download#/linux</a>  (国外镜像，很慢)</p>
+<p><img src="/image/minio/1.png" srcset="/img/loading.gif" lazyload></p>
+<ol start="2">
+<li>部署MinIO</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># 1、minio安装目录（创建|定位）</span><br><span class="hljs-built_in">mkdir</span> -p /data/minio/<br><span class="hljs-built_in">cd</span> /data/minio/<br><br><span class="hljs-comment"># 2、将下载的文件上传到安装目录</span><br><span class="hljs-comment">##--------【此处直接指定账号密码、采用后台启动的方式运行MinIO】----------------##</span><br><span class="hljs-comment"># 创建账号</span><br><span class="hljs-comment">#export MINIO_ACCESS_KEY=admin</span><br><span class="hljs-comment"># 创建密码</span><br><span class="hljs-comment">#export MINIO_SECRET_KEY=minio123456</span><br><span class="hljs-comment"># 后台启动（打印日志）</span><br><span class="hljs-comment">#nohup /data/minio/minio server /data/minio/ &gt; /data/minio/minio.log &amp;</span><br><span class="hljs-comment">##---------------------------------------------------------------------##</span><br><br><span class="hljs-comment">##--------【下方配置成系统服务、启动运行的方式 较为方便】----------------------##</span><br><span class="hljs-comment"># 3、创建启动脚本</span><br>vim /data/minio/start.sh<br><span class="hljs-comment">##--------写入内容-------------------------------------------------##</span><br><span class="hljs-comment">#####写入内容#####</span><br><span class="hljs-comment">#!/bin/bash</span><br><span class="hljs-built_in">export</span> MINIO_ACCESS_KEY=admin<br><span class="hljs-built_in">export</span> MINIO_SECRET_KEY=minio123456<br>/data/minio/minio server /data/minio/ &gt; /data/minio/minio.log<br><span class="hljs-comment"># 默认端口：9000；还可以使用 自定义启动端口 和 控制台端口（默认端口不冲突的话 可以不设置）</span><br><span class="hljs-comment"># /data/minio/minio server --address :9000 --console-address :9001 /data/minio/ &gt; /data/minio/minio.log</span><br><span class="hljs-comment">##----------------------------------------------------------------##</span><br><br><span class="hljs-comment"># 4、创建停止脚本</span><br>vim /data/minio/stop.sh<br><span class="hljs-comment">#---写入内容-------------------------------------------------------------#</span><br><span class="hljs-comment">#!/bin/bash</span><br>ps -ef | grep minio | grep -v <span class="hljs-string">&#x27;grep&#x27;</span> | awk <span class="hljs-string">&#x27;&#123;print $2&#125;&#x27;</span>| xargs <span class="hljs-built_in">kill</span> -9<br><span class="hljs-keyword">if</span> $? != 0;<span class="hljs-keyword">then</span><br>    <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;minio service stop failed.&quot;</span><br>    <span class="hljs-built_in">exit</span> 1<br><span class="hljs-keyword">fi</span><br><span class="hljs-comment">#-----------------------------------------------------------------------#</span><br><br><span class="hljs-comment"># 5、创建minio系统服务（将其加入系统服务）</span><br>vim /usr/lib/systemd/system/minio.service<br><span class="hljs-comment">#---写入内容------------------------------#</span><br>[Unit]<br>Description=Minio service<br>Documentation=https://docs.minio.io/<br>[Service]<br>WorkingDirectory=/data/minio/<br>ExecStart=/data/minio/start.sh<br>ExecStop=/data/minio/stop.sh<br>Restart=on-failure<br>RestartSec=5<br>[Install]<br>WantedBy=multi-user.target<br><span class="hljs-comment">#----------------------------------------#</span><br><br><span class="hljs-comment"># 6、修改相关文件权限</span><br><span class="hljs-built_in">chmod</span> +x /usr/lib/systemd/system/minio.service &amp;&amp; <span class="hljs-built_in">chmod</span> +x /data/minio/minio &amp;&amp; <span class="hljs-built_in">chmod</span> +x /data/minio/start.sh &amp;&amp; <span class="hljs-built_in">chmod</span> +x /data/minio/stop.sh<br><br><span class="hljs-comment"># 7、服务操作</span><br><span class="hljs-comment"># 7-1、重写加载服务（使配置文件变更生效）</span><br>systemctl daemon-reload<br><span class="hljs-comment"># 7-2、启动服务</span><br>systemctl start minio<br><span class="hljs-comment"># 7-3、关闭服务</span><br><span class="hljs-comment"># systemctl stop minio</span><br><span class="hljs-comment"># 7-4、加入自启动</span><br>systemctl <span class="hljs-built_in">enable</span> minio<br><span class="hljs-comment">##---------------------------------------------------------------------##</span><br><br><span class="hljs-comment"># 8、检查状态</span><br>ps -ef|grep minio<br></code></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>使用</li>
+</ol>
+<p>浏览器访问地址：<a target="_blank" rel="noopener" href="http://ip:9000/">http://ip:9000</a> （登录输入之前配置的 access_key 和 secret_key）</p>
+<p><img src="/image/minio/2.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="2-2-集群"><a href="#2-2-集群" class="headerlink" title="2.2 集群"></a>2.2 集群</h3><h4 id="2-2-1-系统环境"><a href="#2-2-1-系统环境" class="headerlink" title="2.2.1 系统环境"></a>2.2.1 系统环境</h4><p>Linux（CentOS 7、IP：192.168.61.142、192.168.61.143）</p>
+<p>集群部署方式分为以下两种： </p>
+<p>​    直接部署（未分组、不支持集群扩容） </p>
+<p>​    分组扩容部署（支持 MinIO 官方方式扩容）【<strong>建议</strong>】</p>
+<h4 id="2-2-2-挂载新硬盘"><a href="#2-2-2-挂载新硬盘" class="headerlink" title="2.2.2 挂载新硬盘"></a>2.2.2 挂载新硬盘</h4><p>MinIO在集群部署时，数据目录所对应的要求是一块物理盘，启动时MinIO会去格式化硬盘，不能是系统盘，若不然 会提示错误，所以系统预装没有新硬盘的情况下，需要执行系统挂载新硬盘操作。</p>
+<h5 id="2-2-2-1-添加硬盘"><a href="#2-2-2-1-添加硬盘" class="headerlink" title="2.2.2.1 添加硬盘"></a>2.2.2.1 添加硬盘</h5><p>虚拟机关机</p>
+<p><img src="/image/minio/3.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/image/minio/4.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/image/minio/5.png" srcset="/img/loading.gif" lazyload></p>
+<p>查看设备挂载情况，开启虚拟机</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">lsblk -f<br></code></pre></td></tr></table></figure>
+
+<p><img src="/image/minio/6.png" srcset="/img/loading.gif" lazyload></p>
+<h5 id="2-2-2-2-新硬盘分区"><a href="#2-2-2-2-新硬盘分区" class="headerlink" title="2.2.2.2 新硬盘分区"></a>2.2.2.2 新硬盘分区</h5><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># sdb（新磁盘名）</span><br>fdisk /dev/sdb<br><span class="hljs-comment"># 分区操作参考：</span><br><span class="hljs-comment"># n（回车）==&gt; p（回车）==&gt; &#123;1 | 2 | 3 | 4&#125;（回车）==&gt; 起始扇区[默认值]（回车）==&gt; 扇区大小[+xxxxM按需指定]（回车）</span><br><span class="hljs-comment"># w（保存分区信息</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="/image/minio/7.png" srcset="/img/loading.gif" lazyload></p>
+<h5 id="2-2-2-3-分区格式化"><a href="#2-2-2-3-分区格式化" class="headerlink" title="2.2.2.3 分区格式化"></a>2.2.2.3 分区格式化</h5><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs sh">mkfs -t ext4 /dev/sdb1<br>mkfs -t ext4 /dev/sdb2<br>mkfs -t ext4 /dev/sdb3<br>mkfs -t ext4 /dev/sdb4<br></code></pre></td></tr></table></figure>
+
+<p><img src="/image/minio/8.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment">#查看结果</span><br>lsblk -f<br></code></pre></td></tr></table></figure>
+
+<p><img src="/image/minio/9.png" srcset="/img/loading.gif" lazyload></p>
+<h5 id="2-2-2-4-挂载硬盘目录"><a href="#2-2-2-4-挂载硬盘目录" class="headerlink" title="2.2.2.4 挂载硬盘目录"></a>2.2.2.4 挂载硬盘目录</h5><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs sh">mount /dev/sdb1 /data/minio/data1<br>mount /dev/sdb2 /data/minio/data2<br>mount /dev/sdb3 /data/minio/data3<br>mount /dev/sdb4 /data/minio/data4<br><br><span class="hljs-comment">#查看结果</span><br>lsblk -f<br></code></pre></td></tr></table></figure>
+
+<p><img src="/image/minio/10.png" srcset="/img/loading.gif" lazyload></p>
+<h5 id="2-2-2-5-设置自动挂载"><a href="#2-2-2-5-设置自动挂载" class="headerlink" title="2.2.2.5 设置自动挂载"></a>2.2.2.5 设置自动挂载</h5><p><img src="/image/minio/11.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs sh">vim /etc/fstab<br><span class="hljs-comment"># 文件末尾添加</span><br><span class="hljs-comment">#UUID=33c07641-bae6-4f7b-987a-c58f1d370cc3 /dev/sdb1 /data/minio/data1/ ext4 defaults 0 0</span><br><span class="hljs-comment">#UUID=78c7e4b5-756e-4b14-9627-85b4cb11a388 /dev/sdb2 /data/minio/data2/ ext4 defaults 0 0</span><br><span class="hljs-comment">#UUID=f8c05a74-4f9c-447d-8d9f-0771bb6e493f /dev/sdb3 /data/minio/data3/ ext4 defaults 0 0</span><br><span class="hljs-comment">#UUID=aa96b070-bf21-4d13-9c00-9bf390d69618 /dev/sdb4 /data/minio/data4/ ext4 defaults 0 0</span><br>/dev/sdb1 /data/minio/data1/ ext4 defaults 0 0<br>/dev/sdb2 /data/minio/data2/ ext4 defaults 0 0<br>/dev/sdb3 /data/minio/data3/ ext4 defaults 0 0<br>/dev/sdb4 /data/minio/data4/ ext4 defaults 0 0<br></code></pre></td></tr></table></figure>
+
+<p><img src="/image/minio/12.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment">#重新加载</span><br>mount -a<br></code></pre></td></tr></table></figure>
+
+<h4 id="2-2-3-下载MinIO"><a href="#2-2-3-下载MinIO" class="headerlink" title="2.2.3 下载MinIO"></a>2.2.3 下载MinIO</h4><p>同单机一样</p>
+<h4 id="2-2-4-安装部署"><a href="#2-2-4-安装部署" class="headerlink" title="2.2.4 安装部署"></a>2.2.4 安装部署</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment">#【注意：以下操作均在两节点上进行】</span><br><span class="hljs-comment"># 1、创建数据目录</span><br><span class="hljs-built_in">mkdir</span> -p /data/minio/&#123;data1,data2,data3,data4&#125;<br><br><span class="hljs-comment"># 2、创建配置目录【两个节点均操作】</span><br><span class="hljs-built_in">mkdir</span> -p /etc/minioconfig<br><br><span class="hljs-comment"># 3、定位到minio安装目录、将下载的文件上传到安装目录【两个节点均操作】</span><br><span class="hljs-built_in">cd</span> /data/minio/<br><br><span class="hljs-comment"># 4、创建MinIO启动脚本文件【两个节点均操作】</span><br>vim /data/minio/start.sh<br><span class="hljs-comment">##---【192.168.61.142】写入内容------------------------------##</span><br><span class="hljs-comment">#!/bin/bash</span><br><span class="hljs-built_in">export</span> MINIO_ACCESS_KEY=admin<br><span class="hljs-built_in">export</span> MINIO_SECRET_KEY=minio123456<br>/data/minio/minio server --config-dir /etc/minioconfig \<br>--address <span class="hljs-string">&quot;192.168.61.142:9000&quot;</span> \<br>http://192.168.61.&#123;142...143&#125;/data/minio/data&#123;1...4&#125;<br><span class="hljs-comment">##---------------------------------------------------------##</span><br><span class="hljs-comment">##---【192.168.61.143】写入内容------------------------------##</span><br><span class="hljs-comment">#!/bin/bash</span><br><span class="hljs-built_in">export</span> MINIO_ACCESS_KEY=admin<br><span class="hljs-built_in">export</span> MINIO_SECRET_KEY=minio123456<br>/data/minio/minio server --config-dir /etc/minioconfig \<br>--address <span class="hljs-string">&quot;192.168.61.143:9000&quot;</span> \<br>http://192.168.61.&#123;142...143&#125;/data/minio/data&#123;1...4&#125;<br><span class="hljs-comment">##---------------------------------------------------------##</span><br><br><span class="hljs-comment"># 5、创建MinIO停止脚本文件【两个节点均操作】</span><br>vim /data/minio/stop.sh<br><span class="hljs-comment">##---【192.168.61.142】写入内容-------------------------------------------##</span><br><span class="hljs-comment">#!/bin/bash</span><br>ps -ef | grep minio | grep -v <span class="hljs-string">&#x27;grep&#x27;</span> | awk <span class="hljs-string">&#x27;&#123;print $2&#125;&#x27;</span>| xargs <span class="hljs-built_in">kill</span> -9<br><span class="hljs-keyword">if</span> $? != 0;<span class="hljs-keyword">then</span><br>    <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;minio service stop failed.&quot;</span><br>    <span class="hljs-built_in">exit</span> 1<br><span class="hljs-keyword">fi</span><br><span class="hljs-comment">##----------------------------------------------------------------------##</span><br><br><span class="hljs-comment"># 6、创建minio系统服务（将其加入系统服务）</span><br>vim /usr/lib/systemd/system/minio.service<br><span class="hljs-comment">##---写入内容----------------------------------##</span><br>[Unit]<br>Description=Minio service<br>Documentation=https://docs.minio.io/<br>[Service]<br>WorkingDirectory=/data/minio/<br>ExecStart=/data/minio/start.sh<br>ExecStop=/data/minio/stop.sh<br>Restart=on-failure<br>RestartSec=5<br>[Install]<br>WantedBy=multi-user.target<br><span class="hljs-comment">##--------------------------------------------##</span><br><br><span class="hljs-comment"># 7、修改相关文件权限</span><br><span class="hljs-built_in">chmod</span> +x /usr/lib/systemd/system/minio.service &amp;&amp; <span class="hljs-built_in">chmod</span> +x /data/minio/minio &amp;&amp; <span class="hljs-built_in">chmod</span> +x<br>/data/minio/start.sh &amp;&amp; <span class="hljs-built_in">chmod</span> +x /data/minio/stop.sh<br><span class="hljs-comment">#chmod +x /usr/lib/systemd/system/minio.service</span><br><span class="hljs-comment">#chmod +x /data/minio</span><br><span class="hljs-comment">#chmod +x /data/minio/start-run.sh</span><br><br><span class="hljs-comment"># 8、服务操作</span><br><span class="hljs-comment"># 8-1、重写加载服务（使配置文件变更生效）</span><br>systemctl daemon-reload<br><span class="hljs-comment"># 8-2、启动服务</span><br>systemctl start minio<br><span class="hljs-comment"># 8-3、关闭服务</span><br><span class="hljs-comment"># systemctl stop minio</span><br><span class="hljs-comment"># 8-4、加入自启动</span><br>systemctl <span class="hljs-built_in">enable</span> minio<br><br><span class="hljs-comment"># 9、查看minon集群状态</span><br>systemctl status minio.service -l<br></code></pre></td></tr></table></figure>
+
+<h4 id="2-2-5-MinIO使用"><a href="#2-2-5-MinIO使用" class="headerlink" title="2.2.5 MinIO使用"></a>2.2.5 MinIO使用</h4><p>通过任意节点的ip都可以访问。</p>
+<p>备注：实际场景中，如果想要实现对各个节点的均衡访问，还可以安装配置 Nginx 实现负载均衡，通过 Nginx 负载均衡进行反向代理，统一一个地址进行转发</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># 1、安装nginx</span><br>yum install epel-release -y<br>yum install nginx -y<br>systemctl start nginx<br>systemctl status nginx<br>systemctl <span class="hljs-built_in">enable</span> nginx<br><br><span class="hljs-comment"># 2、添加配置文件</span><br>vim /etc/nginx/conf.d/minio.conf<br><span class="hljs-comment">## 配置如下内容 ##</span><br>upstream minio_api &#123;<br>    server 192.168.61.142:9000;<br>    server 192.168.61.143:9000;<br>&#125;<br>upstream minio_console &#123;<br>    server 192.168.61.142:9001;<br>    server 192.168.61.143:9001;<br>&#125;<br>server&#123;<br>    listen 19000;<br>    server_name 192.168.61.142;<br>    <br>    ignore_invalid_headers off;<br>    client_max_body_size 0;<br>    proxy_buffering off;<br>     <br>    location / &#123;<br>        proxy_set_header X-Forwarded-Proto <span class="hljs-variable">$scheme</span>;<br>        proxy_set_header Host <span class="hljs-variable">$http_host</span>;<br>        proxy_set_header X-Real-IP <span class="hljs-variable">$remote_addr</span>;<br>        <br>        proxy_connect_timeout 300;<br>        proxy_http_version 1.1;<br>        chunked_transfer_encoding off;<br>        proxy_ignore_client_abort on;<br>        proxy_pass http://minio_api;<br>    &#125;<br>&#125;<br><br>server&#123;<br>    listen 19001;<br>    server_name 192.168.61.142;<br>    <br>    ignore_invalid_headers off;<br>    client_max_body_size 0;<br>    proxy_buffering off;<br>    <br>    location / &#123;<br>        proxy_set_header X-Forwarded-Proto <span class="hljs-variable">$scheme</span>;<br>        proxy_set_header Host <span class="hljs-variable">$http_host</span>;<br>        proxy_set_header X-Real-IP <span class="hljs-variable">$remote_addr</span>;<br>        <br>        proxy_connect_timeout 300;<br>        proxy_http_version 1.1;<br>        chunked_transfer_encoding off;<br>        proxy_ignore_client_abort on;<br>        <br>        proxy_pass http://minio_console;<br>    &#125;<br>&#125;<br><br><span class="hljs-comment"># 3、重启加载配置</span><br>nginx -t<br>nginx -s reload<br><span class="hljs-comment">#或者 systemctl reload nginx</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-3-客户端操作"><a href="#2-3-客户端操作" class="headerlink" title="2.3 客户端操作"></a>2.3 客户端操作</h3><h4 id="2-3-1-概述"><a href="#2-3-1-概述" class="headerlink" title="2.3.1 概述"></a>2.3.1 概述</h4><p>MinIO Client 简称 mc，是 MinIO 服务器的客户端，对 ls，cat，cp，mirror，diff，find 等 UNIX 命令提供了一种替代方案，它支持文件系统和兼容Amazon S3的云存储服务（AWS Signature v2和v4），常见 mc 指令：</p>
+<table>
+<thead>
+<tr>
+<th>指令</th>
+<th>说明</th>
+<th>指令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ls</td>
+<td>列出文件和文件夹</td>
+<td>rm</td>
+<td>删除文件和对象</td>
+</tr>
+<tr>
+<td>mb</td>
+<td>创建一个存储桶或文件夹</td>
+<td>events</td>
+<td>管理对象通知</td>
+</tr>
+<tr>
+<td>cat</td>
+<td>显示文件和对象内容</td>
+<td>watch</td>
+<td>监听文件和对象的事件</td>
+</tr>
+<tr>
+<td>pipe</td>
+<td>将一个STDIN重定向到一个对象或者文件或者STDOUT</td>
+<td>policy</td>
+<td>管理访问策略</td>
+</tr>
+<tr>
+<td>share</td>
+<td>生成用于共享的URL</td>
+<td>session</td>
+<td>为cp命令管理保存的会话</td>
+</tr>
+<tr>
+<td>cp</td>
+<td>拷贝文件和对象</td>
+<td>config</td>
+<td>管理mc配置文件</td>
+</tr>
+<tr>
+<td>mirror</td>
+<td>给存储桶和文件夹做镜像</td>
+<td>update</td>
+<td>检查软件更新</td>
+</tr>
+<tr>
+<td>find</td>
+<td>基于参数查找文件</td>
+<td>version</td>
+<td>输出版本信息</td>
+</tr>
+<tr>
+<td>diff</td>
+<td>对两个文件夹或者存储桶比较差异</td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<h4 id="2-3-2-下载mc"><a href="#2-3-2-下载mc" class="headerlink" title="2.3.2 下载mc"></a>2.3.2 下载mc</h4><p>地址：<a target="_blank" rel="noopener" href="https://dl.min.io/">https://dl.min.io/</a>    (client ==&gt; mc ==&gt; release ==&gt; linux-amd64 ==&gt; mc)</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># 若没有下载文件 也可直接安装</span><br><span class="hljs-comment"># wget http://dl.minio.org.cn/client/mc/release/linux-amd64/mc</span><br><br><span class="hljs-comment"># 1、mc安装目录（创建|定位）</span><br><span class="hljs-built_in">mkdir</span> -p /data/minio/mc<br><span class="hljs-built_in">cd</span> /data/minio/mc<br><br><span class="hljs-comment"># 2、将下载的文件上传到安装目录</span><br><br><span class="hljs-comment"># 3、授予权限</span><br><span class="hljs-built_in">chmod</span> +x mc<br><br><span class="hljs-comment"># 4、查看帮助</span><br>./mc -h<br><br><span class="hljs-comment"># 5、添加服务器节点</span><br>./mc config host add q1 http://192.168.61.142:9000 admin minio123456<br>./mc config host <span class="hljs-built_in">ls</span><br><br><span class="hljs-comment"># 6、查看信息</span><br><span class="hljs-comment"># 6-1、查看q1下的所有存储桶</span><br>./mc <span class="hljs-built_in">ls</span> q1<br><span class="hljs-comment"># 6-2、获取q1的服务器信息</span><br>./mc admin info q1<br></code></pre></td></tr></table></figure>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/" class="category-chain-item">中间件</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/Minio/" class="category-chain-item">Minio</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Minio/">#Minio</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Minio初识</div>
+      <div>http://www.zivjie.cn/2023/04/26/中间件/minio/Minio初识/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Francis</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年4月26日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/04/26/%E4%BA%91%E5%8E%9F%E7%94%9F(%E5%AE%B9%E5%99%A8%E5%8C%96)/docker/Docker%E5%AE%9E%E6%88%98/" title="Docker实战">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Docker实战</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/04/21/%E4%BA%91%E5%8E%9F%E7%94%9F(%E5%AE%B9%E5%99%A8%E5%8C%96)/docker/Docker%E6%95%B0%E6%8D%AE%E6%8C%81%E4%B9%85%E5%8C%96%E4%B8%8E%E7%BD%91%E7%BB%9C/" title="Docker数据持久化与网络">
+                        <span class="hidden-mobile">Docker数据持久化与网络</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
