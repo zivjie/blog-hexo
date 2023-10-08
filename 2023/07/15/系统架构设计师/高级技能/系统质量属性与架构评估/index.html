@@ -1,0 +1,801 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Francis">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1 软件系统质量属性的概念1.1 开发期的质量属性   属性 说明    易理解性 指设计开发人员理解的难易程度   可扩展性 软件因适应新需求变化而增加新功能的能力，也称为灵活性   可重用性 指重用软件系统或其一部分的难易程度   可测试性 当软件测试以证明其满足需求规范的难易程度   可维护性 当需要修改缺陷、增加功能、提高质量属性时，识别修改点并实施修改的难易程度   可移植性 将软件系统">
+<meta property="og:type" content="article">
+<meta property="og:title" content="系统质量属性与架构评估">
+<meta property="og:url" content="http://www.zivjie.cn/2023/07/15/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%B8%88/%E9%AB%98%E7%BA%A7%E6%8A%80%E8%83%BD/%E7%B3%BB%E7%BB%9F%E8%B4%A8%E9%87%8F%E5%B1%9E%E6%80%A7%E4%B8%8E%E6%9E%B6%E6%9E%84%E8%AF%84%E4%BC%B0/index.html">
+<meta property="og:site_name" content="Francis-Blog">
+<meta property="og:description" content="1 软件系统质量属性的概念1.1 开发期的质量属性   属性 说明    易理解性 指设计开发人员理解的难易程度   可扩展性 软件因适应新需求变化而增加新功能的能力，也称为灵活性   可重用性 指重用软件系统或其一部分的难易程度   可测试性 当软件测试以证明其满足需求规范的难易程度   可维护性 当需要修改缺陷、增加功能、提高质量属性时，识别修改点并实施修改的难易程度   可移植性 将软件系统">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.zivjie.cn/img/Fantasy%20World%20(2).png">
+<meta property="article:published_time" content="2023-07-15T01:40:00.000Z">
+<meta property="article:modified_time" content="2023-10-07T06:48:55.963Z">
+<meta property="article:author" content="Francis">
+<meta property="article:tag" content="系统架构师">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://www.zivjie.cn/img/Fantasy%20World%20(2).png">
+  
+  
+  
+  <title>系统质量属性与架构评估 - Francis-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.zivjie.cn","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Francis</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="系统质量属性与架构评估"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-07-15 09:40" pubdate>
+          2023年7月15日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          31 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">系统质量属性与架构评估</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="1-软件系统质量属性的概念"><a href="#1-软件系统质量属性的概念" class="headerlink" title="1 软件系统质量属性的概念"></a>1 软件系统质量属性的概念</h2><h3 id="1-1-开发期的质量属性"><a href="#1-1-开发期的质量属性" class="headerlink" title="1.1 开发期的质量属性"></a>1.1 开发期的质量属性</h3><table>
+<thead>
+<tr>
+<th>属性</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>易理解性</td>
+<td>指设计开发人员理解的难易程度</td>
+</tr>
+<tr>
+<td>可扩展性</td>
+<td>软件因适应新需求变化而增加新功能的能力，也称为灵活性</td>
+</tr>
+<tr>
+<td>可重用性</td>
+<td>指重用软件系统或其一部分的难易程度</td>
+</tr>
+<tr>
+<td>可测试性</td>
+<td>当软件测试以证明其满足需求规范的难易程度</td>
+</tr>
+<tr>
+<td>可维护性</td>
+<td>当需要修改缺陷、增加功能、提高质量属性时，识别修改点并实施修改的难易程度</td>
+</tr>
+<tr>
+<td>可移植性</td>
+<td>将软件系统从一个运行环境转移到另一个不同的运行环境的难易程度</td>
+</tr>
+</tbody></table>
+<h3 id="1-2-运行期的质量属性"><a href="#1-2-运行期的质量属性" class="headerlink" title="1.2 运行期的质量属性"></a>1.2 运行期的质量属性</h3><table>
+<thead>
+<tr>
+<th>属性</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>性能</td>
+<td>软件系统即时提供相应的服务能力，如速度、吞吐量和容量等</td>
+</tr>
+<tr>
+<td>安全性</td>
+<td>软件系统同时兼顾向合法用户提供服务，以及组织非授权使用的能力</td>
+</tr>
+<tr>
+<td>可伸缩性</td>
+<td>当用户数和数据量增加时，软件系统维持高服务质量的能力</td>
+</tr>
+<tr>
+<td>互操作性</td>
+<td>软件系统与其他系统交换数据和相互调用服务的难易程度</td>
+</tr>
+<tr>
+<td>可靠性</td>
+<td>软件系统在一定时间内持续无故障运行的能力</td>
+</tr>
+<tr>
+<td>可用性</td>
+<td>系统在一定时间内正常工作的时间所占比例</td>
+</tr>
+<tr>
+<td>健壮性</td>
+<td>软件系统在非正常情况（用户非法操作、相关软硬件系统发生故障）下仍正常运行的能力，也称容错性</td>
+</tr>
+</tbody></table>
+<h2 id="2-面向架构评估的质量属性"><a href="#2-面向架构评估的质量属性" class="headerlink" title="2 面向架构评估的质量属性"></a>2 面向架构评估的质量属性</h2><h3 id="2-1-性能"><a href="#2-1-性能" class="headerlink" title="2.1 性能"></a>2.1 性能</h3><p>性能（performance）是指系统的响应能力，即要经过多长时间才能对某个事件做出响应，或者在某段时间内系统所能处理的事件的个数。例如：同时支持1000并发；响应时间小于1s；显示分辨率达到4K</p>
+<p><strong>提升性能的策略（性能战术）可以从以下几个方面考虑：</strong></p>
+<ol>
+<li>资源需求 ：<br> ①提高计算效率、②减少计算开销、③管理（减少处理事件数量）事件率、④控制采样频率（控制资源的使用）</li>
+<li>资源管理 ：<br> ①引入并发机制、②维持多个副本、③增加可用资源</li>
+<li>资源仲裁 ：<br> 资源调度策略：①先进先出、②固定优先级、③动态优先级、④静态调式</li>
+</ol>
+<h3 id="2-2-可用性"><a href="#2-2-可用性" class="headerlink" title="2.2 可用性"></a>2.2 可用性</h3><p>可用性（availability）是系统能够正常运行的时间比例。经常用两次故障之间的时间长度或在出现故障时系统能够恢复正常的速度来表示。例如：主服务器故障，1分钟内切换至备用服务器；系统故障，1小时内修复；系统支持7×24小时工作</p>
+<p><strong>提升可用性的策略（可用性战术）可以从以下几个方面考虑：</strong></p>
+<ol>
+<li>错误检测 ：<br> ①命令/响应【Ping/Echo】、②心跳、③异常</li>
+<li>错误恢复 ：<br> ①表决、②冗余【主动/被动】、③备份【重新同步、内测、检查点/回滚】</li>
+<li>错误避免 ：<br> ①进程监视器、②事务、③从服务器删除【服务下线】</li>
+</ol>
+<h3 id="2-3-安全性"><a href="#2-3-安全性" class="headerlink" title="2.3 安全性"></a>2.3 安全性</h3><p>安全性（security）是指系统在向合法用户提供服务的同时能够阻止非授权用户使用的企图或拒绝服务的能力。安全性又可划分为机密性、完整性、不可否认性及可控性等特性。例如：可抵御SQL注入攻击；对计算机的操作都有完整记录（日志，审计追踪）；用户信息数据库授权必须保证99.9%可用</p>
+<p><strong>提升安全性的策略（安全性战术）可以从以下几个方面考虑：</strong></p>
+<ol>
+<li>抵抗攻击 ：<br> ①用户身份验证、②用户授权、③维护数据机密性和完整性、④限制暴露、⑤限制访问</li>
+<li>检测攻击 ：<br> ①入侵系统检测</li>
+<li>从攻击中恢复 ：<br> ①识别攻击者：审计追踪、②恢复状态：冗余【与可用性重叠】</li>
+</ol>
+<h3 id="2-4-可修改性"><a href="#2-4-可修改性" class="headerlink" title="2.4 可修改性"></a>2.4 可修改性</h3><p>可修改性（modifiability）是指能够快速地以较高的性能价格比对系统进行变更的能力。通常以某些具体的变更为基准，通过考察这些变更的代价衡量可修改性。例如：更改系统报表模块，必须在2人周内完成；对Web界面风格进行修改，修改必须在4人月内完成</p>
+<p><strong>可修改性分为四个子属性：</strong><br>可维护性：局部修复使故障对架构的负面影响最小化。<br>可扩展性：因松散的耦合更易实现新特性/功能，不影响架构。<br>结构重组：不影响主体进行的灵活配置。<br>可移植性：适用于多样的环境（硬件平台、语言、操作系统等）。</p>
+<p><strong>提升性能的策略（可修改行战术）可以从以下几个方面考虑：</strong></p>
+<ol>
+<li>局部化修改 ：<br> ①高内聚低耦合、②预测变更、③使模块通用、④泛化模块、⑤维持语义的一致性、⑥限制可能的选择、⑦抽象通用服务</li>
+<li>防止连锁反应 ：<br> ①隐藏信息、②维持现有接口、③限制通信路径、④使用仲裁者</li>
+<li>推迟绑定时间 ：<br> ①运行时注册、②配置文件、③多态、④组件更换、⑤遵守已定义的协议</li>
+</ol>
+<h3 id="2-5-易用性"><a href="#2-5-易用性" class="headerlink" title="2.5 易用性"></a>2.5 易用性</h3><p>易用性关注的是对用户来说完成某个期望任务的容易程度和系统所提供的用户支持的种类。例如：</p>
+<ul>
+<li><strong>界面友好</strong></li>
+<li><strong>新用户学习使用系统时间不超过2小时</strong></li>
+</ul>
+<h3 id="2-6-可测试性"><a href="#2-6-可测试性" class="headerlink" title="2.6 可测试性"></a>2.6 可测试性</h3><p>软件可测试性是指通过测试揭示软件缺陷的容易程度。例如：</p>
+<ul>
+<li><strong>提供远程调试接口，支持远程调试</strong></li>
+</ul>
+<h3 id="2-7-可靠性"><a href="#2-7-可靠性" class="headerlink" title="2.7 可靠性"></a>2.7 可靠性</h3><p>分为两个子属性：<br><strong>容错性</strong>：出错后仍能保证系统争取运行，且自行修正错误。<br><strong>健壮性</strong>：错误不对系统产生影响，按既定程序忽略错误。</p>
+<h3 id="2-8-功能性"><a href="#2-8-功能性" class="headerlink" title="2.8 功能性"></a>2.8 功能性</h3><p>需求的满足程度。</p>
+<h3 id="2-9-可变性"><a href="#2-9-可变性" class="headerlink" title="2.9 可变性"></a>2.9 可变性</h3><p>总体架构可变。</p>
+<h3 id="2-10-互操作性"><a href="#2-10-互操作性" class="headerlink" title="2.10 互操作性"></a>2.10 互操作性</h3><p>通过可视化或接口方式提供更好的交互操作体验。</p>
+<h2 id="3-质量属性场景描述"><a href="#3-质量属性场景描述" class="headerlink" title="3 质量属性场景描述"></a>3 质量属性场景描述</h2><p>质量属性场景是一种面向特定质量属性的需求，由刺激源、刺激、环境、制品、响应、响应度量组成。<br>（1）刺激源（Source）：某个生成该刺激源的实体（人、计算机系统或者任何其他刺激器）。<br>（2）刺激（Stimulus）：指当刺激到达系统时需要考虑的条件。<br>（3）环境（Environment）：指该刺激在某些条件内发生。当激励发生时，系统可能处于过载、运行或者其他情况。<br>（4）制品（Artifact）：某个制品被激励，可能是整个系统，也可能是系统的一部分。<br>（5）响应（Response）：指在激励到达后所采取的行动。<br>（6）响应度量（Measurement）：当响应发生时，应当能够以某种方式对其进行度量，以对需求进行测试。</p>
+<h2 id="4-系统架构评估"><a href="#4-系统架构评估" class="headerlink" title="4 系统架构评估"></a>4 系统架构评估</h2><h3 id="4-1-重要概念"><a href="#4-1-重要概念" class="headerlink" title="4.1 重要概念"></a>4.1 重要概念</h3><h4 id="4-1-1-敏感点、权衡点、风险点、非风险点"><a href="#4-1-1-敏感点、权衡点、风险点、非风险点" class="headerlink" title="4.1.1 敏感点、权衡点、风险点、非风险点"></a>4.1.1 敏感点、权衡点、风险点、非风险点</h4><p><strong>敏感点（Sensitivity Point）</strong> ：是一个或多个构件（和/或构件之间的关系）的特性。</p>
+<p><strong>权衡点（Tradeoff Point）</strong> ：是影响多个质量属性的特性，是多个质量属性的敏感点。</p>
+<p><strong>风险点（Risk Point ）</strong> ：是指架构设计中潜在的、存在问题的架构决策所带来的隐患。</p>
+<p><strong>非风险点（Non-Risk Point ）</strong> ：是指不会带来隐患，一般以“XXX要求是可以实现（或接受）的”方式表达。</p>
+<p>例如：</p>
+<ol>
+<li>对交易请求处理时间的要求将影响系统的数据传输协议和处理过程的设计<strong>（敏感点）</strong></li>
+<li>假设每秒中用户交易请求的数量是10个，处理请求的时间为30毫秒，则“在1秒内完成用户的交易请求”这一要求是可以实现的 <strong>（非风险点）</strong></li>
+<li>目前对系统信用卡支付业务逻辑的描述尚未达成共识，这可能导致部分业务功能模块的重复，影响系统的可修改性 <strong>（风险点）</strong></li>
+<li>更改加密的级别将对安全性和性能产生影响 <strong>（权衡点）</strong></li>
+</ol>
+<h4 id="4-1-2-风险承担者或者相关利益人"><a href="#4-1-2-风险承担者或者相关利益人" class="headerlink" title="4.1.2 风险承担者或者相关利益人"></a>4.1.2 风险承担者或者相关利益人</h4><p>影响体系结构或被体系结构影响的群体。</p>
+<h4 id="4-1-3-场景"><a href="#4-1-3-场景" class="headerlink" title="4.1.3 场景"></a>4.1.3 场景</h4><p>确定架构质量评估目标的交互机制，一般采用触发机制（刺激）、环境和影响三方面来考虑。</p>
+<h3 id="4-2-系统架构评估方法"><a href="#4-2-系统架构评估方法" class="headerlink" title="4.2 系统架构评估方法"></a>4.2 系统架构评估方法</h3><ol>
+<li><p>基于调查问卷或检查表的评估方法<br> 是指组织相关人员进行评估，这种方式最简单易行，但是主观性强。</p>
+</li>
+<li><p>基于度量的评估方法<br> 强调量化指标，最客观，但是这种方式实施难度大，因为需要评估者对系统非常熟悉，不然很难量化清楚各项指标。</p>
+</li>
+<li><p>基于场景的评估方法<br> 筛选出系统的关键场景，根据系统在不同场景中的表现进行评估，这种方式客观程度介于2者之间，这也是目前较为流行的结构评估方法。</p>
+</li>
+</ol>
+<p><strong>基于场景的方式主要有三种（前2种方式用得比较多）：</strong></p>
+<p><strong>软件架构分析法（SAAM，Software Architecture Analysis Method）</strong><br><strong>架构权衡分析法（ATAM，Architecture Tradeoff Analysis Method）</strong><br><strong>成本效益分析法（CBAM，the Cost Benefit Analysis Method）</strong></p>
+<h4 id="4-2-1-基于场景-软件架构分析法SAAM"><a href="#4-2-1-基于场景-软件架构分析法SAAM" class="headerlink" title="4.2.1 基于场景 - 软件架构分析法SAAM"></a>4.2.1 基于场景 - 软件架构分析法SAAM</h4><p>SAAM，最初用于分析架构可修改性，后扩展到其它质量属性。<br><strong>SAAM分析评估架构的过程包括5个步骤</strong> ，如下图：<br>（1）<strong>场景开发</strong><br>（2）<strong>架构描述</strong><br>（3）<strong>单个场景评估</strong><br>（4）<strong>场景交互评估</strong><br>（5）<strong>整体评估</strong></p>
+<p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E7%B3%BB%E7%BB%9F%E8%B4%A8%E9%87%8F%E5%B1%9E%E6%80%A7%E4%B8%8E%E6%9E%B6%E6%9E%84%E8%AF%84%E4%BC%B0/1.png" srcset="/img/loading.gif" lazyload></p>
+<h4 id="4-2-2-基于场景-架构权衡分析法ATAM"><a href="#4-2-2-基于场景-架构权衡分析法ATAM" class="headerlink" title="4.2.2 基于场景 - 架构权衡分析法ATAM"></a>4.2.2 基于场景 - 架构权衡分析法ATAM</h4><p>架构权衡分析法（ATAM，Architecture Tradeoff Analysis Method）是 在SAAM上发展而来。核心是结合质量属性效用树对系统进行评价 ，确定风险点、敏感点、权衡点，并对系统架构做出决策和折中。整个评估过程 强调以质量属性作为评估核心，主要针对性能、实用性、安全性和可修改性，在系统开发之前，对这些质量属性进行评价和折中。</p>
+<p><strong>ATAM分成4个阶段，如下图：</strong><br><strong>（1）场景和需求收集</strong><br><strong>（2）架构视图和场景实现</strong><br><strong>（3）质量模型构造和分析</strong><br><strong>（4）质量模型折中</strong></p>
+<p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E7%B3%BB%E7%BB%9F%E8%B4%A8%E9%87%8F%E5%B1%9E%E6%80%A7%E4%B8%8E%E6%9E%B6%E6%9E%84%E8%AF%84%E4%BC%B0/2.png" srcset="/img/loading.gif" lazyload></p>
+<h4 id="4-2-3-质量属性效用树"><a href="#4-2-3-质量属性效用树" class="headerlink" title="4.2.3 质量属性效用树"></a>4.2.3 质量属性效用树</h4><p><strong>质量属性效用树：识别质量属性并排序，主要包含性能、可用性、可修改性、安全性四个方面。</strong></p>
+<p><strong>性能</strong>：性能延时（将用户数据库存储延迟到了最小值300ms，提供了实时的视频图像），交易吞吐量（使认证服务器的平均吞吐量最大化）。</p>
+<p><strong>可修改性</strong>：新增产品目录，商业产品修改（已小于20人月的工作量添加CORBA中间件，以小于4人周的工作量更改web界面）。</p>
+<p><strong>可用性</strong>：硬件故障（若站点A断电，要求在3秒内将任务重定向到站点B，若磁盘出现故障，要求在5分钟内重新启动，要在1-5分钟之内检测并恢复网络故障），商业软件故障。</p>
+<p><strong>安全性</strong>：数据机密性（信用卡交易在99.999%的时间内是安全的，客户数据库z认证在99.999%的时间内能正常工作），数据完整性。</p>
+<p><strong>质量属性效用树</strong>，示例图如下：</p>
+<p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E7%B3%BB%E7%BB%9F%E8%B4%A8%E9%87%8F%E5%B1%9E%E6%80%A7%E4%B8%8E%E6%9E%B6%E6%9E%84%E8%AF%84%E4%BC%B0/3.png" srcset="/img/loading.gif" lazyload></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/" class="category-chain-item">系统架构师</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E9%AB%98%E7%BA%A7%E6%8A%80%E8%83%BD/" class="category-chain-item">高级技能</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/">#系统架构师</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>系统质量属性与架构评估</div>
+      <div>http://www.zivjie.cn/2023/07/15/系统架构设计师/高级技能/系统质量属性与架构评估/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Francis</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年7月15日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/07/17/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%E5%AE%89%E8%A3%85/" title="MySQL安装">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">MySQL安装</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/07/15/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%B8%88/%E9%AB%98%E7%BA%A7%E6%8A%80%E8%83%BD/%E8%BD%AF%E4%BB%B6%E5%8F%AF%E9%9D%A0%E6%80%A7%E5%88%86%E6%9E%90%E4%B8%8E%E8%AE%BE%E8%AE%A1/" title="软件可靠性分析与设计">
+                        <span class="hidden-mobile">软件可靠性分析与设计</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

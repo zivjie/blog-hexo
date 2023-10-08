@@ -1,0 +1,695 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Francis">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1 软件测试1.1 测试类型 1.2 测试阶段  1.3 软件调试测试是发现错误，调试是找出错误的代码和原因。 调试需要确定错误的准确位置；确定问题的原因并设法改正；改正后要进行回归测试。 调试的方法有：蛮力法、回溯法（从出错的地方开始，向回找）、原因排除法（找出所有可能的原因，逐一进行排除，具体包括演绎法、归纳法、二分法）。 1.4 软件度量软件的两种属性：外部属性指面向管理者和用户的属性，可直">
+<meta property="og:type" content="article">
+<meta property="og:title" content="软件测试与维护">
+<meta property="og:url" content="http://www.zivjie.cn/2023/07/08/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%B8%88/%E5%9F%BA%E7%A1%80%E6%8A%80%E8%83%BD/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E4%B8%8E%E7%BB%B4%E6%8A%A4/index.html">
+<meta property="og:site_name" content="Francis-Blog">
+<meta property="og:description" content="1 软件测试1.1 测试类型 1.2 测试阶段  1.3 软件调试测试是发现错误，调试是找出错误的代码和原因。 调试需要确定错误的准确位置；确定问题的原因并设法改正；改正后要进行回归测试。 调试的方法有：蛮力法、回溯法（从出错的地方开始，向回找）、原因排除法（找出所有可能的原因，逐一进行排除，具体包括演绎法、归纳法、二分法）。 1.4 软件度量软件的两种属性：外部属性指面向管理者和用户的属性，可直">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.zivjie.cn/img/dawn%20of%20war.png">
+<meta property="article:published_time" content="2023-07-08T01:30:00.000Z">
+<meta property="article:modified_time" content="2023-10-06T08:18:17.169Z">
+<meta property="article:author" content="Francis">
+<meta property="article:tag" content="系统架构师">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://www.zivjie.cn/img/dawn%20of%20war.png">
+  
+  
+  
+  <title>软件测试与维护 - Francis-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.zivjie.cn","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Francis</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="软件测试与维护"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-07-08 09:30" pubdate>
+          2023年7月8日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          23 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">软件测试与维护</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="1-软件测试"><a href="#1-软件测试" class="headerlink" title="1 软件测试"></a>1 软件测试</h2><h3 id="1-1-测试类型"><a href="#1-1-测试类型" class="headerlink" title="1.1 测试类型"></a>1.1 测试类型</h3><p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E4%B8%8E%E7%BB%B4%E6%8A%A4/1.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="1-2-测试阶段"><a href="#1-2-测试阶段" class="headerlink" title="1.2 测试阶段"></a>1.2 测试阶段</h3><p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E4%B8%8E%E7%BB%B4%E6%8A%A4/2.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E4%B8%8E%E7%BB%B4%E6%8A%A4/3.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="1-3-软件调试"><a href="#1-3-软件调试" class="headerlink" title="1.3 软件调试"></a>1.3 软件调试</h3><p>测试是发现错误，调试是找出错误的代码和原因。</p>
+<p>调试需要确定错误的准确位置；确定问题的原因并设法改正；改正后要进行回归测试。</p>
+<p>调试的方法有：蛮力法、回溯法（从出错的地方开始，向回找）、原因排除法（找出所有可能的原因，逐一进行排除，具体包括演绎法、归纳法、二分法）。</p>
+<h3 id="1-4-软件度量"><a href="#1-4-软件度量" class="headerlink" title="1.4 软件度量"></a>1.4 软件度量</h3><p>软件的两种属性：外部属性指面向管理者和用户的属性，可直接测量，一般为性能指标。内部属性指软件产品本身的的属性，如可靠性等，只能间接测量。</p>
+<p>McCabe度量法：又称为环路复杂度，假设有向图中有向边数为m，节点数为n，则此有向图的环路复杂度为m-n+2。</p>
+<p>注意m和n代表的含义不能混淆，可以用一个最简单的环路来做特殊值记忆此公式，另外，针对一个程序流程图，每一个分支边（连线）就是一条有向边，每一条语句（语句框）就是一个顶点。</p>
+<h2 id="2-软件维护"><a href="#2-软件维护" class="headerlink" title="2 软件维护"></a>2 软件维护</h2><h3 id="2-1-遗留系统演化策略"><a href="#2-1-遗留系统演化策略" class="headerlink" title="2.1 遗留系统演化策略"></a>2.1 遗留系统演化策略</h3><p>遗留系统（Legacy System）是指任何基本上不能进行修改和演化以满足新的变化了的业务需求的信息系统。</p>
+<p>对遗留系统评价的目的是为了获得对遗留系统的更好的理解，这是遗留系统演化的基础，是任何遗留系统演化项目的起点。主要评价方法包括度量系统技术水准、商业价值和与之关联的企业特征，其结果作为选择处理策略的基础。</p>
+<p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E4%B8%8E%E7%BB%B4%E6%8A%A4/4.png" srcset="/img/loading.gif" lazyload></p>
+<ol>
+<li><strong>改造策略，高水平、高价值区</strong>，即遗留系统的技术含量较高，本身还有极大的生命力。系统具有较高的业务价值，基本上能够满足企业业务运作和决策支持的需要。这种系统可能建成的时间还很短，称这种遗留系统的演化策略为改造。改造包括系统功能的增强和数据模型的改造两个方面。系统功能的增强是指在原有系统的基础上增加新的应用要求，对遗留系统本身不做改变；数据模型的改造是指将遗留系统的旧的数据模型向新的数据模型的转化。</li>
+<li><strong>继承策略，低水平、高价值区</strong>，即遗留系统的技术含量较低，已经满足企业运作的功能或性能要求，但具有较高的商业价值，目前企业的业务尚紧密依赖该系统。称这种遗留系统的演化策略为继承。在开发新系统时，需要完全兼容遗留系统的功能模型和数据模型。为了保证业务的连续性，新老系统必须并行运行一段时间，再逐渐切换到新系统上运行。</li>
+<li><strong>集成策略，高水平、低价值区</strong>，即遗留系统的技术含量较高，但其业务价值较低，可能只完成某个部门（或子公司）的业务管理。这种系统在各自的局部领域里工作良好，但对于整个企业来说，存在多个这样的系统，不同的系统基于不同的平台、不同的数据模型，形成了一个个信息孤岛，对这种遗留系统的演化策略为集成。</li>
+<li><strong>淘汰策略，低水平、低价值区</strong>，即遗留系统的技术含量较低，且具有较低的业务价值。对这种遗留系统的演化策略为淘汰，即全面重新开发新的系统以代替遗留系统。完全淘汰是一种极端性策略，一般是企业的业务产生了根本变化，遗留系统已经基本上不再适应企业运作的需要；或者是遗留系统的维护人员、维护文档资料都丢失了。经过评价，发现将遗留系统完全淘汰，开发全新的系统比改造旧系统从成本上考虑更合算。</li>
+</ol>
+<h3 id="2-2-新旧系统的转换策略"><a href="#2-2-新旧系统的转换策略" class="headerlink" title="2.2 新旧系统的转换策略"></a>2.2 新旧系统的转换策略</h3><p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E4%B8%8E%E7%BB%B4%E6%8A%A4/5.png" srcset="/img/loading.gif" lazyload></p>
+<p>在实施新旧系统转换时，转换的策略通常有三种：</p>
+<ol>
+<li><strong>直接转换策略</strong>，适用于新系统不太复杂或现有系统完全不能使用的场合，新系统在转换之前必须经过详细而严格的测试。</li>
+<li><strong>并行转换策略</strong>，新系统和现有系统并行工作一段时间，经过这段时间的试运行后，再用新系统正式替换下现有系统。</li>
+<li><strong>分段转换策略</strong>，分段转换策略也称为逐步转换策略，这种转换方式是直接转换方式和并行转换方式的结合，采取分期分批逐步转换。一般比较大的系统采用这种方式较为适宜，它能保证平稳运行，费用也不太高；或者现有系统比较稳定，能够适应自身业务发展需要，或新旧系统转换风险很大（例如，在线订票系统、银行的中间业务系统等），也可以采用分段转换策略。分段转换策略的优点是，新旧系统的转换震动比较小，用户容易接受。但由于是采用渐进方式，导致新旧系统的转换周期过长，同时由于需求的变化，给新系统的稳定造成比较大的影响。而且，分段转换策略对系统的设计和实现都有一定的要求，在转换过程中，需要开发新旧系统之间的接口，还需要制订阶段性的转换目标和计划。</li>
+</ol>
+<h3 id="2-3-数据转换和迁移"><a href="#2-3-数据转换和迁移" class="headerlink" title="2.3 数据转换和迁移"></a>2.3 数据转换和迁移</h3><p>数据迁移的主要方法大致有三种，分别是系统切换前通过工具迁移、系统切换前采用手工录入和系统切换后通过新系统生成。</p>
+<p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E4%B8%8E%E7%BB%B4%E6%8A%A4/6.png" srcset="/img/loading.gif" lazyload></p>
+<p>数据迁移的实施可以分为三个阶段，分别是数据迁移前的准备、数据转换与迁移和数据迁移后的校验。其中准备工作要做好以下7个方面的工作：</p>
+<p>（1）待迁移数据源的详细说明，包括数据的存放方式、数据量和数据的时间跨度。<br>（2）建立新旧系统数据库的数据字典，对现有系统的历史数据进行质量分析，以及新旧系统数据结构的差异分析。<br>（3）新旧系统代码数据的差异分析。<br>（4）建立新旧系统数据库表的映射关系，对无法映射字段的处理方法。<br>（5）开发或购买、部署ETL工具。<br>（6）编写数据转换的测试计划和校验程序。<br>（7）制定数据转换的应急措施。</p>
+<p>在数据迁移完成后，需要对迁移后的数据进行校验。数据迁移后的校验是对迁移质量的检查，同时数据校验的结果也是判断新系统能否正式启用的重要依据。可以通过以下两种方式对迁移后的数据进行校验：<br>（1）对迁移后的数据进行质量分析。<br>（2）新旧系统查询数据对比检查。</p>
+<h3 id="2-4-影响软件可维护性的因素"><a href="#2-4-影响软件可维护性的因素" class="headerlink" title="2.4 影响软件可维护性的因素"></a>2.4 影响软件可维护性的因素</h3><p>【可理解性】是指通过阅读源代码和相关文档，了解软件的功能和如何运行的容易程度。<br>【可修改性】是指修改软件的难易程度。<br>【可测试性】是指验证软件程序正确的难易程度。<br>可测试性好的软件，通常意味着软件设计简单，复杂性低。因为软件的复杂性越大，测试的难度也就越大。<br>【可靠性】一个软件的可靠性越高，需要维护的概率就会越低。<br>【可移植性】是指将软件从一个环境移植到新的的环境下正确运行的难易程度。<br>软件运行环境的变化是软件维护的一种常见情形，可移植性好的软件会降低维护的概率</p>
+<h3 id="2-5-软件维护类型"><a href="#2-5-软件维护类型" class="headerlink" title="2.5 软件维护类型"></a>2.5 软件维护类型</h3><p>软件的维护并不只是修正错误，为了满足用户提出的增加新功能，修改现有功能以及一般性的改进要求和建议，需要进行完善性维护，他是软件维护的重要组成部分。</p>
+<p>改正性维护【修BUG】：也称正确性维护，指改正在系统开发阶段已发生而系统测试阶段尚未发现的错误【修正bug、错误】。<br>适应性维护【应变】：指使应用软件适应环境变化【外部环境、数据环境】而进行的修改。<br>完善性维护【新需求】：扩充功能和改善性能而进行的修改。<br>预防性维护【针对未来】：为了适应未来的软硬件环境的变化，应主动增加预防性的新的功能，以使系统适应各类变化而不被淘汰。如将专用报表功能改成通用报表生成功能，以适应将来报表格式的变化。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/" class="category-chain-item">系统架构师</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E5%9F%BA%E7%A1%80%E6%8A%80%E8%83%BD/" class="category-chain-item">基础技能</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E5%9F%BA%E7%A1%80%E6%8A%80%E8%83%BD/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/" class="category-chain-item">软件工程</a>
+  
+  
+
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/">#系统架构师</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>软件测试与维护</div>
+      <div>http://www.zivjie.cn/2023/07/08/系统架构设计师/基础技能/软件工程/软件测试与维护/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Francis</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年7月8日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/07/08/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%B8%88/%E5%9F%BA%E7%A1%80%E6%8A%80%E8%83%BD/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/%E8%BF%87%E7%A8%8B%E5%BC%80%E5%8F%91%E6%A8%A1%E5%9E%8B/" title="过程开发模型">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">过程开发模型</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/07/07/%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1/Java%20IO%E6%BC%94%E8%BF%9B/" title="Java IO演进">
+                        <span class="hidden-mobile">Java IO演进</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,801 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Francis">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1 可靠性基本概念系统可靠性 是系统在规定的时间内及规定的环境条件下，完成规定功能的能力，也就是系统无故障运行的概率。也就是软件系统在应用或系统错误面前，在意外或错误使用的情况下维持软件系统的功能特性的基本能力。系统可用性 是指在某个给定时间点上系统能够按照需求执行的概率，也就是系统能够正常运行的时间比例。 软件可靠性 ≠ 硬件可靠性，其区别：  复杂性 ，软件复杂性比硬件高， 大部分失效来自于软">
+<meta property="og:type" content="article">
+<meta property="og:title" content="软件可靠性分析与设计">
+<meta property="og:url" content="http://www.zivjie.cn/2023/07/15/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%B8%88/%E9%AB%98%E7%BA%A7%E6%8A%80%E8%83%BD/%E8%BD%AF%E4%BB%B6%E5%8F%AF%E9%9D%A0%E6%80%A7%E5%88%86%E6%9E%90%E4%B8%8E%E8%AE%BE%E8%AE%A1/index.html">
+<meta property="og:site_name" content="Francis-Blog">
+<meta property="og:description" content="1 可靠性基本概念系统可靠性 是系统在规定的时间内及规定的环境条件下，完成规定功能的能力，也就是系统无故障运行的概率。也就是软件系统在应用或系统错误面前，在意外或错误使用的情况下维持软件系统的功能特性的基本能力。系统可用性 是指在某个给定时间点上系统能够按照需求执行的概率，也就是系统能够正常运行的时间比例。 软件可靠性 ≠ 硬件可靠性，其区别：  复杂性 ，软件复杂性比硬件高， 大部分失效来自于软">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.zivjie.cn/img/Eternal%20Light%20by.png">
+<meta property="article:published_time" content="2023-07-15T01:30:00.000Z">
+<meta property="article:modified_time" content="2023-10-07T06:28:24.910Z">
+<meta property="article:author" content="Francis">
+<meta property="article:tag" content="系统架构师">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://www.zivjie.cn/img/Eternal%20Light%20by.png">
+  
+  
+  
+  <title>软件可靠性分析与设计 - Francis-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.zivjie.cn","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Francis</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="软件可靠性分析与设计"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-07-15 09:30" pubdate>
+          2023年7月15日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          47 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">软件可靠性分析与设计</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="1-可靠性基本概念"><a href="#1-可靠性基本概念" class="headerlink" title="1 可靠性基本概念"></a>1 可靠性基本概念</h2><p><strong>系统可靠性</strong> 是系统在规定的时间内及规定的环境条件下，完成规定功能的能力，也就是系统无故障运行的概率。也就是软件系统在应用或系统错误面前，在意外或错误使用的情况下维持软件系统的功能特性的基本能力。<br><strong>系统可用性</strong> 是指在某个给定时间点上系统能够按照需求执行的概率，也就是系统能够正常运行的时间比例。</p>
+<p><strong>软件可靠性 ≠ 硬件可靠性，其区别：</strong></p>
+<ol>
+<li>复杂性 ，软件复杂性比硬件高， 大部分失效来自于软件失效 。</li>
+<li>物理退化 ，硬件失效主要是物理退化所致，软件不存在物理退化 。</li>
+<li>唯一性，软件是唯一的 ，每个COPY版本都一样，而两个硬件不可能完全一样。</li>
+<li>版本更新周期，硬件较慢，软件较快 。</li>
+</ol>
+<p><strong>软件可靠性的定量描述 ：</strong>软件的可靠性是在软件使用条件、在规定时间内、系统的输入/输出、系统的使用等变量构成的数据表达式。<br>（1）规定时间：自然时间、运行时间、执行时间，度量软件的可靠性效果最好<br>（2）失效概率：软件从运行开始算起，运行到某一时间t，出现失效的概率是一个随机函数，称为失效概率。<br>（3）可靠度：是如软件在规定条件下、规定时间内不失效的概率。<br>（4）失效强度：单位时间内软件失效的概率。<br>（5）失效率：也称风险函数或条件失效强度，在运行系统未出现失效的情况下，单位时间软件系统出现失效的概率。<br>（6）平均无失效时间：软件运行后，到下一次失效的平均时间。更直观地反应软件的可靠度。</p>
+<p><strong>可靠性的目标 ：</strong><br>软件可靠性是指用户对所使用的软件的性能满意程度的期望。可以用可靠性、平均失效时间和故障强度等来描述。</p>
+<p><strong>软件可靠性测试的意义 ：</strong><br>（1）软件失效可能造成灾难性的后果。<br>（2）软件的失效在整个计算机系统失效中的比例较高。<br>（3）相比硬件可靠性技术，软件可靠性技术不成熟。<br>（4）软件可靠性问题会造成软件费用增长。<br>（5）系统对软件的依赖性强，对生产活动和社会生活影响日益增大。</p>
+<p><strong>软件可靠性测试的目的 ：</strong><br>（1）发现软件系统的缺陷【需求分析、软件设计、系统编码、测试实施】<br>（2）为软件的使用和维护提供可靠性依据<br>（3）确认软件是否达到可靠性的定量要求</p>
+<p><strong>广义软件可靠性测试</strong> 是为了最终评价软件系统的可靠性而运用的建模、统计试验、分析和评价等一系列手段对软件系统实施一种测试。</p>
+<p><strong>狭义软件可靠性测试</strong> 指为了获取可靠性数据，按预先确定好的测试用例，在软件预期使用环境中，对软件实施的一种测试。</p>
+<h2 id="2-可靠性建模"><a href="#2-可靠性建模" class="headerlink" title="2 可靠性建模"></a>2 可靠性建模</h2><p><strong>软件可靠性模型</strong>是指 <strong>为预计或估算软件的可靠性所建立的可靠性框图和数学模型</strong> 。</p>
+<p><strong>一个软件可靠性模型通常（但不是绝对）由以下几部分组成：</strong></p>
+<ol>
+<li><p>模型假设：模型是实际情况的简化或规范化，总要包含若干假设，例如测试的选取代表实际运行剖面，不同软件失效独立发生等。</p>
+</li>
+<li><p>性能度量：软件可靠性模型的输出量就是性能度量，如失效强度、残留缺陷数等。在软件可靠性模型中性能度量通常以数学表达式给出。</p>
+</li>
+<li><p>参数估计方法：某些可靠性度量的实际值无法直接获得，例如残留缺陷数，这时需通过一定的方法估计参数的值，从而间接确定可靠性度量的值。</p>
+</li>
+<li><p>数据要求：一个软件可靠性模型要求一定的输入数据，即软件可靠性数据。</p>
+</li>
+</ol>
+<p><strong>绝大多数的模型包含3个共同假设 ：</strong></p>
+<ol>
+<li><p>代表性假设：是指可以用测试产生的软件可靠性数据预测运行阶段的软件可靠性行为。</p>
+</li>
+<li><p>独立性假设：此假设认为软件失效是独立发生于不同时刻，一个软件失效的发生不影响另一个软件失效的发生。</p>
+</li>
+<li><p>相同性假设：此假设认为所有软件失效的后果（等级）相同，即建模过程只考虑软件失效的具体发生时刻，不区分软件的失效严重等级。</p>
+</li>
+</ol>
+<p><strong>软件可靠性（模型分类）模的方法包括 ：</strong></p>
+<ol>
+<li>种子法模型：利用捕获一再捕获抽样技术估计程序中的错误数，在程序中预先有意“播种”一些设定的错误“种子”，然后根据测试出的原始错误数和发现的诱导错误的比例，来估计程序中残留的错误数。</li>
+<li>失效率类模型：用来研究程序的失效率</li>
+<li>曲线拟合类模型：用回归分析的方法研究软件复杂性、程序中的缺陷数、失效率、失效间隔时间。</li>
+<li>可靠性增长模型：这类模型预测软件在检错过程中的可靠性改进，用增长函数来描述软件的改进过程。</li>
+<li>程序结构分析模型：是根据程序、子程序及其相互间的调用关系，形成一个可靠性分析网络。</li>
+<li>输入域分类模型：选取软件输入域中的某些样本“点”运行程序，根据这些样本点在“实际”使用环境中的使用概率的测试运行时的成功/失效率，推断软件的使用可靠性。</li>
+<li>执行路径分析方法模型：分析方法与上面的模型相似，先计算程序各逻辑路径的执行概率和程序中错误路径的执行概率，再综合出该软件的使用可靠性。</li>
+<li>非齐次泊松过程模型：是以软件测试过程中单位时间的失效次数为独立泊松随机变量，来预测在今后软件的某使用时间点的累计失效数。</li>
+<li>马尔可夫过程模型</li>
+<li>贝叶斯模型：是利用失效率的试验前分布和当前的测试失效信息，来评估软件的可靠性。</li>
+</ol>
+<h2 id="3-可靠性管理"><a href="#3-可靠性管理" class="headerlink" title="3 可靠性管理"></a>3 可靠性管理</h2><p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E5%8F%AF%E9%9D%A0%E6%80%A7%E5%88%86%E6%9E%90%E4%B8%8E%E8%AE%BE%E8%AE%A1/1.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="4-可靠性分析"><a href="#4-可靠性分析" class="headerlink" title="4 可靠性分析"></a>4 可靠性分析</h2><h3 id="4-1-可靠性指标"><a href="#4-1-可靠性指标" class="headerlink" title="4.1 可靠性指标"></a>4.1 可靠性指标</h3><ul>
+<li><strong>平均无故障时间，MTTF = 1 / λ，λ为失效率</strong></li>
+<li><strong>平均故障修复时间，MTTR = 1 / μ，μ为修复率</strong></li>
+<li><strong>平均故障间隔时间，MTBF = MTTR + MTTF</strong></li>
+<li><strong>系统可用性，MTTF / MTBF = MTTF / (MTTR + MTTF) × 100%</strong></li>
+</ul>
+<p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E5%8F%AF%E9%9D%A0%E6%80%A7%E5%88%86%E6%9E%90%E4%B8%8E%E8%AE%BE%E8%AE%A1/2.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="4-2-串联系统"><a href="#4-2-串联系统" class="headerlink" title="4.2 串联系统"></a>4.2 串联系统</h3><p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E5%8F%AF%E9%9D%A0%E6%80%A7%E5%88%86%E6%9E%90%E4%B8%8E%E8%AE%BE%E8%AE%A1/3.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="4-3-并联系统"><a href="#4-3-并联系统" class="headerlink" title="4.3 并联系统"></a>4.3 并联系统</h3><p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E5%8F%AF%E9%9D%A0%E6%80%A7%E5%88%86%E6%9E%90%E4%B8%8E%E8%AE%BE%E8%AE%A1/4.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="4-4-混合系统"><a href="#4-4-混合系统" class="headerlink" title="4.4 混合系统"></a>4.4 混合系统</h3><p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E5%8F%AF%E9%9D%A0%E6%80%A7%E5%88%86%E6%9E%90%E4%B8%8E%E8%AE%BE%E8%AE%A1/5.png" srcset="/img/loading.gif" lazyload></p>
+<p>R * ( 1 - ( 1- R ) ^ 3 ) * ( 1 - ( 1 - R) ^ 2 )</p>
+<h2 id="5-可靠性设计"><a href="#5-可靠性设计" class="headerlink" title="5 可靠性设计"></a>5 可靠性设计</h2><h3 id="5-1-影响可靠性的主要因素"><a href="#5-1-影响可靠性的主要因素" class="headerlink" title="5.1 影响可靠性的主要因素"></a>5.1 影响可靠性的主要因素</h3><p>从技术的角度来看，影响软件的可靠性的因素包括：<strong>运行环境、软件规模、软件的内部结构、软件的开发方法和开发环境、软件的可靠性投入</strong> 。</p>
+<p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E5%8F%AF%E9%9D%A0%E6%80%A7%E5%88%86%E6%9E%90%E4%B8%8E%E8%AE%BE%E8%AE%A1/6.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="5-2-可靠性设计技术"><a href="#5-2-可靠性设计技术" class="headerlink" title="5.2 可靠性设计技术"></a>5.2 可靠性设计技术</h3><p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E5%8F%AF%E9%9D%A0%E6%80%A7%E5%88%86%E6%9E%90%E4%B8%8E%E8%AE%BE%E8%AE%A1/7.png" srcset="/img/loading.gif" lazyload></p>
+<h4 id="5-2-1-容错设计技术"><a href="#5-2-1-容错设计技术" class="headerlink" title="5.2.1 容错设计技术"></a>5.2.1 容错设计技术</h4><h5 id="5-2-1-1-冗余设计"><a href="#5-2-1-1-冗余设计" class="headerlink" title="5.2.1.1 冗余设计"></a>5.2.1.1 冗余设计</h5><p>在一套完整的软件系统之外，设计一种不同路径、不同算法或不同的实现方式方法的模块或系统作为备份，再出现故障时可用冗余部分进行替换。<strong>N版本程序设计和恢复块方法都是基于设计冗余的思想</strong></p>
+<h5 id="5-2-1-2-N版本程序设计"><a href="#5-2-1-2-N版本程序设计" class="headerlink" title="5.2.1.2 N版本程序设计"></a>5.2.1.2 N版本程序设计</h5><p>通过设计多个模块或不同的版本，对相同初始条件和相同输入的操作结果，实行多数表决，防止其中某一个模块/版本的故障提供错误的服务。<strong>N版本程序设计是一种静态的故障屏蔽技术，采用前向恢复的策略。</strong></p>
+<p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E5%8F%AF%E9%9D%A0%E6%80%A7%E5%88%86%E6%9E%90%E4%B8%8E%E8%AE%BE%E8%AE%A1/8.png" srcset="/img/loading.gif" lazyload></p>
+<ul>
+<li>与通常软件开发过程不同的是，N版本程序设计增加了三个新的阶段：<strong>相异成分规范评审、相异性确认、背对背测试</strong> 。</li>
+<li><strong>N版本程序的同步、N版本程序之间的通信、表决算法(全等表决、非精确表决、Cosmetie表决）、—致比较问题、数据相异性。</strong></li>
+</ul>
+<h5 id="5-2-1-3-恢复块方法"><a href="#5-2-1-3-恢复块方法" class="headerlink" title="5.2.1.3 恢复块方法"></a>5.2.1.3 恢复块方法</h5><p>选择一组操作作为容错设计单元，把普通的程序块变成恢复快。<strong>恢复块方法是一种动态的故障屏蔽技术，采用后向恢复策略。</strong></p>
+<p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E5%8F%AF%E9%9D%A0%E6%80%A7%E5%88%86%E6%9E%90%E4%B8%8E%E8%AE%BE%E8%AE%A1/9.png" srcset="/img/loading.gif" lazyload></p>
+<ul>
+<li>设计时应保证<strong>实现主块和后备块之间的独立性</strong> ，避免相关错误的产生，使主块和备份块之间的共性错误降到最低程度。</li>
+<li><strong>必须保证验证测试程序的正确性。</strong></li>
+</ul>
+<p><strong>N版本程序设计和恢复块方法对比</strong></p>
+<table>
+<thead>
+<tr>
+<th>对比</th>
+<th>N版本程序设计</th>
+<th>恢复块方法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>硬件运行环境</td>
+<td>表决</td>
+<td>单机</td>
+</tr>
+<tr>
+<td>错误检测方法</td>
+<td>多机</td>
+<td>验证测试程序</td>
+</tr>
+<tr>
+<td>恢复策略</td>
+<td>前向恢复</td>
+<td>后向恢复</td>
+</tr>
+<tr>
+<td>实时性</td>
+<td>好</td>
+<td>差</td>
+</tr>
+</tbody></table>
+<ul>
+<li><strong>前向恢复</strong> ：使当前的计算继续下去，把系统恢复成连贯的正确状态，弥补当前状态的不连贯情况。</li>
+<li><strong>后向恢复</strong> ：系统恢复到前一个正确状态，继续执行。</li>
+</ul>
+<h5 id="5-2-1-4-防卫式程序设计"><a href="#5-2-1-4-防卫式程序设计" class="headerlink" title="5.2.1.4 防卫式程序设计"></a>5.2.1.4 防卫式程序设计</h5><p>N版本程序设计和恢复块方法都是基于设计冗余的思想，这给程序员和处理机都增加了许多工作，而且它们的结构本身又带来了一些问题和困难，例如，多版本程序设计中的相关性错误问题和恢复块方法中的验证测试的设计等。</p>
+<p><strong>防卫式程序设计</strong> 是一种不采用任何传统的容错技术就能实现软件容错的方法，对于程序中存在的错误和不一致性，防卫式程序设计的 <strong>基本思想</strong> 是 通过在程序中包含错误检查代码和错误恢复代码，使得一旦发生错误，程序就能撤消错误状态，恢复到一个已知的正确状态中去 。</p>
+<p>实现策略包括：<strong>错误检测、破坏估计和错误恢复三个方面。</strong></p>
+<h4 id="5-2-2-检错设计技术"><a href="#5-2-2-检错设计技术" class="headerlink" title="5.2.2 检错设计技术"></a>5.2.2 检错设计技术</h4><ul>
+<li>检错技术 <strong>代价低于容错技术和冗余技术，但是不能自动解决故障，需要人工干预</strong> 。</li>
+<li>检错技术注重考虑：<strong>检测对象、检测延时、实现方式、处理方式四个要素。</strong></li>
+</ul>
+<h4 id="5-2-3-降低复杂度设计技术"><a href="#5-2-3-降低复杂度设计技术" class="headerlink" title="5.2.3 降低复杂度设计技术"></a>5.2.3 降低复杂度设计技术</h4><p><strong>降低复杂度设计设计思想</strong> ：在保证软件功能基础上，简化软件结构、缩短软件结构、缩短程序代码长度、优化软件数据流向、降低软件复杂度、提高软件可靠性</p>
+<h4 id="5-2-4-系统配置技术"><a href="#5-2-4-系统配置技术" class="headerlink" title="5.2.4 系统配置技术"></a>5.2.4 系统配置技术</h4><h5 id="5-2-4-1-双机容错技术"><a href="#5-2-4-1-双机容错技术" class="headerlink" title="5.2.4.1 双机容错技术"></a>5.2.4.1 双机容错技术</h5><p>双机容错技术 是一种软硬件结合的容错应用方案。该方案是由两台服务器和一个外接共享磁盘阵列及相应的双机软件组成在双机容错系统中，两台服务器一般区分为主系统和从系统（备用系统），两台服务器互为主从关系。每台服务器都有自己的系统盘（本地盘），安装操作系统和应用程序。每台服务器至少安装两块网卡，一块连接到网络上，对外提供服务；另一块与另一台服务器连接，用以侦测对方的工作状况。同时，每台服务器都连接在共享磁盘阵列上，用户数据存放在共享磁盘阵列中，当一台服务器出现故障时，另一台服务器主动替代工作，保证网络服务不间断。整个网络系统的数据通过磁盘阵列集中管理，极大地保护了数据的安全性和保密性。</p>
+<p><strong>双机容错系统根据两台服务器的工作方式不同，可以有三种不同的工作模式，分别是双机热备模式、双机互备模式和双机双工模式</strong>。<strong>采用心跳的方法保证主系统与备用系统的联系</strong> 。</p>
+<ol>
+<li><p>双机热备模式 - （一台工作，一台后备）<br> 正常情况下，一台服务器处于工作状态（主系统），另一台服务器处于监控准备状态（备用系统）。如果没有采用共享磁盘阵列，则用户数据同时往两台服务器中写入，以保证数据的即时同步。当主系统出现故障时，通过双机软件将备用系统激活，保证应用在短时间内完全恢复正常使用。当主系统修复后，可重新接入系统要回自己的应用。<br> 双机热备模式是目前采用较多的一种模式，典型应用有证券资金服务器或行情服务器等。<br> 双机热备模式的主要缺点在于，备用系统长期处于后备的状态，存在一定的计算资源浪费。</p>
+</li>
+<li><p>双机互备模式 - （两台运行相对独立应用，互为后备）<br> 两台服务器均处于工作状态，为前端客户机提供各自不同的应用服务，并互相检测对方的运行情况。也就是说，两台服务器同时运行，但彼此均设为备用系统。当某一台服务器出现故障时，另一台服务器可以在短时间内将故障服务器的应用接管过来，从而保证了应用的持续性。双机互备模式的主要缺点是对服务器的性能要求比较高。</p>
+</li>
+<li><p>双机双工模式 - （两台同时运行相同的应用，互为后备）<br> 双机双工模式是集群（cluster）技术的一种形式，两台服务器均处于工作状态，同时为前端客户机提供相同的应用服务，以保证整体系统的性能，实现负载均衡和互为备份。</p>
+</li>
+</ol>
+<h5 id="5-2-4-2-服务器集群技术"><a href="#5-2-4-2-服务器集群技术" class="headerlink" title="5.2.4.2 服务器集群技术"></a>5.2.4.2 服务器集群技术</h5><p>集群技术就是将多台计算机组织起来进行协同工作，它是提高系统可用性和可靠性的一种技术。在集群系统中，每台计算机均承担部分计算任务和容错任务，当其中一台计算机出现故障时，系统使用集群软件将这台计算机从系统中隔离出去，通过各计算机之间的负载转嫁机制完成新的负载分担，同时向系统管理人员发出警报。集群系统通过功能整合和故障过渡，实现了系统的高可用性和可靠性。</p>
+<p><strong>集群内个节点服务器通过内部局域网相互通信，若某节点服务器发生故障，这台服务器运行的应用被另一个节点服务器自动接管。</strong></p>
+<ol>
+<li><p>高性能计算集群<br> 指以提高科学计算能力为目的计算机集群技术，它是一种并行计算集群的实现方法。并行计算是指将一个应用程序分割成多块可以并行执行的部分，并指定到多个处理器上执行的方法。</p>
+</li>
+<li><p>负载均衡集群<br> 负载均衡集群在多节点之间按照一定的策略（算法）分发负载。负载均衡建立在现有网络结构之上，它提供了一种廉价有效的方法来扩展服务器带宽，增加吞吐量，提高数据处理能力。负载均衡是一种动态均衡，它通过一些工具实时地分析数据包，掌握网络中的数据流量状况，把任务合理分配出去。<br> 比较常用的负载均衡实现技术主要有以下几种：<br> 1）基于特定软件的负载均衡（应用层)：很多网络协议都支持重定向功能，例如，基于HTTP重定向服务，其主要原理是服务器使用HTTP重定向指令，将一个客户端重新定位到另一个位置。服务器返回一个重定向响应，而不是返回请求的对象。客户端确认新地址然后重发请求，从而达到负载均衡的目的。<br> 2）基于DNS的负载均衡属于传输层负载均衡技术：其主要原理是在DNS服务器中为同一个主机名配置多个地址，在应答DNS查询时，DNS服务器对每个查询将以DNS文件中主机记录的IP地址按顺序返回不同的解析结果，将客户端的访问引导到不同的节点上去，使得不同的客户端访问不同的节点，从而达到负载均衡的目的。<br> 3）基于NAT的负载均衡：将一个外部IP地址映射为多个内部IP地址，对每次连接需求动态地转换为一个内部节点的地址，将外部连接请求引到转换得到地址的那个节点，上从而达到负载均衡的目的。<br> 4）反向代理负载均衡：将来自Internet上的连接请求以反向代理的方式动态地转发给内部网络上的多个节点进行处理，从而达到负载均衡的目的。<br> 5）混合型负载均衡</p>
+</li>
+<li><p>高可用性集群<br> 在高可用性集群系统中，多台计算机一起工作，各自运行一个或几个服务，各为服务定义一个或多台备用计算机。当某台计算机出现故障时，备用计算机便立即接管该故障计算机的应用，继续为前端的用户提供服务。</p>
+</li>
+</ol>
+<h2 id="6-可靠性测试"><a href="#6-可靠性测试" class="headerlink" title="6 可靠性测试"></a>6 可靠性测试</h2><ul>
+<li><strong>软件可靠性测试包括：</strong><br>  可靠性目标的确定、运行剖面的开发、测试用例的设计、测试实施、测试结果的分析等。</li>
+<li><strong>测试步骤：</strong><br>  定义软件运行剖面(为软件的使用行为建模)一个 =&gt; 设计可靠性测试用例 =&gt; 实施可靠性测试。</li>
+</ul>
+<h2 id="7-可靠性评价"><a href="#7-可靠性评价" class="headerlink" title="7 可靠性评价"></a>7 可靠性评价</h2><p><strong>软件可靠性评价3个过程：</strong><br>选择可靠性模型、收集可靠性数据、可靠性评估和预测。</p>
+<p><strong>选择可靠性模型考虑因素：</strong><br>模型假设的适用性、预测的能力与质量、模型输出值能否满足可靠性评价需求、模型使用的简便性。</p>
+<p><strong>可靠性数据的收集：</strong><br>可靠性数据主要是指软件失效数据，是软件可靠性评价的基础，主要是在软件测试、实施阶段收集的。应采用的解决方法:及早确定所采用的的可靠性模型、制订可实施性较强的可靠性数据收集计划、重视软件测试数据的整理和分析、充分利用数据库来完成可靠性数据的存储和统计分析。</p>
+<p><strong>可靠性评估和预测：</strong><br>判断是否达到了可靠性目标；如未能达到要再投入多少；在软件系统投入实际运行一年或若干时间后，经过维护、升级和修改，软件能否达到交付或部分交付用户使用的可靠性水平。辅助方法：失效数据的图形分析法、试探性数据分析技术。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/" class="category-chain-item">系统架构师</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E9%AB%98%E7%BA%A7%E6%8A%80%E8%83%BD/" class="category-chain-item">高级技能</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/">#系统架构师</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>软件可靠性分析与设计</div>
+      <div>http://www.zivjie.cn/2023/07/15/系统架构设计师/高级技能/软件可靠性分析与设计/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Francis</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年7月15日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/07/15/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%B8%88/%E9%AB%98%E7%BA%A7%E6%8A%80%E8%83%BD/%E7%B3%BB%E7%BB%9F%E8%B4%A8%E9%87%8F%E5%B1%9E%E6%80%A7%E4%B8%8E%E6%9E%B6%E6%9E%84%E8%AF%84%E4%BC%B0/" title="系统质量属性与架构评估">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">系统质量属性与架构评估</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/07/15/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%B8%88/%E9%AB%98%E7%BA%A7%E6%8A%80%E8%83%BD/%E6%9E%84%E4%BB%B6%E4%B8%8E%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF/" title="构件与中间件技术">
+                        <span class="hidden-mobile">构件与中间件技术</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

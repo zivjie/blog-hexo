@@ -1,0 +1,797 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Francis">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1 信息系统概述1.1 信息系统的定义信息系统是由计算机软硬件、网络和通信设备、信息资源、用户和规章制度组成的以处理信息流为目的的人机一体化系统。信息系统的功能有： 输入、存储、处理、输出和控制 。信息系统 发展道路划分为： 初始、传播、控制、集成、数据管理和成熟 6个阶段。 1.2 信息系统的分类信息系统分为业务（数据）处理系统、管理信息系统、决策支持系统、专家系统、办公自动化系统、综合信息系统">
+<meta property="og:type" content="article">
+<meta property="og:title" content="信息系统基础">
+<meta property="og:url" content="http://www.zivjie.cn/2023/07/03/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%B8%88/%E5%9F%BA%E7%A1%80%E6%8A%80%E8%83%BD/%E4%BF%A1%E6%81%AF%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80/index.html">
+<meta property="og:site_name" content="Francis-Blog">
+<meta property="og:description" content="1 信息系统概述1.1 信息系统的定义信息系统是由计算机软硬件、网络和通信设备、信息资源、用户和规章制度组成的以处理信息流为目的的人机一体化系统。信息系统的功能有： 输入、存储、处理、输出和控制 。信息系统 发展道路划分为： 初始、传播、控制、集成、数据管理和成熟 6个阶段。 1.2 信息系统的分类信息系统分为业务（数据）处理系统、管理信息系统、决策支持系统、专家系统、办公自动化系统、综合信息系统">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.zivjie.cn/img/Artic%20Sunset.png">
+<meta property="article:published_time" content="2023-07-03T02:30:00.000Z">
+<meta property="article:modified_time" content="2023-09-25T02:04:21.413Z">
+<meta property="article:author" content="Francis">
+<meta property="article:tag" content="系统架构师">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://www.zivjie.cn/img/Artic%20Sunset.png">
+  
+  
+  
+  <title>信息系统基础 - Francis-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.zivjie.cn","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Francis</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="信息系统基础"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-07-03 10:30" pubdate>
+          2023年7月3日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          51 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">信息系统基础</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="1-信息系统概述"><a href="#1-信息系统概述" class="headerlink" title="1 信息系统概述"></a>1 信息系统概述</h2><h3 id="1-1-信息系统的定义"><a href="#1-1-信息系统的定义" class="headerlink" title="1.1 信息系统的定义"></a>1.1 信息系统的定义</h3><p><strong>信息系统是由计算机软硬件、网络和通信设备、信息资源、用户和规章制度组成的以处理信息流为目的的人机一体化系统</strong>。<br>信息系统的<strong>功能</strong>有： <strong>输入、存储、处理、输出和控制</strong> 。<br>信息系统 <strong>发展道路划分</strong>为： <strong>初始、传播、控制、集成、数据管理和成熟</strong> 6个阶段。</p>
+<h3 id="1-2-信息系统的分类"><a href="#1-2-信息系统的分类" class="headerlink" title="1.2 信息系统的分类"></a>1.2 信息系统的分类</h3><p>信息系统分为<strong>业务（数据）处理系统、管理信息系统、决策支持系统、专家系统、办公自动化系统、综合信息系统</strong>等6类。</p>
+<h3 id="1-3-信息系统生命周期"><a href="#1-3-信息系统生命周期" class="headerlink" title="1.3 信息系统生命周期"></a>1.3 信息系统生命周期</h3><p><strong>信息系统的生命周期</strong>分为 <strong>产生、开发、运行和消亡</strong> 4个阶段。</p>
+<p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E4%BF%A1%E6%81%AF%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80/1.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="1-4-信息系统建设原则"><a href="#1-4-信息系统建设原则" class="headerlink" title="1.4 信息系统建设原则"></a>1.4 信息系统建设原则</h3><p>信息系统建设原则可以分为 高层管理人员介入原则、用户参与开发原则、自顶向下规划原则、工程化原则 等。</p>
+<ol>
+<li>高层管理人员介入原则 ：如CIO介入</li>
+<li>用户参与开发原则 ：用户确定范围、核心用户全程参与、用户深度参与</li>
+<li>自顶向下规划原则 ：以此减少信息不一致的现象</li>
+<li>工程化原则 ：引入【软件工程】</li>
+<li>其它原则 ：创新性原则、整体性原则、发展性原则、经济性原则</li>
+</ol>
+<h3 id="1-5-信息系统的开发方法"><a href="#1-5-信息系统的开发方法" class="headerlink" title="1.5 信息系统的开发方法"></a>1.5 信息系统的开发方法</h3><p><strong>信息系统开发方法</strong>主要有： <strong>结构化方法、原型法、面向对象法、面向服务法、敏捷法、构件化开发法</strong> 。</p>
+<p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E4%BF%A1%E6%81%AF%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80/2.png" srcset="/img/loading.gif" lazyload></p>
+<p><strong>其他信息系统开发方法 :</strong></p>
+<ul>
+<li><strong>形式化方法，建立在严格的数学模型化基础上，如净室软件工程</strong></li>
+<li><strong>统一过程方法【UP/RUP】</strong></li>
+<li><strong>敏捷方法</strong></li>
+<li><strong>基于架构的开发方法【ABSD】</strong></li>
+</ul>
+<h2 id="2-信息化的典型应用"><a href="#2-信息化的典型应用" class="headerlink" title="2 信息化的典型应用"></a>2 信息化的典型应用</h2><p>从低级到高级、从局部到全局、从简单到复杂的过程。</p>
+<table>
+<thead>
+<tr>
+<th>信息系统的分类</th>
+<th>关键点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>业务员处理系统【TPS】</td>
+<td>早期最初级的信息系统，功能：数据输入，数据处理【批处理、OLTP】，数据库维护，文件报表产生</td>
+</tr>
+<tr>
+<td>管理信息系统【MIS】</td>
+<td>高度集成化的人机信息系统，金字塔结构：分多个层级</td>
+</tr>
+<tr>
+<td>决策支持系统【DSS】</td>
+<td>由语言系统、知识系统和问题处理系统组成。用于辅助决策、支持决策</td>
+</tr>
+<tr>
+<td>专家系统【ES】</td>
+<td>知识+推理=专家系统。人工智能的一个重要分支</td>
+</tr>
+<tr>
+<td>办公自动化系统【OAS】</td>
+<td>由计算机设备、办公设备、数据通信及网络设备、软件系统组成</td>
+</tr>
+<tr>
+<td>企业资源计划【ERP】</td>
+<td>打通供应链，集成，整合</td>
+</tr>
+</tbody></table>
+<h3 id="2-1-业务处理系统（TPS）"><a href="#2-1-业务处理系统（TPS）" class="headerlink" title="2.1 业务处理系统（TPS）"></a>2.1 业务处理系统（TPS）</h3><p>业务处理系统（Transaction Processing System，TPS）又可称为电子数据处理系统（Electronic Data Processing System，EDP） ，是计算机在管理方面早期应用的最初级形式的信息系统。TPS是服务于组织管理层次中最低层、最基础的信息系统。TPS是服务于组织管理层次中最低层、最基础的信息系统。</p>
+<p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E4%BF%A1%E6%81%AF%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80/3.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="2-2-电子数据处理系统（EDPS）"><a href="#2-2-电子数据处理系统（EDPS）" class="headerlink" title="2.2 电子数据处理系统（EDPS）"></a>2.2 电子数据处理系统（EDPS）</h3><p>管理信息系统（Manage Information System，MIS） 是由业务处理系统发展而成的，是 在TPS基础上引进大量管理方法对企业整体信息进行处理 ，并利用信息进行预测、控制、计划、辅助企业全面管理的信息系统。MIS系统四大部件：信息源、信息处理器、信息用户和信息管理者 。</p>
+<p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E4%BF%A1%E6%81%AF%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80/4.png" srcset="/img/loading.gif" lazyload></p>
+<p><strong>闭环结构在决定过程中，不断收集信息，不断发送给决策者。</strong></p>
+<ul>
+<li><strong>批处理系统属于【开环系统】</strong></li>
+<li><strong>计算机实时处理系统属于【闭环系统】</strong></li>
+</ul>
+<h3 id="2-3-管理信息系统（MIS）"><a href="#2-3-管理信息系统（MIS）" class="headerlink" title="2.3 管理信息系统（MIS）"></a>2.3 管理信息系统（MIS）</h3><p>（1）销售市场子系统。它包括销售和推销，在运行控制方面包括雇用和训练销售人员、销售和推销的日常调度，还包括按区域、产品、顾客销售数量的定期分析等。<br>（2）生产子系统。它包括产品设计、生产设备计划、生产设备的调度和运行、生产人员的雇用和训练、质量控制和检查等。<br>（3）后勤子系统。它包括采购、收货、库存控制和分发。<br>（4）人事子系统。它包括雇用、培训、考核记录、工资和解雇等。<br>（5）财务和会计子系统。财务的目标是保证企业的财务要求，并使其花费尽可能的低;会计则是把财务业务分类、总结，填入标准财务报告，准备预算、成本数据的分析与分类等。<br>（6）信息处理子系统。该系统的作用是保证企业的信息需要。典型的任务是处理请求收集数据、改变数据和程序的请求、报告硬件和软件的故障及规划建议等。<br>（7）高层管理子系统。为高层领导服务。业务包括查询信息和支持决策，编写文件和信件，向公司其他部门发送指令。</p>
+<h3 id="2-4-决策支持系统（DSS）"><a href="#2-4-决策支持系统（DSS）" class="headerlink" title="2.4 决策支持系统（DSS）"></a>2.4 决策支持系统（DSS）</h3><p>决策支持系统（Decision Support System，DSS） 是一个由语言系统、知识系统和问题处理系统3个互相关联的部分组成的，基于计算机的系统。</p>
+<p>DSS的两种基本结构形式是两库结构和基于知识的结构 ，实际中的DSS由这两种基本结构通过分解或增加某些部件演变而来。两库结构由数据库子系统、模型库子系统和对话子系统形成三角形分布的结构。</p>
+<p>【DSS应具有的特征】 ：</p>
+<p>（1）数据和模型是DSS的主要资源。<br>（2）DSS用来支援用户作决策而不是代替用户作决策。<br>（3）DSS主要用于 解决半结构化及非结构化问题 。<br>（3）DSS的作用在于提高决策的有效性而不是提高决策的效率。</p>
+<p>决策支持系统的组成</p>
+<p>1、数据的重组和确认。与决策支持系统相关的数据库的问题是，获得正确的数据井且可用理想的形式操作这些数据。这个问题可以通过数据仓库的概念解决。</p>
+<p>2、数据字典的建立。数据仓库是一个与作业层系统分离存在的数据库。通过对数据仓库的存取，管理者可以做出以事实为根据的决策来解决许多业务问题。</p>
+<p>3、数据挖掘和智能体。一旦建成数据仓库，管理者们需要运用工具进行数据存取和查询，使用的工具称为智能体。数据挖掘的结果类型包括</p>
+<blockquote>
+<ol>
+<li>联合：把各个事件联系在一起的过程。例如：将学生们经常同时选修的两门课程联系起来，以便这两门课程不被安排在同一时间</li>
+<li>定序：识别模式的过程。例如：识别学生们多个学期课程的次序</li>
+<li>分类：根据模式组织数据的过程。例如：以学生完成学业的时间(4年以内，4年以上)为标准分成几个小组</li>
+<li>聚类：推到特定小组与其他小组相区分的判断规则的过程。例如，通过兴趣、年龄、工作经验来划分学生</li>
+</ol>
+</blockquote>
+<p>4、模型建立。模型管理的目的就是帮助决策者理解与选择有关的现象。建立模型的方法有穷枚举法、算法、启发式和模拟法。</p>
+<p><strong>DSS基本结构主要由4个部分组成：数据库子系统、模型库子系统、推理部分和用户接口子系统</strong> 。</p>
+<h3 id="2-5-专家系统（ES）"><a href="#2-5-专家系统（ES）" class="headerlink" title="2.5 专家系统（ES）"></a>2.5 专家系统（ES）</h3><p><strong>专家系统（Expert System，ES）</strong> 是一个智能计算机程序系统（人工智能的一个重要分支）， <strong>其内部含有某个领域具有专家水平的大量知识与经验</strong> ，能够利用人类专家的知识和解决问题的方法来处理该领域的问题。</p>
+<p>专家系统不同于传统的应用程序和其他类型的人工智能问题求解程序。主要表现在以下5个方面 ：</p>
+<p>（1）专家系统属于人工智能范畴，其求解的问题是半结构化或非结构化问题。<br>（2）专家系统模拟的是人类专家在问题领域的推理，而不是模拟问题领域本身。<br>（3）专家系统由3个要素组成：描述问题状态的综合数据库、存放启发式经验知识的知识库和对知识库的知识进行推理的推理机。三要素分别对应数据级、知识库级和控制级三级知识，而传统应用程序只有数据和程序两级结构。<br>（4）专家系统处理的问题是实际的问题，而不是纯学术的问题。<br>（5）从求解手段来看，专家系统专用性强，通用性差。</p>
+<p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E4%BF%A1%E6%81%AF%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80/5.png" srcset="/img/loading.gif" lazyload></p>
+<p><strong>人工智能AI的主要分支有专家系统、机器人技术、视觉系统、自然语言处理、学习系统和神经网络等。</strong></p>
+<p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E4%BF%A1%E6%81%AF%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80/6.png" srcset="/img/loading.gif" lazyload></p>
+<ol>
+<li>知识库。用来存储系统求解实际问题的领域知识 。知识库中的知识可分成两类：一类为事实性知识，另一类是启发性知识。</li>
+<li>综合数据库。是专家系统在执行与推理过程中用以存放所需要和产生的各种信息的工作存储器，因此，综合数据库又叫动态知识库 ，其内容在系统运行过程中是不断变化的。相应地把专家系统的知识库称为静态知识库。二者一起构成完整知识库。</li>
+<li>推理机。推理机和知识库一起构成专家系统的核心 。推理机也被称为控制结构或规则解释器，通常包括推理机制和控制策略，是一组用来控制系统的运行、执行各种任务、根据知识库进行各种搜索和推理的程序模块。</li>
+<li>知识获取。主要有两方面功能：一是知识的编辑和求精，二是知识自学习 。</li>
+<li>解释程序。是面向用户服务的，负责解答用户提出的各种问题 。</li>
+<li>人机接口。通常包括两部分：一部分是专家系统与用户的接口，另一部分是专家系统与领域专家和知识工程师的接口</li>
+</ol>
+<h3 id="2-6-办公自动化系统（OAS）"><a href="#2-6-办公自动化系统（OAS）" class="headerlink" title="2.6 办公自动化系统（OAS）"></a>2.6 办公自动化系统（OAS）</h3><p>办公自动化就是办公信息处理手段的自动化。OAS要解决的是包括数据、文字、声音图像等信息的一体化处理问题。从本质上讲，办公自动化就是以先进的科学技术为基础，利用有关办公自动化设备协助办公人员管理各项办公信息，主要利用资源以提高办公效率和办公质量。计算机技术、通信技术、系统科学和行为科学是它的4大支柱。其中以行为科学为主导，系统科学为理论基础，结合运用计算机技术和通信技术。</p>
+<p>OAS的主要功能：</p>
+<p>（1）事务处理 。完成办公部分内的大量繁琐事情，又称为事务办公系统，分为单机处理系统和多机处理系统（通信、信息共享）。<br>（2）信息管理 。对信息流的控制管理，主要包括信息的收集、加工、传递、交流、存取、提供、分析、判断、应用和反馈那些办公人员的综合性工作。可称为管理型办公系统，它能将事务型办公系统中各项孤立的事务处理通过信息交换和共享资源联系起来，获得准确、快捷、及时、优质的功效。管理型办公系统是一种分布式的处理系统，具有计算机通信和网络功能。<br>（3）辅助决策 。可称为决策型办公系统，以经理型办公系统提供的大量信息作为决策工作的基础，建立起能综合分析、预测发展、判断利弊的计算机可运行的决策模型，根据原始数据信息，自动做出比较符合实际的决策方案。<br>办公自动化系统的组成：计算机设备、办公设备、数据通信及网络设备、软件系统。</p>
+<p>办公自动化系统的组成：计算机设备、办公设备、数据通信及网络设备、软件系统 。</p>
+<h3 id="2-7-企业资源规划（ERP）"><a href="#2-7-企业资源规划（ERP）" class="headerlink" title="2.7 企业资源规划（ERP）"></a>2.7 企业资源规划（ERP）</h3><p>企业资源可以归纳为三个“流”，即物流、资金流和信息流 。ERP是指建立在信息技术基础上，以系统化的管理思想，为企业提供决策和运营手段的管理平台。ERP系统是将企业所有资源进行集成整合，并进行全面、一体化管理的信息系统。</p>
+<p>管理思想：它是管理思想的变革。<br>软件产品：不是买来直接就用，需要个性化的开发和部署。<br>管理系统：存在 众多的子系统 ，这些子系统有统一的规划，是 互联互通的，便于事前事中的监控 。<br>包括内容：财务管理，物流管理，生产控制管理，人力资源管理，库存管理等。</p>
+<p><strong>ERP的结构 ：</strong></p>
+<p>（1）生产预测。市场需求是企业生存的基础，在ERP中首先需要对市场进行较准确的预测。预测主要用于计划，在ERP的5 个层次的计划中，前3个层次计划，即经营计划、生产计划大纲和主生产计划的编制都离不开预测。<br>（2）销售管理（计划）。销售管理主要是针对企业的销售部门的相关业务进行管理。<br>经营计划（生产计划大纲）。是根据经营计划的生产目标制定的，是对企业经营计划的细化,用以描述企业在可用资源的条件下，在一定时期中的产量计划。<br>（3）主生产计划。是对企业生产计划大纲的细化，说明在一定时期内的下计划:生产什么，生产多少和什么时候交货。主生产计划的编制以生产大纲为准，其汇总结果应当等同于生产计划大纲。<br>（4）物种需求计划。物料需求计划是对主生产计划的各个项目所需的全部制造件和全部采购件的网络支持计划和时间进度计划。它根据主生产计划对最终产品的需求数量和交货期，推导出构成产品的零部件及材料的需求数量和需求时期，再导出自制零部件的制作订单下达日期和采购件的采购订单发送日期，并进行需求资源和可用能力之间的进一步平衡。<br>（6）能力需求计划。是对物料需求计划所需能力进行核算的一种计划管理方法。旨在通过分析比较MRP 的需求和企业现有生产能力，及早发现能力的瓶颈所在，为实现企业的生产任务而提供能力方面的保障。<br>（7）车间作业计划。是在MRP所产生的加工制造订单（即自制零部件生产计划）的基础上，按照交货期的前后和生产优先级选择原则以及车间的生产资源情况（如设备、人员、物料的可用性、加工能力的大小等），将零部件的生产计划以订单的形式下达给适当的车间。<br>（8）采购与库存管理。采购与库存管理是ERP的基本模块，其中采购管理模块是对采购工作，即从采购订单产生至货物收到的全过程进行组织、实施与控制，库存管理模块则是对企业物料的进、出、存进行管理。<br>（9）质量与设备管理。质量管理贯穿于企业管理的始终。设备管理是指依据企业的生产经营目标，通过一系列的技术、经济和组织措施，对设备寿命周期内的所有设备物资运动形态和价值运动形态进行的综合管理。<br>（10）财务管理。会计工作是企业管理的重要组成部分，是以货币的形式反映和监督企业的日常经济活动，并对这些经济业务的数据进行分类、汇总，以便为企业管理和决策提供必要的信息支持。企业财务管理是企业会计工作和活动的统称。<br>（11）ERP有关扩展应用模块。如客户关系管理、分销资源管理、供应链管理和电子商务等。这几个扩展模块本身也是一个独立的系统，在市场上它们常作为独立的软件产品进行出售和实施。</p>
+<p><strong>ERP的功能 ：</strong><br>支持决策的功能、为处于不同行业的企业提供有针对性的IT解决方案、从企业内部的供应链发展为全行业和跨行业的供应链。</p>
+<h2 id="3-典型信息系统架构模型"><a href="#3-典型信息系统架构模型" class="headerlink" title="3 典型信息系统架构模型"></a>3 典型信息系统架构模型</h2><h3 id="3-1-电子政务（EG）"><a href="#3-1-电子政务（EG）" class="headerlink" title="3.1 电子政务（EG）"></a>3.1 电子政务（EG）</h3><p>电子政务是利用信息技术和其他相关技术，实现公务、政务、商务、事务的一体化管理与运行的政府形态改造的系统工程。</p>
+<p><strong>行为主体（角色）</strong> 是： <strong>政府</strong>（Government）、 <strong>企（事）业单位</strong>（Business）、及 <strong>居民</strong>（Citizen）。如有第四类就是<strong>公务员</strong>（Employee）。</p>
+<p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E4%BF%A1%E6%81%AF%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80/7.png" srcset="/img/loading.gif" lazyload></p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>解释及应用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>政府对政府（G2G）</td>
+<td>政府上下级、不同地区和不同职能部门间电子公文和流转，电子司法档案，电子财政管理和电子统计等，同级别的政府之间的业务往来，包括国家和地方基础信息的采集，处理和利用。例如: 人口信息、地理信息、各级政府决策支持</td>
+</tr>
+<tr>
+<td>政府对企业（G2B）</td>
+<td>向企业提供的各种公共服务，网上税务申报，电子证照办理，以及信息咨询服务等，企业需要报税，一边是企业一边是政府报税部门。如：政府给企业单位颁发各种营业执照，许可证，合格证，质量认证。</td>
+</tr>
+<tr>
+<td>政府对居民（G2C）</td>
+<td>是政府面向公总所提供的服务，教育培训服务，公总就业服务，电子医疗服务，社会保险服务，交通管理服务，公众电子税务和电子证件服务等。如：社区公安和水、火、天灾等与公共安全有关的信息、户口、各种证件和拍照的管理</td>
+</tr>
+<tr>
+<td>企业对政府（B2G）</td>
+<td>企业向政府缴税，企业向政府供应各种商品和服务，企业向政府提建议，申诉</td>
+</tr>
+<tr>
+<td>居民对政府（C2G）</td>
+<td>个人应向政府缴纳的各种税款和费用，个人向政府反馈民意，报警服务</td>
+</tr>
+<tr>
+<td>政府对公务员（G2E）</td>
+<td>指政府与政府公务即政府雇员之间的电子政务，电子政策法规，电子公文流转，电子办公，电子培训，电子财经管理，公务员业绩评价，政府的系统给内部人员使用，如：部门内部办公自动化，内部工作系统。</td>
+</tr>
+</tbody></table>
+<h3 id="3-2-企业信息化（EI）"><a href="#3-2-企业信息化（EI）" class="headerlink" title="3.2 企业信息化（EI）"></a>3.2 企业信息化（EI）</h3><p>企业信息化（Enterprise Informatization，EI）。企业信息化是企业利用现在信息技术，实现经营活动的自动化、便捷化、网络化和智能化，以加强企业核心竞争力的过程。企业信息化是技术和业务的融合，从企业战略、业务运作和管理运作3个层面去实现。企业信息化的方法有：业务流程重构方法、核心业务应用方法、信息系统建设方法、主体数据库方法、资源管理方法、人力资本投资方法。</p>
+<h3 id="3-3-电子商务（EC）"><a href="#3-3-电子商务（EC）" class="headerlink" title="3.3 电子商务（EC）"></a>3.3 电子商务（EC）</h3><p>电子商务（Electronic Commerce，EC）。电子商务指利用Web提供的通信手段在网上买卖产品或提供服务，及其衍生行为。主要模式有B2B、B2C、C2C、O2O（线上购买线下的服务）。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/" class="category-chain-item">系统架构师</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E5%9F%BA%E7%A1%80%E6%8A%80%E8%83%BD/" class="category-chain-item">基础技能</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/">#系统架构师</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>信息系统基础</div>
+      <div>http://www.zivjie.cn/2023/07/03/系统架构设计师/基础技能/信息系统基础/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Francis</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年7月3日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/07/03/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%B8%88/%E5%9F%BA%E7%A1%80%E6%8A%80%E8%83%BD/%E7%B3%BB%E7%BB%9F%E5%B7%A5%E7%A8%8B%E4%B8%8E%E7%B3%BB%E7%BB%9F%E6%80%A7%E8%83%BD/" title="系统功能与系统性能">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">系统功能与系统性能</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/07/02/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%B8%88/%E5%9F%BA%E7%A1%80%E6%8A%80%E8%83%BD/%E7%BD%91%E7%BB%9C%E8%A7%84%E5%88%92%E4%B8%8E%E8%AE%BE%E8%AE%A1/" title="网络规划与设计">
+                        <span class="hidden-mobile">网络规划与设计</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,805 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Francis">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1 软件架构的概念1.1 软件架构的定义软件架构概念 软件架构（Software Architecture） &#x3D; 软件体系结构指系统的一个或者多个结构，结构包括：（1）结构 - 软件的构件（可能是程序的模块、类、或者中间件）（2）属性 - 构件的外部可见属性（3）交互作用 - 构件之间的相互关系 软件架构的本质 软件架构为软件系统提供了一个 结构、行为和属性的高级抽象。软件架构风格是特定应用领域的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="软件架构概念、架构风格、ABSD、架构复用、DSSA">
+<meta property="og:url" content="http://www.zivjie.cn/2023/07/15/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%B8%88/%E9%AB%98%E7%BA%A7%E6%8A%80%E8%83%BD/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84%E6%A6%82%E5%BF%B5%E3%80%81%E6%9E%B6%E6%9E%84%E9%A3%8E%E6%A0%BC%E3%80%81ABSD%E3%80%81%E6%9E%B6%E6%9E%84%E5%A4%8D%E7%94%A8%E3%80%81DSSA/index.html">
+<meta property="og:site_name" content="Francis-Blog">
+<meta property="og:description" content="1 软件架构的概念1.1 软件架构的定义软件架构概念 软件架构（Software Architecture） &#x3D; 软件体系结构指系统的一个或者多个结构，结构包括：（1）结构 - 软件的构件（可能是程序的模块、类、或者中间件）（2）属性 - 构件的外部可见属性（3）交互作用 - 构件之间的相互关系 软件架构的本质 软件架构为软件系统提供了一个 结构、行为和属性的高级抽象。软件架构风格是特定应用领域的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.zivjie.cn/img/Eternal%20Light%20by.png">
+<meta property="article:published_time" content="2023-07-15T00:30:00.000Z">
+<meta property="article:modified_time" content="2023-10-07T02:22:38.145Z">
+<meta property="article:author" content="Francis">
+<meta property="article:tag" content="系统架构师">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://www.zivjie.cn/img/Eternal%20Light%20by.png">
+  
+  
+  
+  <title>软件架构概念、架构风格、ABSD、架构复用、DSSA - Francis-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.zivjie.cn","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Francis</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="软件架构概念、架构风格、ABSD、架构复用、DSSA"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-07-15 08:30" pubdate>
+          2023年7月15日 早上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          43 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">软件架构概念、架构风格、ABSD、架构复用、DSSA</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="1-软件架构的概念"><a href="#1-软件架构的概念" class="headerlink" title="1 软件架构的概念"></a>1 软件架构的概念</h2><h3 id="1-1-软件架构的定义"><a href="#1-1-软件架构的定义" class="headerlink" title="1.1 软件架构的定义"></a>1.1 软件架构的定义</h3><p><strong>软件架构概念</strong></p>
+<p>软件架构（Software Architecture） = 软件体系结构<br>指系统的一个或者多个结构，结构包括：<br>（1）结构 - 软件的构件（可能是程序的模块、类、或者中间件）<br>（2）属性 - 构件的外部可见属性<br>（3）交互作用 - 构件之间的相互关系</p>
+<p><strong>软件架构的本质</strong></p>
+<p>软件架构为软件系统提供了一个 结构、行为和属性的高级抽象。<br>软件架构风格是特定应用领域的 惯用模式，架构定义 一个词汇表和一组约束。</p>
+<p><strong>软件架构的作用</strong></p>
+<p>软件架构是 项目干系人进行交流的手段。<br>软件架构是 可传递和可复用的模型，通过研究软件架构可能预测软件的质量。<br>软件架构使推理和控制的更改更加简单， 有助于循序渐进的原型设计，可以作为培训的基础。</p>
+<p><strong>需求分析 → 架构（弥补需求到设计的鸿沟）→ 软件设计</strong><br>架构设计就是需求分配，既 将满足的需求的职责分配到组件上。</p>
+<p>软件架构设计通过多种视图全面描述  4 + 1 视图。</p>
+<h3 id="1-2-软件架构设计4-1视图"><a href="#1-2-软件架构设计4-1视图" class="headerlink" title="1.2 软件架构设计4+1视图"></a>1.2 软件架构设计4+1视图</h3><p>视角与视图：从不同的视角来检查，所以会有不同的视图。</p>
+<p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84%E6%A6%82%E5%BF%B5%E3%80%81%E6%9E%B6%E6%9E%84%E9%A3%8E%E6%A0%BC%E3%80%81ABSD%E3%80%81%E6%9E%B6%E6%9E%84%E5%A4%8D%E7%94%A8%E3%80%81DSSA/1.png" srcset="/img/loading.gif" lazyload></p>
+<p><strong>逻辑视图</strong>：主要支持系统的功能需求，即系统提供给最终用户的服务。逻辑视图设计中要注意的主要问题是要保持一个单一的、内聚的对象模型贯穿整个系统，且描述对象模型和对象之间的关系。</p>
+<p><strong>开发视图</strong>：也称为模块视图，主要侧重于软件模块的组织和管理。开发视图通过系统输入输出关系的模型图和子系统图来描述。可以在确定了软件包含的所有元素之后描述完整的开发角度，也可以在确定每个元素之前，列出开发视图原则。</p>
+<p><strong>进程视图</strong>：也称为过程视图。侧重于系统的运行特性，主要关注一些非功能性的需求，例如系统的性能和可用性。进程视图强调并发性、分布性、系统集成性和容错能力，以及逻辑视图中的主要抽象的进程结构。进程视图可以描述成多层抽象，每个级别分别关注不同的方面。</p>
+<p><strong>物理视图</strong>：主要考虑如何把软件映射到硬件上，它通常要考虑到解决系统拓扑结构、系统安装、通信等问题。</p>
+<p><strong>场景</strong>：可以看作是那些重要系统活动的抽象，它使四个视图有机地联系起来，从某种意义上说，场景是最重要的需求抽象。在开发架构时，它可以帮助设计者找到架构的构件和它们之间的作用关系。同时，也可以用场景来分析一个特定的视图，或描述不同视图构件间是如何相互作用的。场景可以用文本表示，也可以用图形表示。</p>
+<p><strong>逻辑视图和开发视图描述系统的静态结构</strong>，而<strong>进程视图和物理视图描述系统的动态结构</strong>。对于不同的软件系统来说，侧重的角度也有所不同。例如，对于管理信息系统来说，比较侧重于从逻辑视图和开发视图来描述系统，而对于实时控制系统来说，则比较注重于从进程视图和物理视图来描述系统。</p>
+<h3 id="1-3-软件架构设计与生命周期"><a href="#1-3-软件架构设计与生命周期" class="headerlink" title="1.3 软件架构设计与生命周期"></a>1.3 软件架构设计与生命周期</h3><p><strong>软件架构是贯穿整个生命周期的，不同阶段的作用和意义不同</strong>，各阶段架构工作表现表：</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>作用和意义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>需求分析阶段</td>
+<td><strong>有利于各阶段参与者的交流，也易于维护各阶段的可追踪性。</strong><br/>软件需求模型向软件架构模型转换关注两个问题：<br/>1）如何根据需求模型构建软件架构模型<br/>2）如何保证模型转换的可追踪性</td>
+</tr>
+<tr>
+<td>设计阶段</td>
+<td><strong>关注最早和最多的阶段</strong>。<br/>这一阶段的研究主要包括：<br/>1）软件架构模型的描述<br/>2）软件架构模型的设计与分析方法<br/>3）软件架构设计经验的总结与复用<br/>架构模型的描述研究包括：<br/>①组成SA（软件架构）模型 - 构件和连接的建模<br/>②架构描述语言（Architecture Describe Language，ADL）<br/>③多视图 - 4 + 1视图<br/>ADL三个基本元素：<br/>1）构件：计算或数据存储单元，包括构件和相应的构件接口<br/>2）连接件：用于构件之间交互建模的体系结构构造块及其支配这些交互的规则<br/>3）架构配置：描述体系结构的构件和连接件的连接图<br/>ADL是建模用的，是一些伪代码</td>
+</tr>
+<tr>
+<td>实现阶段</td>
+<td><strong>有效实现从软件架构设计向实现的转换。</strong><br/>这一阶段架构研究包括：<br/>1）基于架构开发过程的支持<br/>2）寻求从架构向实现过渡的途径<br/>3）研究基于架构的测试技术</td>
+</tr>
+<tr>
+<td>构件组装阶段</td>
+<td><strong>可复用构件组装的设计能够提高系统实现的效率。</strong><br/>这一阶段的研究内容包括：<br/>1）如何支持可复用构件的互联，即对架构设计模型中规约的连接子的实现提供支持<br/>2）组装过程中，如何检测并消除架构失配问题<br/>适配问题主要包括：<br/>①构件本身适配<br/>②连接子（互联机制）的失配<br/>③部分和整体的失配</td>
+</tr>
+<tr>
+<td>部署阶段</td>
+<td><strong>组织和展示部署阶段的软硬件架构、评估分析部署方案。</strong><br/>部署阶段的软件架构对软件部署的作用：<br/>1）提供高层的体系结构视图描述部署阶段的软硬件模型<br/>2）基于软件架构模型可以分析部署方案的质量属性从而选择合理的部署方案</td>
+</tr>
+<tr>
+<td>后开发阶段</td>
+<td><strong>主要围绕维护、演化、复用进行。</strong><br/>部署安装后（后开发阶段）的系统架构研究方向包括：<br/>1）动态软件体系结构<br/>2）体系结构恢复与重建</td>
+</tr>
+</tbody></table>
+<h3 id="1-4-软件架构的重要性"><a href="#1-4-软件架构的重要性" class="headerlink" title="1.4 软件架构的重要性"></a>1.4 软件架构的重要性</h3><p>软件架构设计是降低成本、改进质量、按时和按需交付产品的关键因素。</p>
+<h2 id="2-软件架构的风格-★★★★★"><a href="#2-软件架构的风格-★★★★★" class="headerlink" title="2 软件架构的风格 ★★★★★"></a>2 软件架构的风格 ★★★★★</h2><ul>
+<li>架构风格定义了用于描述系统的术语表和一组指导构建系统的规则。</li>
+<li>架构风格反映了领域中众多系统所共有的结构和语义特性，并指导如何将各个构件有效地组织成一个完整的系统。</li>
+<li>软件架构风格是特定应用领域的惯用模式，架构定义一个词汇表和一组约束。</li>
+</ul>
+<h3 id="2-1-经典五大风格"><a href="#2-1-经典五大风格" class="headerlink" title="2.1 经典五大风格"></a>2.1 经典五大风格</h3><table>
+<thead>
+<tr>
+<th>五大架构风格</th>
+<th>子风格</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>数据流风格</td>
+<td>批处理、管道-过滤器</td>
+</tr>
+<tr>
+<td>调用/返回风格</td>
+<td>程序/子程序、面向对象、层次结构</td>
+</tr>
+<tr>
+<td>以数据为中心风格</td>
+<td>数据库系统、黑板系统、超文本系统</td>
+</tr>
+<tr>
+<td>虚拟机风格</td>
+<td>解释器、规则系统</td>
+</tr>
+<tr>
+<td>独立构件风格</td>
+<td>进程通信、事件驱动系统（隐式调用）</td>
+</tr>
+</tbody></table>
+<h4 id="2-1-1-数据流体系结构风格"><a href="#2-1-1-数据流体系结构风格" class="headerlink" title="2.1.1 数据流体系结构风格"></a>2.1.1 数据流体系结构风格</h4><p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84%E6%A6%82%E5%BF%B5%E3%80%81%E6%9E%B6%E6%9E%84%E9%A3%8E%E6%A0%BC%E3%80%81ABSD%E3%80%81%E6%9E%B6%E6%9E%84%E5%A4%8D%E7%94%A8%E3%80%81DSSA/2.png" srcset="/img/loading.gif" lazyload></p>
+<table>
+<thead>
+<tr>
+<th>优点</th>
+<th>缺点</th>
+<th>典型实例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1、松耦合【高内聚-低耦合】<br/>2、良好的重用性/可维护性<br/>3、可扩展性【标准接口适配】<br/>4、良好的隐蔽性<br/>5、支持并行</td>
+<td>1、交互性较差<br/>2、复杂性高<br/>3、性能较差（每个过滤器都需要解析与合成数据）</td>
+<td>传统编译器<br/>网络报文处理</td>
+</tr>
+</tbody></table>
+<h5 id="2-1-1-1-批处理风格"><a href="#2-1-1-1-批处理风格" class="headerlink" title="2.1.1.1 批处理风格"></a>2.1.1.1 批处理风格</h5><p>批处理风格的每一步处理都是独立的，并且每一步是顺序执行的。数据必须是完整的，以整体的方式传递。</p>
+<h5 id="2-1-1-2-管道-过滤器风格"><a href="#2-1-1-2-管道-过滤器风格" class="headerlink" title="2.1.1.2 管道/过滤器风格"></a>2.1.1.2 管道/过滤器风格</h5><p>在管道/过滤器风格的软件架构中，每个构件都有一组输入和输出，构件读输入的数据流，经过内部处理，然后产生输出数据流。</p>
+<h4 id="2-1-2-调用-返回体系结构风格"><a href="#2-1-2-调用-返回体系结构风格" class="headerlink" title="2.1.2 调用/返回体系结构风格"></a>2.1.2 调用/返回体系结构风格</h4><p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84%E6%A6%82%E5%BF%B5%E3%80%81%E6%9E%B6%E6%9E%84%E9%A3%8E%E6%A0%BC%E3%80%81ABSD%E3%80%81%E6%9E%B6%E6%9E%84%E5%A4%8D%E7%94%A8%E3%80%81DSSA/3.png" srcset="/img/loading.gif" lazyload></p>
+<h5 id="2-1-2-1-主程序-子程序风格"><a href="#2-1-2-1-主程序-子程序风格" class="headerlink" title="2.1.2.1 主程序/子程序风格"></a>2.1.2.1 主程序/子程序风格</h5><p>主程序/子程序风格是结构化开发时期的经典架构风格。这种风格一般采用单线程控制，把问题划分为若干处理步骤，构件即为主程序和子程序。子程序通常可合成为模块。过程调用作为交互机制，即充当连接件。</p>
+<h5 id="2-1-2-2-面向对象风格"><a href="#2-1-2-2-面向对象风格" class="headerlink" title="2.1.2.2 面向对象风格"></a>2.1.2.2 面向对象风格</h5><p>这种风格的构件是对象，或者说是抽象数据类型的实例。对象是一种被称作管理者的构件，它负责保持资源的完整性。对象是通过函数和过程的调用来交互的。</p>
+<h5 id="2-1-2-3-层次结构风格"><a href="#2-1-2-3-层次结构风格" class="headerlink" title="2.1.2.3 层次结构风格"></a>2.1.2.3 层次结构风格</h5><p>层次系统组织成一个层次结构，每一层为上层服务，并作为下层客户。在一些层次系统中，除了一些精心挑选的输出函数外，内部的层只对相邻的层可见</p>
+<h4 id="2-1-3-以数据为中心体系结构风格"><a href="#2-1-3-以数据为中心体系结构风格" class="headerlink" title="2.1.3 以数据为中心体系结构风格"></a>2.1.3 以数据为中心体系结构风格</h4><p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84%E6%A6%82%E5%BF%B5%E3%80%81%E6%9E%B6%E6%9E%84%E9%A3%8E%E6%A0%BC%E3%80%81ABSD%E3%80%81%E6%9E%B6%E6%9E%84%E5%A4%8D%E7%94%A8%E3%80%81DSSA/4.png" srcset="/img/loading.gif" lazyload></p>
+<h5 id="2-1-3-1-仓库结构风格"><a href="#2-1-3-1-仓库结构风格" class="headerlink" title="2.1.3.1 仓库结构风格"></a>2.1.3.1 仓库结构风格</h5><p>数据库系统是仓库风格最常见的形式。在数据库系统中，构件主要有两大类，一类是中央共享数据源，保存当前系统的数据状态；另一类是多个独立处理单元，处理单元对数据元素进行操作。</p>
+<h5 id="2-1-3-2-黑板结构风格"><a href="#2-1-3-2-黑板结构风格" class="headerlink" title="2.1.3.2 黑板结构风格"></a>2.1.3.2 黑板结构风格</h5><p>黑板系统包括知识源、黑板和控制三个部分。知识源包括若干独立计算的不同单元，提供解决问题的知识。知识源响应黑板的变化，也只修改黑板；黑板是一个全局数据库，包含问题域解空间的全部状态，是知识源相互作用的唯一媒介；知识源响应是通过黑板状态的变化来控制的。黑板系统通常应用在对于解决问题没有确定性算法的软件中，例如，信号处理、问题规划和编译器优化等。语音识别、知识推理。</p>
+<h5 id="2-1-3-3-超文本系统风格"><a href="#2-1-3-3-超文本系统风格" class="headerlink" title="2.1.3.3 超文本系统风格"></a>2.1.3.3 超文本系统风格</h5><p>超文本系统中出现的构件以网状链接方式相互连接，用户可以在构件之间进行按照人类的联想思维方式任意跳转到相关构件。超文本是一种非线性的网状信息组织方法，它以结点为基本单位，链作为结点之间的联想式关联。超文本系统通常应用在互联网领域。</p>
+<h4 id="2-1-4-虚拟机体系结构风格"><a href="#2-1-4-虚拟机体系结构风格" class="headerlink" title="2.1.4 虚拟机体系结构风格"></a>2.1.4 虚拟机体系结构风格</h4><p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84%E6%A6%82%E5%BF%B5%E3%80%81%E6%9E%B6%E6%9E%84%E9%A3%8E%E6%A0%BC%E3%80%81ABSD%E3%80%81%E6%9E%B6%E6%9E%84%E5%A4%8D%E7%94%A8%E3%80%81DSSA/5.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84%E6%A6%82%E5%BF%B5%E3%80%81%E6%9E%B6%E6%9E%84%E9%A3%8E%E6%A0%BC%E3%80%81ABSD%E3%80%81%E6%9E%B6%E6%9E%84%E5%A4%8D%E7%94%A8%E3%80%81DSSA/6.png" srcset="/img/loading.gif" lazyload></p>
+<h5 id="2-1-4-1-解释器风格"><a href="#2-1-4-1-解释器风格" class="headerlink" title="2.1.4.1 解释器风格"></a>2.1.4.1 解释器风格</h5><p>解释器通常包括一个完成解释工作的解释引擎、一个包含将被解释的代码的存储区、一个记录解释引擎当前工作状态的数据结构，以及一个记录源代码被解释执行的进度的数据结构。具有解释器风格的软件中含有一个虚拟机，可以仿真硬件的执行过程和一些关键应用，其缺点是执行效率比较低。</p>
+<h5 id="2-1-4-2-规则系统风格"><a href="#2-1-4-2-规则系统风格" class="headerlink" title="2.1.4.2 规则系统风格"></a>2.1.4.2 规则系统风格</h5><p>基于规则的系统包括规则集、规则解释器、规则/数据选择器和工作内存，一般用在人工智能领域和DSS中。</p>
+<h4 id="2-1-5-独立构件体系结构风格"><a href="#2-1-5-独立构件体系结构风格" class="headerlink" title="2.1.5 独立构件体系结构风格"></a>2.1.5 独立构件体系结构风格</h4><p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84%E6%A6%82%E5%BF%B5%E3%80%81%E6%9E%B6%E6%9E%84%E9%A3%8E%E6%A0%BC%E3%80%81ABSD%E3%80%81%E6%9E%B6%E6%9E%84%E5%A4%8D%E7%94%A8%E3%80%81DSSA/7.png" srcset="/img/loading.gif" lazyload></p>
+<h5 id="2-1-5-1-进程间通信风格"><a href="#2-1-5-1-进程间通信风格" class="headerlink" title="2.1.5.1 进程间通信风格"></a>2.1.5.1 进程间通信风格</h5><p>构件是独立的过程，连接件是消息传递，构件通常是命名过程，消息传递的方式可以是点对点，异步或者同步的方式，以及远程过程方法调用等。</p>
+<h5 id="2-1-5-2-事件驱动系统风格（隐式风格）"><a href="#2-1-5-2-事件驱动系统风格（隐式风格）" class="headerlink" title="2.1.5.2 事件驱动系统风格（隐式风格）"></a>2.1.5.2 事件驱动系统风格（隐式风格）</h5><p>构件不直接调用一个过程，而是触发或广播一个或多个事件。这种风格中的构件是匿名的过程，它们之间交互的连接件往往是以过程之间的隐式调用（implicit invocation）来实现的。基于事件的隐式调用风格的主要优点是为软件复用提供了强大的支持，为构件的维护和演化带来了方便，其缺点是构件放弃了对系统计算的控制。</p>
+<h3 id="2-2-C2风格"><a href="#2-2-C2风格" class="headerlink" title="2.2 C2风格"></a>2.2 C2风格</h3><p>C2风格通过连接件连接构件或某个构件组，构件与构件之间无连接。</p>
+<p>软件体系结构设计的一个核心问题就是能否使用重复的体系结构模式，即能否达到体系结构级的软件重用。</p>
+<p>C2 = EBI（基于事件的集成）+ LCS（分层客户端服务器）</p>
+<p>C2是一种基于构件和消息的架构风格，可用于创建灵活的，可伸缩的软件系统。可以将架构看作是按照一定规则由连接件如消息路由设备连接的许多构件组成的层次网络系统中的构件和连接件都有一个“顶部”和“底部”;一个构件的“顶部”或“底部”可以连接到一个连接件的“底部”或“顶部”;对于一个连接件，和其相连的构件或连接件的数量没有限制，但是构件和构件之间不能直接相连。</p>
+<p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84%E6%A6%82%E5%BF%B5%E3%80%81%E6%9E%B6%E6%9E%84%E9%A3%8E%E6%A0%BC%E3%80%81ABSD%E3%80%81%E6%9E%B6%E6%9E%84%E5%A4%8D%E7%94%A8%E3%80%81DSSA/8.png" srcset="/img/loading.gif" lazyload></p>
+<p><strong>C2架构的基本规则：</strong></p>
+<ul>
+<li><strong>构件和连接件都有一个顶部和一个底部。</strong></li>
+<li>构件的顶部要连接到连接件的底部，构件的底部要连接到连接件的顶部，构件之间不允许直连。</li>
+<li>一个连接件可以和任意数目的其他构件和连接件连接。</li>
+<li>当两个连接件进行直接连接时，必须由其中一个的底部到另一个的顶部。</li>
+</ul>
+<h3 id="2-3-闭环风格"><a href="#2-3-闭环风格" class="headerlink" title="2.3 闭环风格"></a>2.3 闭环风格</h3><p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84%E6%A6%82%E5%BF%B5%E3%80%81%E6%9E%B6%E6%9E%84%E9%A3%8E%E6%A0%BC%E3%80%81ABSD%E3%80%81%E6%9E%B6%E6%9E%84%E5%A4%8D%E7%94%A8%E3%80%81DSSA/9.png" srcset="/img/loading.gif" lazyload></p>
+<ul>
+<li>适用于嵌入式系统，<strong>用于解决简单闭环控制问题。</strong></li>
+<li><strong>经典应用：空调温控，定速巡航。</strong></li>
+</ul>
+<h2 id="3-基于架构的软件开发方法（ABSD）★★★★"><a href="#3-基于架构的软件开发方法（ABSD）★★★★" class="headerlink" title="3 基于架构的软件开发方法（ABSD）★★★★"></a>3 基于架构的软件开发方法（ABSD）★★★★</h2><h3 id="3-1-体系架构设计的方法概述"><a href="#3-1-体系架构设计的方法概述" class="headerlink" title="3.1 体系架构设计的方法概述"></a>3.1 体系架构设计的方法概述</h3><p><strong>基于架构的软件设计（ABSD，Architecture-Based Software Design）是一种架构驱动方法</strong>，架构驱动也就是说架构先行，需求获取和分析还没有完成就开始架构设计，需求获取和分析与架构设计并行，例如产品线系统和长期运行的系统，我们不可能开始就能决定所有的需求。</p>
+<p><strong>ABSD强调由业务、质量和功能需求的组合驱动架构设计</strong> ，强调采用 <strong>视角和视图</strong> 来描述软件架构 ，采用 <strong>用例（功能需求）</strong>和<strong>质量场景（质量需求）</strong> 来描述需求 。</p>
+<p><strong>ABSD方法有三个基础：</strong></p>
+<p>第一个基础是功能的分解。在功能分解中，ABSD方法使用已有的基于模块的内聚和耦合技术。<br>第二个基础是通过选择架构风格来实现质量和业务需求。<br>第三个基础是软件模板的使用。</p>
+<h3 id="3-2-基于架构的开发模型（ABSD）"><a href="#3-2-基于架构的开发模型（ABSD）" class="headerlink" title="3.2 基于架构的开发模型（ABSD）"></a>3.2 基于架构的开发模型（ABSD）</h3><p>传统的软件开发过程是问题定义，需求分析，软件设计，实现，测试。ABSD把整个软件过程分成六个部分，架构需求，设计，文档化，复审，实现，演化六个步骤。</p>
+<p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84%E6%A6%82%E5%BF%B5%E3%80%81%E6%9E%B6%E6%9E%84%E9%A3%8E%E6%A0%BC%E3%80%81ABSD%E3%80%81%E6%9E%B6%E6%9E%84%E5%A4%8D%E7%94%A8%E3%80%81DSSA/10.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84%E6%A6%82%E5%BF%B5%E3%80%81%E6%9E%B6%E6%9E%84%E9%A3%8E%E6%A0%BC%E3%80%81ABSD%E3%80%81%E6%9E%B6%E6%9E%84%E5%A4%8D%E7%94%A8%E3%80%81DSSA/11.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="4-特定领域的软件架构（DSSA）"><a href="#4-特定领域的软件架构（DSSA）" class="headerlink" title="4 特定领域的软件架构（DSSA）"></a>4 特定领域的软件架构（DSSA）</h2><p>DSSA（Domain Specific Software Architecture）特定领域软件架构，可以看做开发产品线的一个方法或理论，目标就是支持一个特定领域中多应用的生成。</p>
+<h3 id="4-1-基本活动"><a href="#4-1-基本活动" class="headerlink" title="4.1 基本活动"></a>4.1 基本活动</h3><p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84%E6%A6%82%E5%BF%B5%E3%80%81%E6%9E%B6%E6%9E%84%E9%A3%8E%E6%A0%BC%E3%80%81ABSD%E3%80%81%E6%9E%B6%E6%9E%84%E5%A4%8D%E7%94%A8%E3%80%81DSSA/12.png" srcset="/img/loading.gif" lazyload></p>
+<p>（1）建立领域模型，一个严格定义的问题域或解决域。其中，垂直域是在相同领域中深入；水平域是在不同领域中平移。<br>（2）具有普遍性，使其可以用于领域中某个特定应用的开发。<br>（3）对整个领域的合适程序的抽象。<br>（4）具备该领域固定的、典型的在开发过程中的。可复用元素。</p>
+<h3 id="4-2-领域分析机制"><a href="#4-2-领域分析机制" class="headerlink" title="4.2 领域分析机制"></a>4.2 领域分析机制</h3><p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84%E6%A6%82%E5%BF%B5%E3%80%81%E6%9E%B6%E6%9E%84%E9%A3%8E%E6%A0%BC%E3%80%81ABSD%E3%80%81%E6%9E%B6%E6%9E%84%E5%A4%8D%E7%94%A8%E3%80%81DSSA/13.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="4-3-建立过程"><a href="#4-3-建立过程" class="headerlink" title="4.3 建立过程"></a>4.3 建立过程</h3><p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84%E6%A6%82%E5%BF%B5%E3%80%81%E6%9E%B6%E6%9E%84%E9%A3%8E%E6%A0%BC%E3%80%81ABSD%E3%80%81%E6%9E%B6%E6%9E%84%E5%A4%8D%E7%94%A8%E3%80%81DSSA/14.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="5-软件架构的复用-★★★"><a href="#5-软件架构的复用-★★★" class="headerlink" title="5 软件架构的复用 ★★★"></a>5 软件架构的复用 ★★★</h2><ol>
+<li>软件架构复用的定义及分类<br> 软件架构复用是系统化的软件开发过程：开发一组基本的软件构件模块，以覆盖不同的需求/体系结构之间的相似性，提高系统开发的效率、质量和性能。</li>
+<li>软件架构复用的原因<br> 减少开发工作、减少开发时间、降低开发成本、提高生产力、提高产品质量，更好的互操作性。</li>
+<li>软件架构复用的对象及形式<br> 可复用的资产包括：需求、架构设计、元素、建模分析、测试、项目规划、过程+方法+工具、人员、样本系统、缺陷消除。<br> 一般形式的复用包括：函数的复用、库的复用、面向对象开发中的类、接口和包的复用。</li>
+<li>软件架构复用的基本过程<br> （1） 首先构建/获取可复用的软件资产（复用前提）；<br> （2） 管理可复用资产；<br> （3） 使用可复用资产。</li>
+</ol>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/" class="category-chain-item">系统架构师</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E9%AB%98%E7%BA%A7%E6%8A%80%E8%83%BD/" class="category-chain-item">高级技能</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/">#系统架构师</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>软件架构概念、架构风格、ABSD、架构复用、DSSA</div>
+      <div>http://www.zivjie.cn/2023/07/15/系统架构设计师/高级技能/软件架构概念、架构风格、ABSD、架构复用、DSSA/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Francis</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年7月15日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/07/15/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%B8%88/%E9%AB%98%E7%BA%A7%E6%8A%80%E8%83%BD/%E6%9E%84%E4%BB%B6%E4%B8%8E%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF/" title="构件与中间件技术">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">构件与中间件技术</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/07/13/%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1/netty/Netty%E9%AB%98%E6%80%A7%E8%83%BD/" title="Netty高性能理解">
+                        <span class="hidden-mobile">Netty高性能理解</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

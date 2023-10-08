@@ -222,23 +222,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/02/27/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E5%86%85%E5%AD%98%E5%9B%9E%E6%94%B6/" target="_self">
-          <img src="/img/Dusk%20Minimal.png" srcset="/img/loading.gif" lazyload alt="Redis内存回收">
+        <a href="/2023/04/06/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/RocketMQ/%E4%BF%9D%E8%AF%81%E6%B6%88%E6%81%AF%E5%8F%AF%E9%9D%A0%E6%80%A7/" target="_self">
+          <img src="/img/wyy1.png" srcset="/img/loading.gif" lazyload alt="RocketMQ保证消息可靠性">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/02/27/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E5%86%85%E5%AD%98%E5%9B%9E%E6%94%B6/" target="_self">
-          Redis内存回收
+        <a href="/2023/04/06/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/RocketMQ/%E4%BF%9D%E8%AF%81%E6%B6%88%E6%81%AF%E5%8F%AF%E9%9D%A0%E6%80%A7/" target="_self">
+          RocketMQ保证消息可靠性
         </a>
       </h1>
 
       
-      <a class="index-excerpt " href="/2023/02/27/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E5%86%85%E5%AD%98%E5%9B%9E%E6%94%B6/" target="_self">
+      <a class="index-excerpt " href="/2023/04/06/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/RocketMQ/%E4%BF%9D%E8%AF%81%E6%B6%88%E6%81%AF%E5%8F%AF%E9%9D%A0%E6%80%A7/" target="_self">
         <div>
-          1. 过期策略1.1 立即过期(主动淘汰)每个设置过期时间的key都需要创建一个定时器，到过期时间就会立即清除。该策略可以立即清除过期的数据，对内存很友好，但是会占用大量CPU资源去处理过期的数据，从而影响缓存的响应时间和吞吐量。 1.2 惰性过期(被动淘汰)只有当访问一个key时，才会判断该key是否已经过期，过期则清除。该策略可以最大化的节省CPU资源，却对内存非常不友好。极端情况下可能出现大
+          1  Producer保证消息高可靠（1）尽量采用同步或者异步的方式发送消息，最好不要使用oneway的方式发送，也就是说当把消息发到broker之后，一定要得到broker的响应  （2）建立数据库消息发送表，防止消息还没来得及发送当前系统就宕机了，这样等系统恢复的时候，可以根据消息发送表中的记录决定是否需要重新发送，发送成功之后要将对应表中的记录删除或者更新成发送成功状态，可以避免重复发送消息
         </div>
       </a>
 
@@ -246,8 +246,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2023-02-27 20:12" pubdate>
-              2023-02-27
+            <time datetime="2023-04-06 17:00" pubdate>
+              2023-04-06
             </time>
           </div>
         
@@ -262,12 +262,12 @@
     
       <span class="category-chain">
         
-  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/" class="category-chain-item">中间件</a>
+  <a href="/categories/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" class="category-chain-item">消息队列</a>
   
   
     <span>></span>
     
-  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/Redis/" class="category-chain-item">Redis</a>
+  <a href="/categories/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/RocketMQ/" class="category-chain-item">RocketMQ</a>
   
   
 
@@ -284,9 +284,9 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/redis/">#redis</a>
+              <a href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/">#消息队列</a>
             
-              <a href="/tags/%E7%BC%93%E5%AD%98/">#缓存</a>
+              <a href="/tags/RocketMQ/">#RocketMQ</a>
             
           </div>
         
@@ -298,23 +298,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/02/27/spring%E6%A1%86%E6%9E%B6/springcloud/nacos/nacos%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83/" target="_self">
-          <img src="/img/LUNA.png" srcset="/img/loading.gif" lazyload alt="nacos注册中心">
+        <a href="/2023/04/04/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/RocketMQ/%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" target="_self">
+          <img src="/img/Winter%20Night%20by%20Steven.png" srcset="/img/loading.gif" lazyload alt="RocketMQ源码解析">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/02/27/spring%E6%A1%86%E6%9E%B6/springcloud/nacos/nacos%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83/" target="_self">
-          nacos注册中心
+        <a href="/2023/04/04/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/RocketMQ/%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" target="_self">
+          RocketMQ源码解析
         </a>
       </h1>
 
       
-      <a class="index-excerpt " href="/2023/02/27/spring%E6%A1%86%E6%9E%B6/springcloud/nacos/nacos%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83/" target="_self">
+      <a class="index-excerpt " href="/2023/04/04/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/RocketMQ/%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" target="_self">
         <div>
-          Nacos版本：2.0.4   nacos2.x已不支持ribbon，使用nacos2.x需要手动引入LoadBalancer https://nacos.io/zh-cn/docs/sdk.html 12345#服务注册curl -X POST &#x27;http://localhost:8848/nacos/v1/ns/instance?serviceName=nacos.naming.se
+          1 NameServer1.1 NameServer启动流程 1.2 NameServer处理Broker注册信息 2 Broker2.1 Broker启动与注册信息 2.2 Broker消息的存储结构 2.2.1 CommitLog默认大小是1G，可以通过MessageStoreConfig中的mappedFileSizeCommitLog属性查看。 CommitLog是消息存储的真正物理文件，
         </div>
       </a>
 
@@ -322,8 +322,236 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2023-02-27 17:08" pubdate>
-              2023-02-27
+            <time datetime="2023-04-04 09:23" pubdate>
+              2023-04-04
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" class="category-chain-item">消息队列</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/RocketMQ/" class="category-chain-item">RocketMQ</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/">#消息队列</a>
+            
+              <a href="/tags/RocketMQ/">#RocketMQ</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2023/03/29/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/RocketMQ/%E7%BB%84%E4%BB%B6%E4%BB%8B%E7%BB%8D%E4%B8%8E%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8/" target="_self">
+          <img src="/img/Whale%20In%20Cloudy.png" srcset="/img/loading.gif" lazyload alt="RocketMQ组件介绍与基本使用">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/03/29/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/RocketMQ/%E7%BB%84%E4%BB%B6%E4%BB%8B%E7%BB%8D%E4%B8%8E%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8/" target="_self">
+          RocketMQ组件介绍与基本使用
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt " href="/2023/03/29/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/RocketMQ/%E7%BB%84%E4%BB%B6%E4%BB%8B%E7%BB%8D%E4%B8%8E%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8/" target="_self">
+        <div>
+          https://github.com/alibaba/spring-cloud-alibaba/wiki/版本说明#组件版本关系 1 组件介绍1.1 Message Queue RocketMQ支持多master的架构。思考一个问题：当有多个master的时候，发往Topic的多条消息会在多个master的Broker上存储。那么，发往某一个Topic的多条消息，是不是在所有的Broker上存储完
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-03-29 16:35" pubdate>
+              2023-03-29
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" class="category-chain-item">消息队列</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/RocketMQ/" class="category-chain-item">RocketMQ</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/">#消息队列</a>
+            
+              <a href="/tags/RocketMQ/">#RocketMQ</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2023/03/29/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/RocketMQ/%E5%AE%89%E8%A3%85%E4%B8%8E%E9%85%8D%E7%BD%AE/" target="_self">
+          <img src="/img/Waves.png" srcset="/img/loading.gif" lazyload alt="RocketMQ安装与配置">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/03/29/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/RocketMQ/%E5%AE%89%E8%A3%85%E4%B8%8E%E9%85%8D%E7%BD%AE/" target="_self">
+          RocketMQ安装与配置
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt " href="/2023/03/29/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/RocketMQ/%E5%AE%89%E8%A3%85%E4%B8%8E%E9%85%8D%E7%BD%AE/" target="_self">
+        <div>
+          https://github.com/alibaba/spring-cloud-alibaba/wiki/版本说明#组件版本关系 1 单机nameserver默认端口：9876 rocketmq默认端口：10911 路径：/usr/local/soft 1.1 基于Binary搭建1.1.1 下载官网：http://rocketmq.apache.org/ 12cd /usr/local/soft
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-03-29 09:22" pubdate>
+              2023-03-29
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" class="category-chain-item">消息队列</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/RocketMQ/" class="category-chain-item">RocketMQ</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/">#消息队列</a>
+            
+              <a href="/tags/RocketMQ/">#RocketMQ</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2023/03/27/spring%E6%A1%86%E6%9E%B6/springcloud/sentinel/sentinel%E8%A7%84%E5%88%99%E6%8C%81%E4%B9%85%E5%8C%96/" target="_self">
+          <img src="/img/Volcanonado.png" srcset="/img/loading.gif" lazyload alt="sentinel规则持久化">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/03/27/spring%E6%A1%86%E6%9E%B6/springcloud/sentinel/sentinel%E8%A7%84%E5%88%99%E6%8C%81%E4%B9%85%E5%8C%96/" target="_self">
+          sentinel规则持久化
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt " href="/2023/03/27/spring%E6%A1%86%E6%9E%B6/springcloud/sentinel/sentinel%E8%A7%84%E5%88%99%E6%8C%81%E4%B9%85%E5%8C%96/" target="_self">
+        <div>
+          官网：https://github.com/alibaba/Sentinel/wiki/动态规则扩展 1 客户端内存的规则1.1 规则的存储 1.2 规则的获取 2 Dashboard规则管理2.1 三种模式   推送模式 说明 优点 缺点    原始模式 API将规则推送至客户端并直接更新到内存中，扩展写数据源(WritableDateSource) 简单，无任何依赖 不保证一致性；规则保存在内
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-03-27 20:50" pubdate>
+              2023-03-27
             </time>
           </div>
         
@@ -348,7 +576,7 @@
   
     <span>></span>
     
-  <a href="/categories/spring%E6%A1%86%E6%9E%B6/springcloud/nacos/" class="category-chain-item">nacos</a>
+  <a href="/categories/spring%E6%A1%86%E6%9E%B6/springcloud/sentinel/" class="category-chain-item">sentinel</a>
   
   
 
@@ -367,11 +595,11 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
+              <a href="/tags/java/">#java</a>
+            
               <a href="/tags/springcloud/">#springcloud</a>
             
-              <a href="/tags/nacos/">#nacos</a>
-            
-              <a href="/tags/%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83/">#服务注册中心</a>
+              <a href="/tags/sentinel/">#sentinel</a>
             
           </div>
         
@@ -383,23 +611,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/02/27/spring%E6%A1%86%E6%9E%B6/springcloud/nacos/nacos%E5%AE%89%E8%A3%85%E4%B8%8E%E9%85%8D%E7%BD%AE/" target="_self">
-          <img src="/img/Kitchen%20Open%20Late.png" srcset="/img/loading.gif" lazyload alt="nacos安装与配置">
+        <a href="/2023/03/27/spring%E6%A1%86%E6%9E%B6/springcloud/sentinel/sentinel%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" target="_self">
+          <img src="/img/the%20dock.png" srcset="/img/loading.gif" lazyload alt="sentinel源码解析">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/02/27/spring%E6%A1%86%E6%9E%B6/springcloud/nacos/nacos%E5%AE%89%E8%A3%85%E4%B8%8E%E9%85%8D%E7%BD%AE/" target="_self">
-          nacos安装与配置
+        <a href="/2023/03/27/spring%E6%A1%86%E6%9E%B6/springcloud/sentinel/sentinel%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" target="_self">
+          sentinel源码解析
         </a>
       </h1>
 
       
-      <a class="index-excerpt " href="/2023/02/27/spring%E6%A1%86%E6%9E%B6/springcloud/nacos/nacos%E5%AE%89%E8%A3%85%E4%B8%8E%E9%85%8D%E7%BD%AE/" target="_self">
+      <a class="index-excerpt " href="/2023/03/27/spring%E6%A1%86%E6%9E%B6/springcloud/sentinel/sentinel%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" target="_self">
         <div>
-          Nacos版本：2.0.4   nacos2.x已不支持ribbon，使用nacos2.x需要手动引入LoadBalancer 1. 单机版1.1 package(基于CentOS)1234567891011121314151617#（1）下载nacos-server的二进制包，比如：nacos-server-2.0.4.tar.gz#（2）解压并进入bin目录unzip nacos-server
+          
         </div>
       </a>
 
@@ -407,8 +635,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2023-02-27 10:55" pubdate>
-              2023-02-27
+            <time datetime="2023-03-27 20:43" pubdate>
+              2023-03-27
             </time>
           </div>
         
@@ -433,7 +661,7 @@
   
     <span>></span>
     
-  <a href="/categories/spring%E6%A1%86%E6%9E%B6/springcloud/nacos/" class="category-chain-item">nacos</a>
+  <a href="/categories/spring%E6%A1%86%E6%9E%B6/springcloud/sentinel/" class="category-chain-item">sentinel</a>
   
   
 
@@ -456,7 +684,7 @@
             
               <a href="/tags/springcloud/">#springcloud</a>
             
-              <a href="/tags/nacos/">#nacos</a>
+              <a href="/tags/sentinel/">#sentinel</a>
             
           </div>
         
@@ -468,23 +696,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/02/27/spring%E6%A1%86%E6%9E%B6/springcloud/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B%E4%BB%A5%E5%8F%8A%E7%89%88%E6%9C%AC%E6%9B%B4%E8%BF%AD/" target="_self">
-          <img src="/img/Mountain%20lake.png" srcset="/img/loading.gif" lazyload alt="架构演进以及版本更迭">
+        <a href="/2023/03/23/%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1/%E8%BF%9C%E7%A8%8B%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" target="_self">
+          <img src="/img/Slow-Mo-Ocean.png" srcset="/img/loading.gif" lazyload alt="远程通信协议">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/02/27/spring%E6%A1%86%E6%9E%B6/springcloud/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B%E4%BB%A5%E5%8F%8A%E7%89%88%E6%9C%AC%E6%9B%B4%E8%BF%AD/" target="_self">
-          架构演进以及版本更迭
+        <a href="/2023/03/23/%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1/%E8%BF%9C%E7%A8%8B%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" target="_self">
+          远程通信协议
         </a>
       </h1>
 
       
-      <a class="index-excerpt " href="/2023/02/27/spring%E6%A1%86%E6%9E%B6/springcloud/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B%E4%BB%A5%E5%8F%8A%E7%89%88%E6%9C%AC%E6%9B%B4%E8%BF%AD/" target="_self">
+      <a class="index-excerpt " href="/2023/03/23/%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1/%E8%BF%9C%E7%A8%8B%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" target="_self">
         <div>
-          1. 架构演进1.1 单体架构 1.2 垂直化拆分按功能模块进行垂直化拆分  1.3 集群+负载均衡 1.4 SOASOA：Service Oriented Architecture  ESB：Enterprise Service Bus 企业服务总线。ESB就相当于是一根管道，主要是为了集成不同协议的服务，使得不同服务之间能够彼此调用  1.5 微服务 2. 微服务架构下问题的解决方案Cloud
+          1 HTTP请求流程在分布式架构中，有一个很重要的环节，就是分布式网络中的计算机节点彼此之间需要通信。这个通信的过程一定会涉及到通信协议相关的知识点。用浏览器访问各种网站，作为用户来说，只需要输入一个网址并且正确跳转就行。但是作为程序员，看到的可能就是这个响应背后的整体流程。所以通过一个http请求的整体流程来进行整理通信的知识。 1.1 DNS服务(域名解析)首先，访问一个域名，会经过DNS解析
         </div>
       </a>
 
@@ -492,8 +720,77 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2023-02-27 10:35" pubdate>
-              2023-02-27
+            <time datetime="2023-03-23 13:45" pubdate>
+              2023-03-23
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1/" class="category-chain-item">网络通信</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/http/">#http</a>
+            
+              <a href="/tags/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/">#通信协议</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2023/03/21/spring%E6%A1%86%E6%9E%B6/springcloud/sentinel/sentinel%E9%80%82%E9%85%8D%E5%BC%80%E6%BA%90%E6%A1%86%E6%9E%B6/" target="_self">
+          <img src="/img/Sitting%20on%20an%20Elk.png" srcset="/img/loading.gif" lazyload alt="sentinel适配开源框架">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/03/21/spring%E6%A1%86%E6%9E%B6/springcloud/sentinel/sentinel%E9%80%82%E9%85%8D%E5%BC%80%E6%BA%90%E6%A1%86%E6%9E%B6/" target="_self">
+          sentinel适配开源框架
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt " href="/2023/03/21/spring%E6%A1%86%E6%9E%B6/springcloud/sentinel/sentinel%E9%80%82%E9%85%8D%E5%BC%80%E6%BA%90%E6%A1%86%E6%9E%B6/" target="_self">
+        <div>
+          官网：https://sentinelguard.io/zh-cn/docs/open-source-framework-integrations.html 1 开源生态https://github.com/alibaba/Sentinel/wiki/Roadmap  2 适配RestTemplatehttps://github.com/alibaba/spring-cloud-alibaba/w
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-03-21 08:33" pubdate>
+              2023-03-21
             </time>
           </div>
         
@@ -516,6 +813,13 @@
   <a href="/categories/spring%E6%A1%86%E6%9E%B6/springcloud/" class="category-chain-item">springcloud</a>
   
   
+    <span>></span>
+    
+  <a href="/categories/spring%E6%A1%86%E6%9E%B6/springcloud/sentinel/" class="category-chain-item">sentinel</a>
+  
+  
+
+  
 
   
 
@@ -534,74 +838,7 @@
             
               <a href="/tags/springcloud/">#springcloud</a>
             
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/02/22/lua/Lua-redis/" target="_self">
-          <img src="/img/4K%E9%BB%84%E6%98%8F.png" srcset="/img/loading.gif" lazyload alt="Lua脚本-redis">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/02/22/lua/Lua-redis/" target="_self">
-          Lua脚本-redis
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt " href="/2023/02/22/lua/Lua-redis/" target="_self">
-        <div>
-          1  在redis中调用lua脚本使用eval方法，语法格式： 1234567eval lua-script key-num [key1 key2 key3 ...] [value1 value2 value3 ...]//eval 代表执行Lua语言的命令//lua-script 代表Lua语言脚本内容//key-num 表示参数中有多少个key，需要注意的是Redis中的key是从1开始的，如
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-02-22 16:13" pubdate>
-              2023-02-22
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Lua/" class="category-chain-item">Lua</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/redis/">#redis</a>
-            
-              <a href="/tags/lua/">#lua</a>
+              <a href="/tags/sentinel/">#sentinel</a>
             
           </div>
         
@@ -613,23 +850,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/02/22/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB/" target="_self">
-          <img src="/img/Fantasy%20World.png" srcset="/img/loading.gif" lazyload alt="Redis为什么这么快">
+        <a href="/2023/03/20/spring%E6%A1%86%E6%9E%B6/springcloud/sentinel/sentinel%E8%A7%84%E5%88%99%E8%AF%A6%E8%A7%A3/" target="_self">
+          <img src="/img/Shrine.png" srcset="/img/loading.gif" lazyload alt="sentinel规则详解">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/02/22/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB/" target="_self">
-          Redis为什么这么快
+        <a href="/2023/03/20/spring%E6%A1%86%E6%9E%B6/springcloud/sentinel/sentinel%E8%A7%84%E5%88%99%E8%AF%A6%E8%A7%A3/" target="_self">
+          sentinel规则详解
         </a>
       </h1>
 
       
-      <a class="index-excerpt " href="/2023/02/22/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB/" target="_self">
+      <a class="index-excerpt " href="/2023/03/20/spring%E6%A1%86%E6%9E%B6/springcloud/sentinel/sentinel%E8%A7%84%E5%88%99%E8%AF%A6%E8%A7%A3/" target="_self">
         <div>
-          总结起来主要有三点：1.纯内存结构。2.请求处理单线程。3.多路复用机制 1  原因1.1 内存KV结构的内存数据库，时间复杂度是O(1)。 1.2 单线程这里说的单线程其实指的是处理客户端的请求是单线程的，可以把它叫做主线程。从4.0版本之后，还引入了一些线程处理其他的事情，比如清理脏数据，无用连接的释放，大key的删除。 ​    把处理请求的主线程设置成单线程有什么好处呢？ ​    1.没
+          面向分布式、多语言异构化服务架构的流量治理组件 1 Sentinel入门小结 2 实时监控实时监控仅存储 5 分钟以内的数据，如果需要持久化，需要通过调用实时监控接口来定制。  注意：请确保 Sentinel 控制台所在的机器时间与自己应用的机器时间保持一致，否则会导致拉不到实时的监控数据。 3 簇点链路簇点链路（单机调用链路）页面实时的去拉取指定客户端资源的运行情况。它一共提供两种展示模式：一种
         </div>
       </a>
 
@@ -637,160 +874,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2023-02-22 16:00" pubdate>
-              2023-02-22
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/" class="category-chain-item">中间件</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/Redis/" class="category-chain-item">Redis</a>
-  
-  
-
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/redis/">#redis</a>
-            
-              <a href="/tags/%E7%BC%93%E5%AD%98/">#缓存</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/02/22/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E4%BA%8B%E5%8A%A1/" target="_self">
-          <img src="/img/Fantasy%20World%20(2).png" srcset="/img/loading.gif" lazyload alt="Redis事务">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/02/22/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E4%BA%8B%E5%8A%A1/" target="_self">
-          Redis事务
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt " href="/2023/02/22/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E4%BA%8B%E5%8A%A1/" target="_self">
-        <div>
-          1 为什么要用事务Redis的单个命令是原子性的（比如get set mget mset），要么成功要么失败，不存在并发干扰的问题。如果涉及到多个命令的时候，需要把多个命令作为一个不可分割的处理序列，就必须要依赖redis的功能特性来实现了。 Redis提供了事务的功能，可以把一组命令一起执行。Redis的事务有3个特点：  按进入队列的顺序执行。  不会受到其他客户端的请求的影响  事务不能嵌套
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-02-22 16:00" pubdate>
-              2023-02-22
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/" class="category-chain-item">中间件</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/Redis/" class="category-chain-item">Redis</a>
-  
-  
-
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/redis/">#redis</a>
-            
-              <a href="/tags/%E7%BC%93%E5%AD%98/">#缓存</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/02/21/spring%E6%A1%86%E6%9E%B6/springboot/springboot%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" target="_self">
-          <img src="/img/Ghost%20of%20Tsushima.png" srcset="/img/loading.gif" lazyload alt="Springboot启动流程">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/02/21/spring%E6%A1%86%E6%9E%B6/springboot/springboot%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" target="_self">
-          Springboot启动流程
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt " href="/2023/02/21/spring%E6%A1%86%E6%9E%B6/springboot/springboot%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" target="_self">
-        <div>
-          1. 启动方式12345678910111213141516171819@SpringBootApplication public class Application &#123;    //方式一    public static void main(String[] args) &#123;        SpringApplication.run(Application.class, arg
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-02-21 12:01" pubdate>
-              2023-02-21
+            <time datetime="2023-03-20 13:32" pubdate>
+              2023-03-20
             </time>
           </div>
         
@@ -810,8 +895,15 @@
   
     <span>></span>
     
-  <a href="/categories/spring%E6%A1%86%E6%9E%B6/Springboot/" class="category-chain-item">Springboot</a>
+  <a href="/categories/spring%E6%A1%86%E6%9E%B6/springcloud/" class="category-chain-item">springcloud</a>
   
+  
+    <span>></span>
+    
+  <a href="/categories/spring%E6%A1%86%E6%9E%B6/springcloud/sentinel/" class="category-chain-item">sentinel</a>
+  
+  
+
   
 
   
@@ -829,7 +921,9 @@
             
               <a href="/tags/java/">#java</a>
             
-              <a href="/tags/springboot/">#springboot</a>
+              <a href="/tags/springcloud/">#springcloud</a>
+            
+              <a href="/tags/sentinel/">#sentinel</a>
             
           </div>
         
@@ -841,23 +935,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/02/17/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E5%85%A5%E9%97%A8/" target="_self">
-          <img src="/img/Eternal%20Light%20by.png" srcset="/img/loading.gif" lazyload alt="Redis入门">
+        <a href="/2023/03/18/%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1/%E5%BA%8F%E5%88%97%E5%8C%96%E4%B8%8E%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" target="_self">
+          <img src="/img/seaty.png" srcset="/img/loading.gif" lazyload alt="序列化与反序列化">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/02/17/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E5%85%A5%E9%97%A8/" target="_self">
-          Redis入门
+        <a href="/2023/03/18/%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1/%E5%BA%8F%E5%88%97%E5%8C%96%E4%B8%8E%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" target="_self">
+          序列化与反序列化
         </a>
       </h1>
 
       
-      <a class="index-excerpt " href="/2023/02/17/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E5%85%A5%E9%97%A8/" target="_self">
+      <a class="index-excerpt " href="/2023/03/18/%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1/%E5%BA%8F%E5%88%97%E5%8C%96%E4%B8%8E%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" target="_self">
         <div>
-          1 redis定位与特性1.1 SQL与NoSQL​    大部分时候，我们都会首先考虑用关系型数据库来存储我们的数据，比如SQLServer，Oracle，MySQL 等等。关系型数据库的特点： ​    1.它以表格的形式，基于行存储数据，是一个二维的模式。 ​    2.它存储的是结构化的数据，数据存储有固定的模式（scheme），数据需要适应表结构。 ​    3.表与表之间存在关联（Re
+          1 Java领域的对象如何传输1.1 基于socket进行对象传输12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758public class User&#123;    private String name;    public St
         </div>
       </a>
 
@@ -865,8 +959,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2023-02-17 11:12" pubdate>
-              2023-02-17
+            <time datetime="2023-03-18 14:08" pubdate>
+              2023-03-18
             </time>
           </div>
         
@@ -881,15 +975,8 @@
     
       <span class="category-chain">
         
-  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/" class="category-chain-item">中间件</a>
+  <a href="/categories/%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1/" class="category-chain-item">网络通信</a>
   
-  
-    <span>></span>
-    
-  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/Redis/" class="category-chain-item">Redis</a>
-  
-  
-
   
 
       </span>
@@ -903,85 +990,9 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/redis/">#redis</a>
+              <a href="/tags/java/">#java</a>
             
-              <a href="/tags/%E7%BC%93%E5%AD%98/">#缓存</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/02/17/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85%E6%A8%A1%E5%BC%8F/" target="_self">
-          <img src="/img/Cyberpunk%20World.png" srcset="/img/loading.gif" lazyload alt="Redis发布订阅模式">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/02/17/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85%E6%A8%A1%E5%BC%8F/" target="_self">
-          Redis发布订阅模式
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt " href="/2023/02/17/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85%E6%A8%A1%E5%BC%8F/" target="_self">
-        <div>
-          1 列表的局限通过队列的rpush和blpop可以实现消息队列（队尾进队头出），没有任何元素可以弹出的时候，连接会被阻塞。但是基于list实现的消息队列，不支持一对多的消息分发，相当于只有一个消费者。 2 发布订阅模式除了通过list实现消息队列之外，Redis还提供了发布订阅的功能 2.1 订阅频道消息的生产者和消费者是不同的客户端，连接到同一个redis的服务。通过什么对象把生产者和消费者关联
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-02-17 11:12" pubdate>
-              2023-02-17
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/" class="category-chain-item">中间件</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/Redis/" class="category-chain-item">Redis</a>
-  
-  
-
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/redis/">#redis</a>
-            
-              <a href="/tags/%E7%BC%93%E5%AD%98/">#缓存</a>
+              <a href="/tags/%E5%BA%8F%E5%88%97%E5%8C%96/">#序列化</a>
             
           </div>
         
@@ -993,7 +1004,7 @@
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <a class="extend prev" rel="prev" href="/page/7/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/#board">6</a><a class="page-number" href="/page/7/#board">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/#board">9</a><a class="extend next" rel="next" href="/page/9/#board"><i class="iconfont icon-arrowright"></i></a>
+      <a class="extend prev" rel="prev" href="/page/7/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/#board">6</a><a class="page-number" href="/page/7/#board">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/#board">9</a><a class="page-number" href="/page/10/#board">10</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/#board">12</a><a class="extend next" rel="next" href="/page/9/#board"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
 

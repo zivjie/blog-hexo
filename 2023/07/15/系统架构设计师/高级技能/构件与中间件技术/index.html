@@ -1,0 +1,716 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Francis">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1 构件的定义定义1： 软件构件是一种组装单元，它具有规范的接口规约和显式的语境依赖。软件构件可以被独立地部署并由第三方任意地组装。定义2： 构件是某系统中有价值的、几乎独立的并可替换的一个部分，它在良好定义的体系结构语境内满足某清晰的功能。定义3： 构件是一个独立发布的功能部分，可以通过其接口访问它的服务。 构件是一组通常需要同时部署的原子构件。 构件和原子构件之间的区别： 在于大多数原子构件永">
+<meta property="og:type" content="article">
+<meta property="og:title" content="构件与中间件技术">
+<meta property="og:url" content="http://www.zivjie.cn/2023/07/15/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%B8%88/%E9%AB%98%E7%BA%A7%E6%8A%80%E8%83%BD/%E6%9E%84%E4%BB%B6%E4%B8%8E%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF/index.html">
+<meta property="og:site_name" content="Francis-Blog">
+<meta property="og:description" content="1 构件的定义定义1： 软件构件是一种组装单元，它具有规范的接口规约和显式的语境依赖。软件构件可以被独立地部署并由第三方任意地组装。定义2： 构件是某系统中有价值的、几乎独立的并可替换的一个部分，它在良好定义的体系结构语境内满足某清晰的功能。定义3： 构件是一个独立发布的功能部分，可以通过其接口访问它的服务。 构件是一组通常需要同时部署的原子构件。 构件和原子构件之间的区别： 在于大多数原子构件永">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.zivjie.cn/img/Fantasy%20World.png">
+<meta property="article:published_time" content="2023-07-15T00:50:00.000Z">
+<meta property="article:modified_time" content="2023-10-07T07:00:19.320Z">
+<meta property="article:author" content="Francis">
+<meta property="article:tag" content="系统架构师">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://www.zivjie.cn/img/Fantasy%20World.png">
+  
+  
+  
+  <title>构件与中间件技术 - Francis-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.zivjie.cn","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Francis</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="构件与中间件技术"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-07-15 08:50" pubdate>
+          2023年7月15日 早上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          38 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">构件与中间件技术</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="1-构件的定义"><a href="#1-构件的定义" class="headerlink" title="1 构件的定义"></a>1 构件的定义</h2><p><strong>定义1</strong>： 软件构件是一种组装单元，它具有规范的接口规约和显式的语境依赖。软件构件可以被独立地部署并由第三方任意地组装。<br><strong>定义2</strong>： 构件是某系统中有价值的、几乎独立的并可替换的一个部分，它在良好定义的体系结构语境内满足某清晰的功能。<br><strong>定义3</strong>： 构件是一个独立发布的功能部分，可以通过其接口访问它的服务。</p>
+<p><strong>构件是一组通常需要同时部署的原子构件。</strong></p>
+<p><strong>构件和原子构件之间的区别</strong>： 在于大多数原子构件永远都不会被单独部署，尽管它们可以被单独部署。相反，大多数原子构件都属于一个构件家族，一次部署往往涉及整个家族。</p>
+<p><strong>一个原子构件是一个模块和一组资源。</strong><br><strong>原子构件是部署、版本控制和替换的基本单位</strong>。 原子构件通常成组地部署，但是它也能够被单独部署。<strong>一个模块是不带单独资源的原子构件</strong> (在这个严格定义下， Java包不是模块 ― 在Java中部署的原子单元是类文件。一个单独的包被编译成多个单独的类文件 一 每个公共类都有一个)。</p>
+<p><strong>模块是一组类和可能的非面向对象的结构体，比如过程或者函数。</strong></p>
+<p><strong>模块、对象、构件的区别：</strong></p>
+<p>构件的特性是：(1)独立部署单元；(2)作为第三方的组装单元；(3)没有(外部的)可见状态。（可以用容器管理自身对外的可见状态）<br>一个构件可以包含多个类元素，但是一个类元素只能属于一个构件。将一个类拆分进行部署通常没什么意义。<br>对象的特性是：(1)一个实例单元，具有唯一的标志。(2)可能具有状态，此状态外部可见。(3)封装了自己的状态和<br>行为。</p>
+<p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E6%9E%84%E4%BB%B6%E4%B8%8E%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF/1.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="2-构件系统架构特性"><a href="#2-构件系统架构特性" class="headerlink" title="2 构件系统架构特性"></a>2 构件系统架构特性</h2><p><strong>口</strong> 构件系统体系结构由一组平台决策、一组构件框架和构件框架之间的互操作设计组成。</p>
+<p><strong>口</strong> 构件框架是一种专用的体系结构(通常围绕一些关键的机制)，同时，也是一组固定地作用于构件层次机制的策略。</p>
+<p><strong>口</strong> 概念框架的互操作设计包括系统体系结构连接的所有框架间的互操作的规则。</p>
+<p><strong>口</strong> 构件是一组通常需要同时部署的原子构件。构件和原子构件之间的区别在于，大多数原子构件永远都不会被单独部署，尽管它们可以被单独部署。</p>
+<p><strong>口</strong> 一个原子构件是一个模块和一组资源。</p>
+<p><strong>口</strong> 模块是一组类和可能的非面向对象的结构体，比如过程或者函数。</p>
+<p><strong>口</strong> 资源是一个类型化的项的固定集合。</p>
+<p><strong>口</strong> 资源这个概念可以包含代码资源，进而包含模块。问题在于除了编译器编译一个模块或包生成的资源外，还可能存在其他的资源。在“纯对象”的方法中，资源是外部化的不可改变的对象――不可改变是因为构件没有持久化的标志，而且复制不能被区分。</p>
+<p><strong>如果把软件系统看成是构件的集合，那么从构件的外部形态来看，构成一个系统的构件可分为 【五类】：</strong></p>
+<p>(1) 独立而成熟的构件。 独立而成熟的构件得到了实际运行环境的多次检验，该类构件隐藏了所有接口，用户只需用规定好的命令进行使用。例如，数据库管理系统和操作系统等。<br>(2) 有限制的构件。 有限制的构件提供了接口，指出了使用的条件和前提，这种构件在装配时，会产生资源冲突、覆盖等影响，在使用时需要加以测试。 例如，各种面向对象程序设计语言中的基础类库等。<br>(3) 适应性构件。 适应性构件进行了包装或使用了接口技术，把 不兼容性、资源冲突等进行了处理，可以直接使用。这种构件可以不加修改地使用在各种环境中。 例如ActiveX等。<br>(4) 装配的构件。 装配(assemble) 的构件在安装时， 已经装配在操作系统、数据库管理系统或信息系统不同层次上， 使用胶水代码(gluecode) 就可以进行连接使用。目前一些软件商提供的大多数软件产品都属这一类。<br>(5) 可修改的构件。 可修改的构件可以进行版本替换。如果对原构件修改错误、增加新功能， 可以利用重新“包装”或写接口来实现构件的替换。 这种构件在应用系统开发中使用得比较多。</p>
+<h2 id="3-中间件概述"><a href="#3-中间件概述" class="headerlink" title="3 中间件概述"></a>3 中间件概述</h2><p>中间件 是一种独立的系统软件或服务程序，可以帮助分布式应用软件在不同的技术之间共享资源。中间件可以：<br>1、负责客户机与服务器之间的连接和通信，以及客户机与应用层之间的高效率通信机制。<br>2、提供应用的负载均衡和高可用性、安全机制与管理功能，以及交易管理机制，保证交易的一致性。<br>3、提供应用层不同服务之间的互操作机制，以及应用层与数据库之间的连接和控制机制。<br>4、提供多层架构的应用开发和运行的平台，以及应用开发框架，支持模块化的应用开发。<br>5、屏蔽硬件、操作系统、网络和数据库的差异。<br>6、提供一组通用的服务去执行不同的功能，避免重复的工作，使应用之间可以协作。<br>中间件是一类构件。<br>中间件是一类系统软件。</p>
+<p><strong>简化结构、屏蔽差异、利于复用。</strong></p>
+<p><strong>采用中间件技术的优点：</strong></p>
+<p>(1) 面向需求。 即设计师集中精力于业务逻辑本身。<br>(2) 业务的分隔和包容性。 应用开发人员可以按照不同的业务进行功能的划分，体现为不同的接口或交互模式。<br>(3) 设计与实现隔离。 构件对外发生作用或构件间的交互，都是通过接口进行的，构件使用者只需要知道构件的接口，而不必关心其内部实现，这是设计与实现分离的关键。<br>(4) 隔离复杂的系统资源。 架构很重要的一个功能就是将系统资源与应用构件隔离，这是保证构件可复用甚至“即插即用”的基础，与中间件的意图也是一致的。<br>(5) 符合标准的交互模型。 中间件则实现了架构的模型，实现了标准的协议。<br>(7) 软件复用。 中间件提供了构件封装、交互规则、与环境的隔离等机制，这些都为软件复用提供了方便的解决方案。<br>(8) 提供对应用构件的管理。 基于中间件的软件可以方便地进行管理，因为构件总可以通过标识机制进行划分。</p>
+<h2 id="4-CBSD基于构件的模型（构件组装模型-基于构件的软件开发）"><a href="#4-CBSD基于构件的模型（构件组装模型-基于构件的软件开发）" class="headerlink" title="4 CBSD基于构件的模型（构件组装模型/基于构件的软件开发）"></a>4 CBSD基于构件的模型（构件组装模型/基于构件的软件开发）</h2><p>构件（Component，组件）是一个具有可重用价值的、功能相对独立的软件单元。基于构件的软件开发（ComponentBased Software Development，CBSD）模型是利用模块化方法，将整个系统模块化，并在一定构件模型的支持下，复用构件库中的一个或多个软件构件，通过组合手段高效率、高质量地构造应用软件系统的过程。</p>
+<p>基于构件的开发模型融合了螺旋模型的许多特征，本质上是演化型的，开发过程是迭代的。基于构件的开发模型由软件的需求分析和定义、体系结构设计、构件库建立（其中构件库包括了构件获取和构件管理）、应用软件构建、测试和发布5个阶段组成。如图：</p>
+<p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E6%9E%84%E4%BB%B6%E4%B8%8E%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF/2.png" srcset="/img/loading.gif" lazyload></p>
+<p>CBSE的构件应该具备的特征：</p>
+<blockquote>
+<p>可组装性：所有外部交互必须通过公开定义的接口进行。<br>可部署性：构件总是二进制形式的，能作为一个独立实体在平台上运行。<br>文档化：用户根据文档来判断构件是否满足需求。<br>独立性：可以在无其他特殊构件的情况下进行组装和部署。<br>标准化：符合某种标准化的构件模型。</p>
+</blockquote>
+<p>CBSE的构件的组装顺序：</p>
+<blockquote>
+<p>顺序组装：按顺序调用己经存在的构件，可以用两个已经存在的构件来创造一个新的构件。<br>层次组装：被调用构件的“提供”接口必须和调用构件的“请求”接口兼容。<br>叠加组装：多个构件合并形成新构件，新构件整合原构件的功能，对外提供新的接口。</p>
+</blockquote>
+<p>构件作为重要的软件技术和工具得到了极大的发展，这些新技术标准和工具有Microsoft的DCOM/COM，Sun的EJB，OMG的CORBA等。基于构件的开发活动从标识候选构件开始，通过搜索已有构件库，确认所需要的构件是否已经存在，如果已经存在，就从构件库中提取出来复用；如果不存在，就采用面向对象方法开发它。在提取出来的构件通过语法和语义检查后，将这些构件通过胶合代码组装到一起实现系统，这个过程是迭代的。</p>
+<p>基于构件的开发方法使得软件开发不再一切从头开始，开发的过程就是构件组装的过程，维护的过程就是构件升级、替换和扩充的过程，其优点是构件组装模型导致了软件的复用，提高了软件开发的效率；构件可由一方定义其规格说明，被另一方实现，然后供给第三方使用；构件组装模型允许多个项目同时开发，降低了费用，提高了可维护性，可实现分步提交软件产品。<br>缺点是由于采用自定义的组装结构标准，缺乏通用的组装结构标准，引入具有较大的风险；可重用性和软件高效性不易协调，需要精干的、有经验的分析人员和开发人员，一般的开发人员插不上手，客户的满意度低；过分依赖于构件，构件库的质量影响着产品质量。</p>
+<p><strong>构件组装是指将构件库中的构件经过适当修改后相互连接，或者将它们与当前开发项目中的构件元素相连接，最终构成新的目标软件。</strong></p>
+<p><strong>构件组装技术大致可分为基于功能的组装技术、基于数据的组装技术和面向对象的组装技术。</strong></p>
+<h2 id="5-构件的复用"><a href="#5-构件的复用" class="headerlink" title="5 构件的复用"></a>5 构件的复用</h2><p>层次对应于构件组装过程中的不同任务。复用的维度</p>
+<ol>
+<li>水平复用：不分行业领域，通用。</li>
+<li>垂直复用：分行业领域，专用。</li>
+</ol>
+<p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E6%9E%84%E4%BB%B6%E4%B8%8E%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF/3.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="5-1-检索与提取构件"><a href="#5-1-检索与提取构件" class="headerlink" title="5.1 检索与提取构件"></a>5.1 检索与提取构件</h3><p>已有的 构件分类方法 可以分为三大类，分别是 <strong>关键字分类法、刻面分类法和超文本组织方法</strong>。</p>
+<ol>
+<li><p>关键字分类法： 是一种最简单的构件库组织方法，其基本思想是：根据领域分析的结果将应用领域的概念按照从抽象到具体的顺序逐次分解为树状或有向无回路图结构。每个概念用一个描述性的关键字表示。不可分解的原子级关键字包含隶属于它的某些构件。</p>
+</li>
+<li><p>刻面分类法： 在刻面分类机制中， 定义若干用于刻画构件特征的“面”(facet) ， 每个面包含若干概念， 这些概念表述构件在面上的特征。刻画可以描述构件执行的功能、被操作的数据、构件应用的语境或任意其他特征。</p>
+</li>
+<li><p>超文本组织方法： 超文本组织方法与基于数据库系统的构件库组织方法不同，它基于全文检索技术，主要思想是：所有构件必须辅以详尽的功能或行为说明文档；说明中出现的重要概念或构件以网状链接方式相互连接；检索者在阅读文档的过程中可按照人类的联系思维方式任意跳转到包含相关概念或构件的文档；全文检索系统将用户给出的关键字与说明文档中的文字进行匹配，实现构件的浏览式检索。</p>
+</li>
+</ol>
+<p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E6%9E%84%E4%BB%B6%E4%B8%8E%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF/4.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="5-2-理解与评价构件"><a href="#5-2-理解与评价构件" class="headerlink" title="5.2 理解与评价构件"></a>5.2 理解与评价构件</h3><p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E6%9E%84%E4%BB%B6%E4%B8%8E%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF/5.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="5-3-修改构件"><a href="#5-3-修改构件" class="headerlink" title="5.3 修改构件"></a>5.3 修改构件</h3><p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E6%9E%84%E4%BB%B6%E4%B8%8E%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF/6.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="5-4-组装构件"><a href="#5-4-组装构件" class="headerlink" title="5.4 组装构件"></a>5.4 组装构件</h3><p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E6%9E%84%E4%BB%B6%E4%B8%8E%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF/7.png" srcset="/img/loading.gif" lazyload></p>
+<p><strong>系统构件组装分为三个不同的层次：定制(Customization) 、集成(Integration) 、扩展(Extension) 。这三个层次对应于构件组装过程中的不同任务。</strong></p>
+<h2 id="6-构件标准"><a href="#6-构件标准" class="headerlink" title="6 构件标准"></a>6 构件标准</h2><p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E6%9E%84%E4%BB%B6%E4%B8%8E%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF/8.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="7-主要中间件"><a href="#7-主要中间件" class="headerlink" title="7 主要中间件"></a>7 主要中间件</h2><p><strong>伺服对象(Servant) ：</strong> CORBA对象的真正实现， 负责完成客户端请求。<br><strong>对象适配器(Object Adapter) ：</strong> 用于屏蔽ORB内核的实现细节， 为服务器对象的实现者提供抽象接口， 以便他们使用ORB内部的某些功能。<br><strong>对象请求代理(Object Request Broker) ：</strong> 解释调用并负责查找实现该请求的对象， 将参数传给找到的对象，并调用方法返回结果。客户方不需要了解服务对象的位置、通信方式、实现、激活或存储机制。</p>
+<p><strong>CORBA体系的主要内容包括以下几部分：</strong></p>
+<p>(1) 对象请求代理(Object Request Broker， ORB) 。 负责对象在分布环境中透明地收发请求和响应，它是构建分布对象应用、在异构或同构环境下实现应用间互操作的基础。<br>(2) 对象服务(Object Services) 。 为使用和实现对象而提供的基本对象集合， 这些服务应独立于应用领域。<br>(3) 公共设施(Common Facili tites) 。 向终端用户提供一组共享服务接口， 例如：系统管理、组合文档和电子邮件等。<br>(4) 应用接口(Application Interfaces) 。 由销售商提供的可控制其接口的产品，相应于传统的应用层表示，处于参考模型的最高层。<br>(5) 领域接口(Domain Interfaces) 。 为应用领域服务而提供的接口， 如OMG组织为PDM系统制定的规范。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/" class="category-chain-item">系统架构师</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E9%AB%98%E7%BA%A7%E6%8A%80%E8%83%BD/" class="category-chain-item">高级技能</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/">#系统架构师</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>构件与中间件技术</div>
+      <div>http://www.zivjie.cn/2023/07/15/系统架构设计师/高级技能/构件与中间件技术/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Francis</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年7月15日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/07/15/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%B8%88/%E9%AB%98%E7%BA%A7%E6%8A%80%E8%83%BD/%E8%BD%AF%E4%BB%B6%E5%8F%AF%E9%9D%A0%E6%80%A7%E5%88%86%E6%9E%90%E4%B8%8E%E8%AE%BE%E8%AE%A1/" title="软件可靠性分析与设计">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">软件可靠性分析与设计</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/07/15/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%B8%88/%E9%AB%98%E7%BA%A7%E6%8A%80%E8%83%BD/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84%E6%A6%82%E5%BF%B5%E3%80%81%E6%9E%B6%E6%9E%84%E9%A3%8E%E6%A0%BC%E3%80%81ABSD%E3%80%81%E6%9E%B6%E6%9E%84%E5%A4%8D%E7%94%A8%E3%80%81DSSA/" title="软件架构概念、架构风格、ABSD、架构复用、DSSA">
+                        <span class="hidden-mobile">软件架构概念、架构风格、ABSD、架构复用、DSSA</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

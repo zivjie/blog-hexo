@@ -1,0 +1,699 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Francis">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1 UML图 2 用例图2.1 用例图相关关系（包含，扩展，泛化） 包含关系（必然的）： 其中这个提取出来的公共用例称为抽象用例，而把原始用例称为基本用例或基础用例。当可以从两个或两个以上的用例中提取公共行为时，应该使用包含关系来表示它们。 扩展关系（可选的）： 如果一个用例明显地混合了两种或两种以上的不同场景，即根据情况可能发生多种分支，则可以将这个用例分为一个基本用例和一个或多个扩展用例，这样">
+<meta property="og:type" content="article">
+<meta property="og:title" content="UML建模设计">
+<meta property="og:url" content="http://www.zivjie.cn/2023/07/09/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%B8%88/%E5%9F%BA%E7%A1%80%E6%8A%80%E8%83%BD/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/UML%E5%BB%BA%E6%A8%A1%E8%AE%BE%E8%AE%A1/index.html">
+<meta property="og:site_name" content="Francis-Blog">
+<meta property="og:description" content="1 UML图 2 用例图2.1 用例图相关关系（包含，扩展，泛化） 包含关系（必然的）： 其中这个提取出来的公共用例称为抽象用例，而把原始用例称为基本用例或基础用例。当可以从两个或两个以上的用例中提取公共行为时，应该使用包含关系来表示它们。 扩展关系（可选的）： 如果一个用例明显地混合了两种或两种以上的不同场景，即根据情况可能发生多种分支，则可以将这个用例分为一个基本用例和一个或多个扩展用例，这样">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.zivjie.cn/img/doomsday.png">
+<meta property="article:published_time" content="2023-07-09T05:30:00.000Z">
+<meta property="article:modified_time" content="2023-10-07T00:59:30.387Z">
+<meta property="article:author" content="Francis">
+<meta property="article:tag" content="系统架构师">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://www.zivjie.cn/img/doomsday.png">
+  
+  
+  
+  <title>UML建模设计 - Francis-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.zivjie.cn","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Francis</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="UML建模设计"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-07-09 13:30" pubdate>
+          2023年7月9日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          14 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">UML建模设计</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="1-UML图"><a href="#1-UML图" class="headerlink" title="1 UML图"></a>1 UML图</h2><p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/UML%E5%BB%BA%E6%A8%A1%E8%AE%BE%E8%AE%A1/1.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="2-用例图"><a href="#2-用例图" class="headerlink" title="2 用例图"></a>2 用例图</h2><h3 id="2-1-用例图相关关系（包含，扩展，泛化）"><a href="#2-1-用例图相关关系（包含，扩展，泛化）" class="headerlink" title="2.1 用例图相关关系（包含，扩展，泛化）"></a>2.1 用例图相关关系（包含，扩展，泛化）</h3><p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/UML%E5%BB%BA%E6%A8%A1%E8%AE%BE%E8%AE%A1/2.png" srcset="/img/loading.gif" lazyload></p>
+<p><strong>包含关系（必然的）：</strong> 其中这个提取出来的公共用例称为抽象用例，而把原始用例称为基本用例或基础用例。当可以从两个或两个以上的用例中提取公共行为时，应该使用包含关系来表示它们。</p>
+<p><strong>扩展关系（可选的）：</strong> 如果一个用例明显地混合了两种或两种以上的不同场景，即根据情况可能发生多种分支，则可以将这个用例分为一个基本用例和一个或多个扩展用例，这样使描述可能更加清晰。</p>
+<p><strong>泛化关系（父子）：</strong> 当多个用例共同拥有一种类似的结构和行为的时候，可以将它们的共性抽象成为父用例，其他的用例作为泛化关系中的子用例。在用例的泛化关系中，子用例是父用例的一种特殊形式，子用例继承了父用例所有的结构、行为和关系。</p>
+<h3 id="2-2-用例图"><a href="#2-2-用例图" class="headerlink" title="2.2 用例图"></a>2.2 用例图</h3><ul>
+<li><strong>用例图描述一组用例、参与者及它们之间的关系。</strong></li>
+<li><strong>用户角度描述系统功能；</strong></li>
+<li><strong>参与者是外部触发因素；</strong>(包括用户、组织、外部系统，时间)</li>
+<li><strong>用例是功能单元。</strong></li>
+</ul>
+<p><strong>关系包括：包含关系、扩展关系、泛化关系</strong></p>
+<p><strong>用例建模的流程：</strong><br><strong>★</strong> 识别参与者(必须)<br><strong>★</strong> 合并需求获得用例(必须)<br><strong>★</strong> 细化用例描述(必须)<br><strong>★</strong> 调整用例模型(可选)</p>
+<p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/UML%E5%BB%BA%E6%A8%A1%E8%AE%BE%E8%AE%A1/3.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="3-类图和对象图"><a href="#3-类图和对象图" class="headerlink" title="3 类图和对象图"></a>3 类图和对象图</h2><h3 id="3-1-类图和对象图相关关系（依赖，泛化，关联-聚合-组合，实现）"><a href="#3-1-类图和对象图相关关系（依赖，泛化，关联-聚合-组合，实现）" class="headerlink" title="3.1 类图和对象图相关关系（依赖，泛化，关联-聚合/组合，实现）"></a>3.1 类图和对象图相关关系（依赖，泛化，关联-聚合/组合，实现）</h3><p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/UML%E5%BB%BA%E6%A8%A1%E8%AE%BE%E8%AE%A1/4.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="3-2-类图和对象图"><a href="#3-2-类图和对象图" class="headerlink" title="3.2 类图和对象图"></a>3.2 类图和对象图</h3><p>类图(class diagram) ： 类图描述一组类、接口、协作和它们之间的关系。</p>
+<p>对象图(object diagram) ： 对象图描述一组对象及它们之间的关系。对象图描述了在类图中所建立的事物实例的静态快照。</p>
+<p>◆ 类名，方法名，属性名<br>◆ 多重度（对应关系数1、0…*）<br>◆ 关系</p>
+<p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/UML%E5%BB%BA%E6%A8%A1%E8%AE%BE%E8%AE%A1/5.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="4-顺序图（序列图）"><a href="#4-顺序图（序列图）" class="headerlink" title="4 顺序图（序列图）"></a>4 顺序图（序列图）</h2><p><strong>顺序图(sequence diagram， 序列图)</strong> 。顺序图是一种交互图(interaction diagram)它强调对象之间消息发送的顺序，同时显示对象之间的交互。</p>
+<p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/UML%E5%BB%BA%E6%A8%A1%E8%AE%BE%E8%AE%A1/6.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="5-通信图（协作图）"><a href="#5-通信图（协作图）" class="headerlink" title="5 通信图（协作图）"></a>5 通信图（协作图）</h2><p><strong>通信图(communication diagram)</strong> 。通信图也是一种交互图， 它强调对象之间存在的消息收发关系，而不专门突出这些消息发送的时间顺序。</p>
+<p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/UML%E5%BB%BA%E6%A8%A1%E8%AE%BE%E8%AE%A1/7.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="6-状态图"><a href="#6-状态图" class="headerlink" title="6 状态图"></a>6 状态图</h2><p><strong>状态图(state diagram)</strong> 是对类描述的补充。用于展现此类对象所具有的可能状态，以及某些事件发生时其状态转移情况。</p>
+<p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/UML%E5%BB%BA%E6%A8%A1%E8%AE%BE%E8%AE%A1/8.png" srcset="/img/loading.gif" lazyload></p>
+<p>在订单处理的过程中，会员可以点击“取消订单”取消该订单。如果 支付失败 ，该订单将被标记为 挂起状态 ，可后续重新支付，如果挂起超时30分钟未支付，系统将自动取消该订单。订单支付成功后，系统判断订单类型：<br>(1)对于常规订单，标记为 备货状态 ，订单信息发送到货运部，完成打包后 交付快递 发货；<br>(2)对于定制订单，会自动进入 定制状态 ，定制完成后 交付快递 发货。会员在系统中点击“ 收货 ”按钮变为 收货状态 ，结束整个订单的处理流程。</p>
+<p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/UML%E5%BB%BA%E6%A8%A1%E8%AE%BE%E8%AE%A1/9.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="7-活动图"><a href="#7-活动图" class="headerlink" title="7 活动图"></a>7 活动图</h2><p><strong>活动图(activity diagram)</strong> 是一种特殊的状态图。活动图描述一个操作中要进行的各项活动的执行流程。同时，也常被用来描述一个用例的处理流程或者某种交互流程。活动图将进程或其他计算结构展示为计算内部一步步的控制流和数据流。它强调对象间的控制流程。<br><strong>活动图与流程图的区别是可以并行。</strong></p>
+<p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/UML%E5%BB%BA%E6%A8%A1%E8%AE%BE%E8%AE%A1/10.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/UML%E5%BB%BA%E6%A8%A1%E8%AE%BE%E8%AE%A1/11.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="8-定时图"><a href="#8-定时图" class="headerlink" title="8 定时图"></a>8 定时图</h2><p><strong>定时图</strong> 也叫计时图，也是一种交互图，用于展示交互过程中的真实时间信息，具体描述对象状态变化的时间点以及维持特定状态的时间段。</p>
+<p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/UML%E5%BB%BA%E6%A8%A1%E8%AE%BE%E8%AE%A1/12.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="9-构建图和包图"><a href="#9-构建图和包图" class="headerlink" title="9 构建图和包图"></a>9 构建图和包图</h2><p><strong>构件图(component diagram)</strong> 。构件图描述一个封装的类和它的接口、端口， 以及由内嵌的构件和连接件构成的内部结构。构件图用于表示系统的静态设计实现视图。对于由小的部件构建大的系统来说，构件图是很重要的。构件图是类图的变体。</p>
+<p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/UML%E5%BB%BA%E6%A8%A1%E8%AE%BE%E8%AE%A1/13.png" srcset="/img/loading.gif" lazyload></p>
+<p><strong>包图</strong> ，包的图标像是一个带标签的文件夹，包的基本思想是把共同工作的元素放到一个文件夹中。例：多个类或构件组成了一个子系统，就可以将它们放到一个包中。</p>
+<h2 id="10-部署图"><a href="#10-部署图" class="headerlink" title="10 部署图"></a>10 部署图</h2><p><strong>部署图(deployment diagram)</strong> 。部署图描述对运行时的处理节点及在其中生存的构件的配置。部署图给出了架构的静态部署视图，通常一个节点包含一个或多个部署图。</p>
+<p><img src="/image/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/UML%E5%BB%BA%E6%A8%A1%E8%AE%BE%E8%AE%A1/14.png" srcset="/img/loading.gif" lazyload></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/" class="category-chain-item">系统架构师</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E5%9F%BA%E7%A1%80%E6%8A%80%E8%83%BD/" class="category-chain-item">基础技能</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/%E5%9F%BA%E7%A1%80%E6%8A%80%E8%83%BD/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/" class="category-chain-item">软件工程</a>
+  
+  
+
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88/">#系统架构师</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>UML建模设计</div>
+      <div>http://www.zivjie.cn/2023/07/09/系统架构设计师/基础技能/软件工程/UML建模设计/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Francis</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年7月9日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/07/10/%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1/netty/NIO%E4%B8%8ENetty%E5%88%9D%E8%AF%86/" title="NIO与Netty初识">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">NIO与Netty初识</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/07/09/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%B8%88/%E5%9F%BA%E7%A1%80%E6%8A%80%E8%83%BD/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/%E7%B3%BB%E7%BB%9F%E5%88%86%E6%9E%90%E4%B8%8E%E8%AE%BE%E8%AE%A1/" title="系统分析与设计">
+                        <span class="hidden-mobile">系统分析与设计</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
