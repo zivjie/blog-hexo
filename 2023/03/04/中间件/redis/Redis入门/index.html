@@ -1,0 +1,1098 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Francis">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1 redis定位与特性1.1 SQL与NoSQL​    大部分时候，我们都会首先考虑用关系型数据库来存储我们的数据，比如SQLServer，Oracle，MySQL 等等。关系型数据库的特点： ​    1.它以表格的形式，基于行存储数据，是一个二维的模式。 ​    2.它存储的是结构化的数据，数据存储有固定的模式（scheme），数据需要适应表结构。 ​    3.表与表之间存在关联（Re">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis入门">
+<meta property="og:url" content="http://www.zivjie.cn/2023/03/04/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E5%85%A5%E9%97%A8/index.html">
+<meta property="og:site_name" content="Francis-Blog">
+<meta property="og:description" content="1 redis定位与特性1.1 SQL与NoSQL​    大部分时候，我们都会首先考虑用关系型数据库来存储我们的数据，比如SQLServer，Oracle，MySQL 等等。关系型数据库的特点： ​    1.它以表格的形式，基于行存储数据，是一个二维的模式。 ​    2.它存储的是结构化的数据，数据存储有固定的模式（scheme），数据需要适应表结构。 ​    3.表与表之间存在关联（Re">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.zivjie.cn/img/Eternal%20Light%20by.png">
+<meta property="article:published_time" content="2023-03-04T03:12:21.000Z">
+<meta property="article:modified_time" content="2024-01-02T01:56:11.488Z">
+<meta property="article:author" content="Francis">
+<meta property="article:tag" content="redis">
+<meta property="article:tag" content="缓存">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://www.zivjie.cn/img/Eternal%20Light%20by.png">
+  
+  
+  
+  <title>Redis入门 - Francis-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.zivjie.cn","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Francis</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Redis入门"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-03-04 11:12" pubdate>
+          2023年3月4日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          15k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          127 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Redis入门</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="1-redis定位与特性"><a href="#1-redis定位与特性" class="headerlink" title="1 redis定位与特性"></a>1 redis定位与特性</h2><h3 id="1-1-SQL与NoSQL"><a href="#1-1-SQL与NoSQL" class="headerlink" title="1.1 SQL与NoSQL"></a>1.1 SQL与NoSQL</h3><p>​    大部分时候，我们都会首先考虑用关系型数据库来存储我们的数据，比如SQLServer，Oracle，MySQL 等等。关系型数据库的特点：</p>
+<p>​    1.它以表格的形式，基于行存储数据，是一个二维的模式。</p>
+<p>​    2.它存储的是结构化的数据，数据存储有固定的模式（scheme），数据需要适应表结构。</p>
+<p>​    3.表与表之间存在关联（Reletionship）。</p>
+<p>​    4.大部分关系型数据库都支持SQL（结构化查询语句）的操作，支持复杂的关联查询。</p>
+<p>​    5.通过支持事务（ACID）来提供严格或者实时的数据一致性。</p>
+<p>​    但是使用关系型数据库也存在一些限制，比如：</p>
+<p>​    1.要实现扩容的话，只能向上（垂直）扩展，比如磁盘限制了数据的存储，就要扩大磁盘容量，通过堆硬件的方式，不支持动态的扩缩容。水平扩容需要复杂的技术来实现，比如分库分表。</p>
+<p>​    2.表结构修改困难，因此存储的数据格式也收到限制。</p>
+<p>​    3.在高并发和高数据量的情况下，关系型数据库通常会把数据持久化到磁盘，基于磁盘的读写压力比较大。</p>
+<p>​    为了规避关系型数据库的一系列问题，就有了非关系型的数据库，一般把它叫做“non-relational”或者“Not Only SQL”。NoSQL 最开始是不提供SQL 的数据库的意思，但是后来意思慢慢地发生了变化。</p>
+<p>​    非关系型数据库的特点：</p>
+<p>​    1、存储非结构化的数据，比如文本、图片、音频、视频。</p>
+<p>​    2、表与表之间没有关联，可扩展性强。</p>
+<p>​    3、保证数据的最终一致性。遵循BASE（碱）理论。Basically Available（基本可用）； Soft-state（软状态）； Eventually Consistent（最终一致性）。</p>
+<p>​    4、支持海量数据的存储和高并发的高效读写。</p>
+<p>​    5、支持分布式，能够对数据进行分片存储，扩缩容简单。</p>
+<p>​    对于不同的存储类型，又有各种各样的非关系型数据库，比如有几种常见的类型：</p>
+<p>​    1 、KV 存储， 用Key Value 的形式来存储数据。比较常见的有Redis 和MemcacheDB。</p>
+<p>​    2、文档存储，MongoDB。</p>
+<p>​    3、列存储，HBase。</p>
+<p>​    4、图存储，这个图（Graph）是数据结构，不是文件格式。Neo4j。</p>
+<p>​    5、对象存储。</p>
+<p>​    6、XML 存储等等等等。</p>
+<p>​    这个列举了各种各样的NoSQL 数据库<a target="_blank" rel="noopener" href="http://nosql-database.org/">http://nosql-database.org/</a> 。NewSQL 结合了SQL 和NoSQL 的特性（例如PingCAP 的TiDB）。</p>
+<h3 id="1-2Redis特性"><a href="#1-2Redis特性" class="headerlink" title="1.2Redis特性"></a>1.2Redis特性</h3><p>​    官网介绍：<a target="_blank" rel="noopener" href="https://redis.io/topics/introduction">https://redis.io/topics/introduction</a></p>
+<p>​    中文网站：<a target="_blank" rel="noopener" href="http://www.redis.cn/">http://www.redis.cn</a> </p>
+<p>​    硬件层面有CPU 的缓存；浏览器也有缓存；手机的应用也有缓存。把数据缓存起来的原因就是从原始位置取数据的代价太大了，放在一个临时位置存储起来，取回就可以快一些。</p>
+<p>​    1.为什么要把数据放在内存中？</p>
+<p>​    1）内存的速度快，10w QPS</p>
+<p>​    2）减少计算的时间，减轻数据库的压力</p>
+<p>​    2.如果是用内存的数据结构作为缓存，为什么不用HashMap或者Memcached？</p>
+<p>​    1）更丰富的数据类型</p>
+<p>​    2）进程内与跨进程；单机与分布式</p>
+<p>​    3）功能丰富：持久化机制、内存淘汰策略，事务，发布订阅，pipeline，lua</p>
+<p>​    4）支持多种编程语言</p>
+<p>​    5）高可用，集群</p>
+<p>注：Memcached只能存储KV，没有持久化机制，不支持主从复制，是多线程的。</p>
+<h2 id="2-redis安装启动"><a href="#2-redis安装启动" class="headerlink" title="2 redis安装启动"></a>2 redis安装启动</h2><h3 id="2-1-服务端安装"><a href="#2-1-服务端安装" class="headerlink" title="2.1 服务端安装"></a>2.1 服务端安装</h3><p>1、Linux 安装</p>
+<p>​    CentOS7 安装Redis 单实例<a target="_blank" rel="noopener" href="https://gper.club/articles/7e7e7f7ff7g5egc4g6b">https://gper.club/articles/7e7e7f7ff7g5egc4g6b</a></p>
+<p>​    Docker 安装Redis<a target="_blank" rel="noopener" href="https://gper.club/articles/7e7e7f7ff7g5egc5g6c">https://gper.club/articles/7e7e7f7ff7g5egc5g6c</a></p>
+<p>  主要是注意配置文件几处关键内容（后台启动、绑定IP、密码）的修改，配置别名</p>
+<p>2、Windows 服务端安装</p>
+<p>​    自行百度</p>
+<h3 id="2-2-服务启动"><a href="#2-2-服务启动" class="headerlink" title="2.2 服务启动"></a>2.2 服务启动</h3><p>​    src 目录下，直接启动   ./redis-server</p>
+<p>​    后台启动（指定配置文件）1、redis.conf -&gt;修改两行配置daemonize yes ；bind 0.0.0.0</p>
+<p>​                         2、启动Redis -&gt; redis-server /usr/local/soft/redis-5.0.5/redis.conf</p>
+<p>​    总结：redis 的参数可以通过三种方式配置，一种是redis.conf，一种是启动时–携带的参数，一种是config set。</p>
+<h3 id="2-3-基本操作"><a href="#2-3-基本操作" class="headerlink" title="2.3 基本操作"></a>2.3 基本操作</h3><p>​    Redist默认有16个库（0-15）.可以在配置文件redis.conf中修改   database 16</p>
+<p>​    因为没有完全隔离，不像数据库的database，不适合把不同的库分配给不同的业务使用。默认使用第一个库db0。在集群中只能使用第一个db。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sh">select 0;   <span class="hljs-comment">#切换数据库</span><br>flushdb;    <span class="hljs-comment">#清空当前数据库</span><br>flushall;   <span class="hljs-comment">#清空所有数据库</span><br></code></pre></td></tr></table></figure>
+
+<p>​    Redis的存储叫做key-value存储，或者叫做字典结构。key的最大长度限制是512M，值得限制不同，有的是用长度限制，有的是用个数限制。先从key的基本操作入手。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-built_in">set</span> qs 2673   <span class="hljs-comment">#存值</span><br>get qs        <span class="hljs-comment">#取值</span><br>keys *        <span class="hljs-comment">#查看所有键</span><br>dbsize        <span class="hljs-comment">#获取键总数(生产环境数据量大，慎用)</span><br>exists qs     <span class="hljs-comment">#查看键是否存在</span><br>del qs hh     <span class="hljs-comment">#删除键</span><br>rename qs pyy <span class="hljs-comment">#重命名键</span><br><span class="hljs-built_in">type</span> qs       <span class="hljs-comment">#获取数据类型</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="3-redis基本数据类型"><a href="#3-redis基本数据类型" class="headerlink" title="3 redis基本数据类型"></a>3 redis基本数据类型</h2><h3 id="3-1-String字符串"><a href="#3-1-String字符串" class="headerlink" title="3.1 String字符串"></a>3.1 String字符串</h3><p><strong>存储类型</strong>  </p>
+<p>​    可以用来存储INT（整数），float（单精度浮点数），String（字符串）</p>
+<p><strong>操作命令</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs sh">getrange qs 0 1                        <span class="hljs-comment">#获取指定范围的字符</span><br>strlen                                 <span class="hljs-comment">#获取值长度</span><br>append qs good                         <span class="hljs-comment">#字符串追加内容</span><br>mset qs 888 hh 666                     <span class="hljs-comment">#设置多个值(批量操作，原子性)</span><br>mget qs hh                             <span class="hljs-comment">#获取多个值</span><br>setnx qs pyy                           <span class="hljs-comment">#设置值，如果key存在，则不成功</span><br><span class="hljs-comment">#基于此可实现分布式锁，用del key释放锁</span><br><span class="hljs-comment">#但如果释放锁的操作失败了，导致其他节点永远获取不到锁，怎么办？</span><br><span class="hljs-comment">#加过期时间，单独用expire加过期，也失败了。无法保证原子性，怎么办？多参数</span><br><span class="hljs-built_in">set</span> key value [expriation EX seconds|PX milliseconds][NX|XX]<br><span class="hljs-built_in">set</span> k1 v1 EX 10 NX                     <span class="hljs-comment">#使用参数的方式</span><br>incr qs                                <br>incrby qs 100                          <span class="hljs-comment">#(整数)值递增(值不存在会得到1)</span><br>decr qs<br>decrby qs 100                          <span class="hljs-comment">#(整数)值递减</span><br><span class="hljs-built_in">set</span> mf 2.6<br>incrbyfloat mf 7.3                     <span class="hljs-comment">#浮点数增量</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>存储实现原理</strong></p>
+<p><em>1.数据模型</em></p>
+<p>​    Redis是KV的数据库，Key-value一般会用哈希表来存储它。Redis的最外层是通过hashtable实现的（把这个叫做外层的哈希）。在redis里面。这个哈希表怎样实现呢？看一下C语言的源码（dict.h 47行），每一个键值对都是一个dictEntry（怪不得叫远程字典服务）,通过指针指向key的存储结构和value的存储结构，而且next 存储了指向下一个键值对的指针。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">dictEntry</span>&#123;</span><br>    <span class="hljs-type">void</span> *key; <span class="hljs-comment">//key关键字定义</span><br>    <span class="hljs-class"><span class="hljs-keyword">union</span> &#123;</span><br>        <span class="hljs-type">void</span> *val; <span class="hljs-comment">//value定义</span><br>        <span class="hljs-type">uint64_t</span> u64;<br>        <span class="hljs-type">int64_t</span> s64;<br>        <span class="hljs-type">double</span> d;<br>    &#125; v;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">dicEntry</span> *<span class="hljs-title">next</span>;</span> <span class="hljs-comment">//只向下一个键值对节点</span><br>&#125; dictEntry;<br></code></pre></td></tr></table></figure>
+
+<p>实际上最外层是redisDb，redisDb里面放的是dict。源码server.h 661行</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">redisDb</span>&#123;</span><br>    dict *dict; <span class="hljs-comment">//所有的键值对</span><br>    dict *expires; <span class="hljs-comment">//设置了过期时间的键值对</span><br>    dict *blocking_keys; <span class="hljs-comment">//Keys with clients waiting for data(BLOPOP)</span><br>    dict *ready_keys; <span class="hljs-comment">//Blocked keys that received a PUSH</span><br>    dict *watched_keys; <span class="hljs-comment">//WATCHED keys for MULTI/EXEC CAS</span><br>    <span class="hljs-type">int</span> id; <span class="hljs-comment">//Database ID</span><br>    <span class="hljs-type">long</span> <span class="hljs-type">long</span> avg_ttl; <span class="hljs-comment">//Average TTL, just for stats</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> expires_cursor; <span class="hljs-comment">//Cursor of the active expore cycle</span><br>    <span class="hljs-built_in">list</span> *defrag_later; <span class="hljs-comment">// List of key names to attempt to defrag one by one, gradully</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>以set hello world为例，因为key是字符串，Redis自己实现了一个字符串类型，叫做SDS，所以hello指向一个SDS的结构。</p>
+<p><img src="/image/redis/redis%E5%85%A5%E9%97%A8/1.png" srcset="/img/loading.gif" lazyload></p>
+<p>​    value是world，同样是一个字符串，当value存储一个字符串时，Redis并没有直接使用SDS存储，而是存储在redisObject中，实际上五种常用的数据类型的任何一种value，都是通过redisObject来存储的。最终redisObject再通过一个指针指向实际的数据结构，比如字符串或者其他。来看一下redisObject怎么定义的：redisObject：源码src/server.h 622行</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs C">typdef <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">redisObject</span>&#123;</span><br>    <span class="hljs-type">unsigned</span> type:<span class="hljs-number">4</span>; <span class="hljs-comment">//对象的类型，包括：OBJ_STRING,OBJ_LIST,OBJ_HASH,OBJ_SET,OBJ_ZSET</span><br>    <span class="hljs-type">unsigned</span> encoding:<span class="hljs-number">4</span>; <span class="hljs-comment">//具体的数据结构</span><br>    <span class="hljs-type">unsigned</span> lru:LRU_BITS; <span class="hljs-comment">//24位，对象最后一次被命令程序访问的时间，与内存回收有关</span><br>    <span class="hljs-type">int</span> refcount; <span class="hljs-comment">//引用计数，当refcount为0的时候，表示该对象已经不被任何对象引用，则可以进行回收</span><br>    <span class="hljs-type">void</span> *ptr; <span class="hljs-comment">//只向对象实际的数据结构</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>用type命令看到的类型就是type的内容。</p>
+<p>为什么一个value会有一种对外的类型，还有一种实际的编码呢？我们刚才说字符串会用SDS存储，那这个redisObject的value就会指向一个SDS：</p>
+<p><img src="/image/redis/redis%E5%85%A5%E9%97%A8/2.png" srcset="/img/loading.gif" lazyload></p>
+<p>2.内部编码</p>
+<p>用的String的命令，但是出现了三种不同的编码。这三种编码有什么区别？</p>
+<p>​    （1）int，存储8个字节的长整型（long， 2^63-1）</p>
+<p>​    （2）embstr，代表embstr格式的SDS，存储小于44个字节的字符串</p>
+<p>​    （3）raw，存储大于44个字节的字符串</p>
+<p><em>问题1，SDS是什么？</em></p>
+<p>Redis中字符串的实现，Simple Dynamic String简单动态字符串。源码：sds.h 47行</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-class"><span class="hljs-keyword">struct</span> _<span class="hljs-title">attribute_</span> ((_<span class="hljs-title">packed_</span>)) <span class="hljs-title">sdshdr8</span>&#123;</span><br>    <span class="hljs-type">uint8_t</span> len; <span class="hljs-comment">//当前字符数组的长度</span><br>    <span class="hljs-type">uint8_t</span> alloc; <span class="hljs-comment">//当前字符数组总共分配的内存大小</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> flags; <span class="hljs-comment">//当前字符数组的属性，用来标识到底是sdshdr8还是sdshdr16等</span><br>    <span class="hljs-type">char</span> buf[]; <span class="hljs-comment">//字符串真正的值</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>​    本质上其实还是字符数组。SDS又有多种结构（sds.h）：sdshdr5，sdshdr8，sdshdr32，sdshdr32，sdshdr64，用于存储不同长度的字符串，分贝代表2^5=32byte，2^8=256byte, 2^16=65536byte=64KB, 2^32byte=4GB。</p>
+<p><em>问题2：为什么Redis要用SDS是实现字符串？</em></p>
+<p>​    因为C语言本身没有字符串类型，只能用字符串数组char[]实现。</p>
+<p>​    （1）使用字符串数组必须先给目标变量分配足够的空间，否则可能会溢出</p>
+<p>​    （2）如果要获取字符长度，必须遍历字符数组，时间复杂度是O(n)</p>
+<p>​    （3）C字符长度的变更会对字符数组做内存重分配</p>
+<p>​    （4）通过从字符串开始到结尾碰到的第一个‘\0’来标记字符串的结束，因此不能保存图片，音频，视频，压缩文件等二进制（bytes）保存的内容，二进制不安全。</p>
+<p>SDS的特点：</p>
+<p>​    1.不用担心内存溢出问题，如果需要会对SDS进行扩容</p>
+<p>​    2.获取字符串长度时间复杂度为O(1)，因为定义了len属性</p>
+<p>​    3.通过“空间预分配”（sdsMakeRoonFor）和“惰性空间释放”，防止多次重分配内存</p>
+<p>​    4.判断是否结束的标志是len属性，可以包含‘\0‘（它同样以’\0’结尾是因为这样就可以使用C语言中函数库操作字符串的函数了）</p>
+<table>
+<thead>
+<tr>
+<th>C字符数组</th>
+<th>SDS</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>获取字符串长度的复杂度为O(N)</td>
+<td>获取字符串长度的复杂度为O(1)</td>
+</tr>
+<tr>
+<td>API是不安全的，可能会造成缓冲区溢出</td>
+<td>API是安全的，不会造成缓冲区溢出</td>
+</tr>
+<tr>
+<td>修改字符串长度N次必然需要执行N次内存重分配</td>
+<td>修改字符串长度N次最多需要执行N次内存重分配</td>
+</tr>
+<tr>
+<td>只能保存文本数据</td>
+<td>可以保存文本或者二进制数据</td>
+</tr>
+<tr>
+<td>可以使用所有&lt;string.h&gt;库中的函数</td>
+<td>可以使用一部分&lt;string.h&gt;库中的函数</td>
+</tr>
+</tbody></table>
+<p><em>问题3：embstr和raw编码的区别？为什么要为不同大小设计不同编码？</em></p>
+<p>​    embstr的使用值分配一次内存空间（因为RedisObject和SDS是连续的），而raw需要分配两次内存空间（分别为RedisObject和SDS分配空间）。embstr的好处在于创建时少分配一次空间，删除时少释放一次空间，以及对象的所有数据连在一起，寻找方便。</p>
+<p><img src="/image/redis/redis%E5%85%A5%E9%97%A8/3.png" srcset="/img/loading.gif" lazyload></p>
+<p>​    而embstr的坏处也很明显，如果字符串的长度增加需要重新分配内存时，整个RedisObject和SDS都需要重新分配空间，因此Redis中的embstr实现为只读（这种编码的内容是不能修改的）。</p>
+<p><em>问题4：int和embstr什么时候转化为raw？</em></p>
+<ol>
+<li><p>int数据不再是整数——raw</p>
+</li>
+<li><p>int大小超过了long的范围(2^63-1)——embstr</p>
+</li>
+<li><p>embstr长度超过了44个字节——raw</p>
+</li>
+</ol>
+<p><em>明明没有超过44个字节，为什么变成raw了？</em></p>
+<p>​    对于embstr，由于它的实现是只读的，因此在对embstr对象进行修改时，都会先转化为raw再进行修改。因此，只要是修改embstr对象，修改后的对象一定是raw的，无论是否达到了44个字节。</p>
+<p><em>问题5：当长度小于阈值时，会还原吗？</em></p>
+<p>​    关于Redis内部编码的转换，都符合一下规律：编码转换在Redis写入数据时完成，且转换过程不可逆转，只能从小内存编码向大内存编码转换。</p>
+<p><em>问题6：为什么要对底层的数据结构使用redisObject进行一层包装呢？</em></p>
+<p>​    其实无论是设计redisObject，还是对存储字符设计这么多的SDS，都是为了根据存储的不同内容选择不同的存储方式，这样可以实现尽量地节省内存空间和提升查询速度的目的。</p>
+<p><strong>应用场景</strong></p>
+<p><em>1.缓存</em></p>
+<p>​    String类型，缓存热点数据。例如明星出轨，网站首页，报表数据等等。可以显著提升热点数据的访问速度。</p>
+<p><em>2.分布式数据共享</em></p>
+<p>​    String类型，因为Redis是分布式的独立服务，可以在多个应用之间共享</p>
+<p><em>3.分布式锁</em></p>
+<p>​    String类型的setnx方法，只有不存在时才能添加成功，返回true。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> Boolean <span class="hljs-title function_">getLock</span><span class="hljs-params">(Object lockObject)</span>&#123;<br>    jedisUtil = getJedisConnection();<br>    <span class="hljs-type">boolean</span> <span class="hljs-variable">flag</span> <span class="hljs-operator">=</span> jedisUtil.setNx(lockObject, <span class="hljs-number">1</span>);<br>    <span class="hljs-keyword">if</span>(flag)&#123;<br>        expire(lockObject, <span class="hljs-number">10</span>);<br>    &#125;<br>    <span class="hljs-keyword">return</span> falg;<br>&#125;<br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">releaseLock</span><span class="hljs-params">(Object lockObject)</span>&#123;<br>    del(lockObject);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><em>4.全局ID</em></p>
+<p>​    INT类型，INCRBY，利用原子性（分库分表的场景，一次性拿一段）</p>
+<p><em>5.计数器</em></p>
+<p>INT类型，INCR方法。例如：文章的阅读量，微博点赞数，允许一定的延迟，先写入Redis再定时同步到数据库</p>
+<p><em>6. 限流</em></p>
+<p>INT类型，INCR方法。以访问者的IP和其他信息作为key，访问一次再增加一次计数，超过次数则返回false。</p>
+<h3 id="3-2-Hash哈希"><a href="#3-2-Hash哈希" class="headerlink" title="3.2 Hash哈希"></a>3.2 Hash哈希</h3><p><strong>存储类型</strong></p>
+<p>​    Hash用来存储多个无序的键值对。最大存储数量2^32-1（40亿左右）。</p>
+<p><img src="/image/redis/redis%E5%85%A5%E9%97%A8/4.png" srcset="/img/loading.gif" lazyload></p>
+<p>注意：前面说Redis所有的KV本身就是键值对，用dictEntry实现的，叫做外层的哈希，现在我们讲的是内层的哈希。</p>
+<p>注意：Hash的value只能是字符串，不能是嵌套其他类型，比如hash或者list。</p>
+<p>同样是存储字符串，Hash和String的主要区别?</p>
+<ol>
+<li><p>把所有相关的值聚集到一个key中，节省内存空间</p>
+</li>
+<li><p>只使用一个key，减少key中途</p>
+</li>
+<li><p>当需要批量获取值的时候，只需要使用一个命令，减少内存IO/CPU的消耗</p>
+</li>
+</ol>
+<p>Hash不适合的场景：</p>
+<ol>
+<li><p>Field不能单独设置过期时间</p>
+</li>
+<li><p>需要考虑数据量分布的问题（field非常多的时候，无法分布到多个节点）</p>
+</li>
+</ol>
+<p><strong>操作命令</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs sh">hset h1 f 6;<br>hset h1 e 5;<br>hmset h1 a 1 b 2 c 3 d 4;<br>hget h1 a;<br>hmget h1 a b c;<br>hkeys h1;<br>hvals h1;<br>hgetall h1;<br>hdel h1 a;<br>hlen h1;<br></code></pre></td></tr></table></figure>
+
+<p><strong>存储（实现）原理</strong></p>
+<p>​    Redis的Hash本身也是一个KV结构，内层哈希底层可以使用两种数据结构实现：</p>
+<p>​       （1）Ziplist: OBJ_ENCODING_ZIPLIST(压缩列表)</p>
+<p>​       （2）Hashtable：OBJ_ENCODING_HT(哈希表)</p>
+<p><em>1.ziplist压缩列表</em></p>
+<p>​    ziplist是一个经过特殊编码的，由连续内存块组成的双向链表。它不存储指向上一个链表节点和指向下一个链表节点的指针，而是存储上一个节点长度和当前节点长度，这样读写可能会慢一些，因为你要去算长度，但是可以节省内存，是一种时间换空间的思想。</p>
+<p>Ziplist的内部结构-源码ziplist.c第16行的注释：</p>
+<p><img src="/image/redis/redis%E5%85%A5%E9%97%A8/5.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">zlentry</span>&#123;</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> privrawlensize; <span class="hljs-comment">//存储上一个链表节点的长度数值所需要的字节数</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> prevrawlen; <span class="hljs-comment">//上一个链表节点占用的长度</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> lensize; <span class="hljs-comment">//存储当前链表节点长度数值所需要的字节数</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> len; <span class="hljs-comment">//当前链表节点占用的长度</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> headersize; <span class="hljs-comment">//当前链表节点的头部大小(privrawlensize + lensize)，即非数据域的大小</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> encoding; <span class="hljs-comment">//编码方式</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *p; <span class="hljs-comment">//压缩链表以字符串的形式保存，该指针指向当前节点起始位置</span><br>&#125; zlentry;<br></code></pre></td></tr></table></figure>
+
+<p><img src="/image/redis/redis%E5%85%A5%E9%97%A8/6.png" srcset="/img/loading.gif" lazyload></p>
+<p>编码类型：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-meta">#<span class="hljs-keyword">define</span> ZIP_STR_06B(0&lt;&lt;6) <span class="hljs-comment">//长度小于等于63字节</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> ZIP_STR_14B(1&lt;&lt;6) <span class="hljs-comment">//长度小于等于16383字节</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> ZIP_STR_32B(2&lt;&lt;6) <span class="hljs-comment">//长度小于等于4294967295字节</span></span><br></code></pre></td></tr></table></figure>
+
+<p><em>问题：什么时候使用ziplist存储？</em></p>
+<p>当哈希对象同时满足一下两个条件的时候，使用ziplist编码：</p>
+<p>1） 哈希对象保存的键值对数量&lt;512个</p>
+<p>2） 所有的键值对的键和值的字符串长度都&lt;64byte（一个英文字母一个字节）</p>
+<p>src/redis.conf配置</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs C">hash-max-ziplist-value <span class="hljs-number">64</span> <span class="hljs-comment">//ziplist中最大能存放的值长度</span><br>hash-max-ziplist-entries <span class="hljs-number">512</span> <span class="hljs-comment">//ziplist中最多能存放的entry节点数量</span><br></code></pre></td></tr></table></figure>
+
+<p>如果超过这两个阈值的任何一个，存储接后就会转换为hashtable。总结：字段个数少，字段值小，用ziplist。</p>
+<p><em>2.hashtable（dict）</em></p>
+<p>​    在redis中，hashtable被称为字典（dictionary）。前面我们知道了，Redis的KV结构是通过一个dictEntry来实现的。在hashtable中，又对dictEntry进行了多层的封装。源码位置Ldict.h 47行。首先有一个dictEntry：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">dictEntry</span>&#123;</span><br>    <span class="hljs-type">void</span> *key; <span class="hljs-comment">//关键字定义</span><br>    <span class="hljs-class"><span class="hljs-keyword">union</span> &#123;</span><br>        <span class="hljs-type">void</span> *val; <span class="hljs-comment">//value定义</span><br>        <span class="hljs-type">uint64_t</span> u64;<br>        <span class="hljs-type">int64_t</span> s64;<br>        <span class="hljs-type">double</span> d;<br>    &#125; v;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">dictEntry</span> *<span class="hljs-title">next</span>;</span> <span class="hljs-comment">//只向下一个键值对节点</span><br>&#125; dictEntry；<br></code></pre></td></tr></table></figure>
+
+<p>dictEntry放到了dictht（hashtable里面）：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">dictht</span>&#123;</span><br>    dictEntry **table; <span class="hljs-comment">//哈希表数组</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> size; <span class="hljs-comment">//哈希表大小</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> sizemask; <span class="hljs-comment">//掩码大小，用于计算索引值，总是等于size-1</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> used; <span class="hljs-comment">//已有节点数</span><br>&#125; dictht;<br></code></pre></td></tr></table></figure>
+
+<p>Ht放到了dict里面：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span>  &#123;</span><br>    dictType *type; <span class="hljs-comment">//字典类型</span><br>    <span class="hljs-type">void</span> *privdata; <span class="hljs-comment">//私有数据</span><br>    dictht ht[<span class="hljs-number">2</span>]; <span class="hljs-comment">//一个字典有两个哈希表</span><br>    <span class="hljs-type">long</span> rehashidx; <span class="hljs-comment">//rehash索引</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> iterators; <span class="hljs-comment">//当前正在使用的迭代器数量</span><br>&#125; dict;<br></code></pre></td></tr></table></figure>
+
+<p>从最底层到最高层dictEntry——dictht——dict。它是一个数组+链表的结构，展开一下，哈希的整体存储结构：</p>
+<p><img src="/image/redis/redis%E5%85%A5%E9%97%A8/7.png" srcset="/img/loading.gif" lazyload></p>
+<p>​    注意：dictht后面是null说明第二个ht还没有用到。DictEntry*后面是Null说明没有hash到这个地址。DictEntry后面是NULL说明没有发生哈希冲突。</p>
+<p><em>问题：为什么要定义两个哈希表，其中一个不同呢？</em></p>
+<p>Redis的哈希默认使用的是ht[0]，ht[1]不会初始化和分配空间。哈希表dictht是用链地址法来解决碰撞问题的。在这种情况下，哈希表的性能取决于它的大小（size属性）和它锁保存的节点的数量（used属性）之间的比率：</p>
+<p>*比率在1：1时（一个哈希表ht只储一个节点entry）哈希表的性能最好。</p>
+<p>*如果节点数量比哈希表的大小要大很多的话（这个比率用ratio表示，5标识平均一个ht存储5个entry），那么哈希表就会退化成多个链表，哈希表本身的性能优势就不再存在。</p>
+<p>如果单个哈希表的节点数量过多，哈希表的大小需要扩容。Redis里面的这种操作叫做rehash。步骤：</p>
+<ol>
+<li><p>为字符ht[1]哈希表分配空间，ht[1]的大小为第一个大于等于ht[0].used*2的2的N次方幂。比如已经使用了10000，那就是16384.</p>
+</li>
+<li><p>将所有的ht[0]上的节点rehash到ht[1]上，重新计算hash值和索引，然后放入指定的位置。</p>
+</li>
+<li><p>当ht[0]全部迁移到了ht[1]之后，释放ht[0]的空间，将ht[1]设置为ht[0]表，并创建新的ht[1]，为下次rehash做准备。</p>
+</li>
+</ol>
+<p><em>问题：什么时候触发扩容？</em></p>
+<p>负载因子（源码dict.c）</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-type">static</span> <span class="hljs-type">int</span> dict_can_resize = <span class="hljs-number">1</span>; <span class="hljs-comment">//是否需要扩容</span><br><span class="hljs-type">static</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> dict_force_resize_ratio = <span class="hljs-number">5</span>; <span class="hljs-comment">//扩容因子</span><br></code></pre></td></tr></table></figure>
+
+<p>总结一下，Redis的Hash类型，可以用ziplist和hashtables来实现。</p>
+<p><strong>应用场景</strong></p>
+<p><em>1. 跟String一样</em></p>
+<p>String可以做的事情。Hash都可以做</p>
+<p><em>2.存储对象类型的数据</em></p>
+<p>比如对象或者一张表的数据，比String节省了更多key的空间，也更加便于集中管理。</p>
+<h3 id="3-3-List列表"><a href="#3-3-List列表" class="headerlink" title="3.3 List列表"></a>3.3 List列表</h3><p><strong>存储类型</strong></p>
+<p>存储有序的字符串（从左到右），元素可以重复。最大存储数量2^32-1（40亿左右）。</p>
+<p><img src="/image/redis/redis%E5%85%A5%E9%97%A8/8.png" srcset="/img/loading.gif" lazyload></p>
+<p><strong>操作命令</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment">#元素增减</span><br>lpush queue a;<br>lpush queue b c;<br>rpush queue d e;<br>lpop queue;<br>rpop queue;<br><span class="hljs-comment">#取值</span><br>lindex queue 0;<br>lrange queue 0 -1;<br></code></pre></td></tr></table></figure>
+
+<p><img src="/image/redis/redis%E5%85%A5%E9%97%A8/9.png" srcset="/img/loading.gif" lazyload></p>
+<p><strong>存储（实现）原理</strong></p>
+<p>​    在早期的版本中，数据量较小时用ziplist存储（特殊编码的双向链表），达到临界值时转换为linkedlist进行存储，分别对应OBJ_ENCODING_ZIPLIST和OBJ_ENCODING_LINKEDLIST。3.2版本之后，统一用quicklist来存储。quicklist存储了一个双向链表，每个节点都是一个ziplist，所以是ziplist和linkedlist的结合体。</p>
+<p><strong>quicklist：</strong>总体结构：</p>
+<p><img src="/image/redis/redis%E5%85%A5%E9%97%A8/10.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">quicklist</span>&#123;</span><br>    quicklistNode *head; <span class="hljs-comment">//指向双向列表的表头</span><br>    quicklistNode *tail; <span class="hljs-comment">//指向双向列表的表尾</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> count; <span class="hljs-comment">//所有的ziplist中一共存了多少个元素</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> len; <span class="hljs-comment">//双向列表的长度，node的数量</span><br>    <span class="hljs-type">int</span> fill : QL_FILL_BITS; <span class="hljs-comment">//ziplist最大大小，对应list-max-ziplist-size</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> compress: QL_COMP_BITS; <span class="hljs-comment">//压缩深度，对应list-compress-depth</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> bookmark_count: QL_BM_BITS; <span class="hljs-comment">//4位，bookmarks数组的大小</span><br>    quicklistBookmark bookmarks[]; <span class="hljs-comment">//bookmarks是一个可选字段，quicklist重新分配内存空间时使用，不使用时不占用空间</span><br>&#125; quicklist；<br></code></pre></td></tr></table></figure>
+
+<p>redis.conf相关参数：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>list-max-ziplist-size (fill)</td>
+<td>正数表示单个ziplist最多所包含的entry个数<br />负数表示单个ziplist的大小，默认8K</td>
+</tr>
+<tr>
+<td>list-compress-depth (compress)</td>
+<td>压缩深度，默认为0。<br />1：首尾的ziplist不压缩；2：首尾第一第二个ziplist不压缩，以此类推</td>
+</tr>
+</tbody></table>
+<p>quicklist.h 46行：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">quicklistNode</span>&#123;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">quicklistNode</span> *<span class="hljs-title">pre</span>;</span> <span class="hljs-comment">//指向前一个节点</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">quicklistNode</span> *<span class="hljs-title">next</span>;</span> <span class="hljs-comment">//指向后一个节点</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *zl; <span class="hljs-comment">//指向实际的ziplist</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> sz; <span class="hljs-comment">//当前ziplist占用多少字节</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> count : <span class="hljs-number">16</span>; <span class="hljs-comment">//当前ziplist中存储了多少个元素，占16bit（下同），最大65536个</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> encoding : <span class="hljs-number">2</span>; <span class="hljs-comment">//是否采用了LZF压缩算法压缩节点，RAW == 1 or LZF == 2</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> container : <span class="hljs-number">2</span>; <span class="hljs-comment">//未来可能支持其他结构存储 NONE==1 or ziplist == 2</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> recompress : <span class="hljs-number">1</span>; <span class="hljs-comment">//当前ziplist是不是已经被解压出来作临时使用</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> attempted_compress: <span class="hljs-number">1</span>; <span class="hljs-comment">//测试用</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> extra : <span class="hljs-number">10</span>; <span class="hljs-comment">//预留给未来用</span><br>&#125; quicklistNode;<br></code></pre></td></tr></table></figure>
+
+<p><strong>应用场景</strong></p>
+<p>list主要用在存储有序内容的场景。</p>
+<p>​    <em>1.列表</em></p>
+<p>​    例如用户的消息列表，网站的公告列表，活动列表，博客的文章列表，评论列表等等。思路：存储所有字段，LRANGE取出一页，按顺序显示。</p>
+<p><em>2.队列/栈</em></p>
+<p>​    list还可以当作分布式环境的队列/栈使用。list提供了两个阻塞的弹出操作：BLPOP/BRPOP，可以设置超时时间（单位：秒）.</p>
+<p>​    BLPOP：BLPOP key 1 timeout移出并获取列表的第一个元素，如果列表没有元素会阻塞列表直到等待超时或发现可弹出元素为止。</p>
+<p>​    BRPOP：BRPOP key 1 timeout移出并获取列表的最后一个元素，如果列表没有元素会阻塞列表直到等待超时或发现可弹出元素为止。</p>
+<p><img src="/image/redis/redis%E5%85%A5%E9%97%A8/11.png" srcset="/img/loading.gif" lazyload></p>
+<p>​    队列：先进先出：rpush blpop，左头右尾，有便进入队列，左边出队列。</p>
+<p>​    栈：先进后出：rpush brpop</p>
+<p>​    总结一下：List存储有序的内容，用quicklist实现，本质上是数组——链表。Hashtable也是数组+链表，只是内部编码结构不一样。</p>
+<h3 id="3-4-Set集合"><a href="#3-4-Set集合" class="headerlink" title="3.4 Set集合"></a>3.4 Set集合</h3><p><strong>存储类型</strong></p>
+<p>Set存储String类型的无序集合，最大存储数量2^32-1（40亿左右）。</p>
+<p><img src="/image/redis/redis%E5%85%A5%E9%97%A8/12.png" srcset="/img/loading.gif" lazyload></p>
+<p><strong>操作命令</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs sh">sadd myset a b c d e f g  <span class="hljs-comment">#添加一个或者多个元素</span><br>smembers myset            <span class="hljs-comment">#获取多个元素</span><br>scard myset               <span class="hljs-comment">#统计元素个数</span><br>srandmember myset         <span class="hljs-comment">#随机获取一个元素</span><br>spop myset                <span class="hljs-comment">#随机弹出一个元素</span><br>srem myset d e f          <span class="hljs-comment">#移除一个或多个元素</span><br>sismember myset a         <span class="hljs-comment">#查看元素是否存在</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>存储（实现）原理</strong></p>
+<p>Redis用inset或hashtable存储set。如果元素都是整数类型，就用inset存储。inset.h 35行</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">intset</span>&#123;</span><br>    <span class="hljs-type">uint32_t</span> encoding; <span class="hljs-comment">//编码类型</span><br>    <span class="hljs-type">uint32_t</span> length; <span class="hljs-comment">//长度</span><br>    <span class="hljs-type">int8_t</span> contents[]; <span class="hljs-comment">//用来存储成员的动态数组</span><br>&#125; intset；<br></code></pre></td></tr></table></figure>
+
+<p>如果不是整数类型，就用hashtable（数组+链表的存储结构），如果元素超过512个，也会用hashtable存储，跟一个配置有关</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-attr">set-max-intset-entries</span> <span class="hljs-string">512</span><br></code></pre></td></tr></table></figure>
+
+<p>问题：set的key没有value，怎么用hashtable存储？value存null就好了。</p>
+<p><strong>应用场景</strong></p>
+<p>抽奖：随机获取元素：spop myset。点赞，签到，打卡。商品标签。商品筛选。用户关注，推荐模型</p>
+<h3 id="3-5-ZSet有序集合"><a href="#3-5-ZSet有序集合" class="headerlink" title="3.5 ZSet有序集合"></a>3.5 ZSet有序集合</h3><p><strong>存储类型</strong></p>
+<p>sorted set存储有序的元素。每个元素有个score，按照score从小到大排名。score相同时，按照key的ASCII码排序。</p>
+<p><img src="/image/redis/redis%E5%85%A5%E9%97%A8/13.png" srcset="/img/loading.gif" lazyload></p>
+<table>
+<thead>
+<tr>
+<th>数据结构</th>
+<th>是否允许存在重复元素</th>
+<th>是否有序</th>
+<th>与有序实现方式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>列表list</td>
+<td>是</td>
+<td>是</td>
+<td>索引下标</td>
+</tr>
+<tr>
+<td>集合set</td>
+<td>否</td>
+<td>否</td>
+<td>无</td>
+</tr>
+<tr>
+<td>有序集合zset</td>
+<td>否</td>
+<td>否</td>
+<td>分值score</td>
+</tr>
+</tbody></table>
+<p><strong>操作命令</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs sh">zadd myzset 10 java 20 php 30 ruby 40 cpp 50 python <span class="hljs-comment">#添加元素</span><br>zrange myzset 0 -1 withscores                       <br>zrevrange myzset 0 -1 withscores                     <span class="hljs-comment">#获取全部元素</span><br>zrangebyscore myzset 20 30                           <span class="hljs-comment">#根据分值区间获取元素</span><br>zrem myzset php cpp                                  <span class="hljs-comment">#移除元素，亦可以根据score rank删除</span><br>zcard myzset                                         <span class="hljs-comment">#统计元素个数</span><br>zincrby myzset 5 python                              <span class="hljs-comment">#分值递增</span><br>zcount myzset 20 60                                  <span class="hljs-comment">#根据分值统计个数</span><br>zrank myzset python                                  <span class="hljs-comment">#获取元素rank</span><br>zscore myzset python                                 <span class="hljs-comment">#获取元素score</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>存储（实现）原理</strong></p>
+<p>​    默认使用ziplist编码（第三次见到了，hash的小编码，quicklist的Node，都是ziplist）。在ziplist内部，按照score排序递增来存储，插入的时候要移动之后的数据。如果元素数量大于等于128个，或者任一member长度大于等于64字节使用skiplist+dict存储。</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-attr">zset-max-ziplist-entries</span> <span class="hljs-string">128</span><br><span class="hljs-attr">zset-max-ziplist-value</span> <span class="hljs-string">64</span><br></code></pre></td></tr></table></figure>
+
+<p>​    <em>什么是skiplist（跳表）？</em></p>
+<p>​    我们先来看一下有序链表：</p>
+<p><img src="/image/redis/redis%E5%85%A5%E9%97%A8/14.png" srcset="/img/loading.gif" lazyload></p>
+<p>​    在这样一个链表中，如果我们要查找某个数据，那么需要从头开始逐个进行比较，直到找到包含数据的那个节点，或者找到第一个比给定数据大的节点为止。时间复杂度为O(n)。同样，当我们要插入新数据的时候，也要经历同样的查找过程，从而确定插入位置。二分查找只适用于有序数组，不适用于链表。</p>
+<p>​    假如我们每相邻两个节点增加一个指针，让指针指向下个节点（或者理解为有三个元素进入了第二层）。</p>
+<p><img src="/image/redis/redis%E5%85%A5%E9%97%A8/15.png" srcset="/img/loading.gif" lazyload></p>
+<p>​    这样所有新增加的指针连成了一个新的链表，但它包含的节点个数只有原来的一般（上图中是7，19，26）</p>
+<p>​    问题：是哪些元素运气这么好，进入到第二层？在插入一个数据的时候，决定要放到哪一层，取决于一个算法，源码：t_zset.c 122行</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-type">int</span> <span class="hljs-title function_">zslRandomLevel</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>&#123;<br>    <span class="hljs-type">int</span> level = <span class="hljs-number">1</span>;<br>    <span class="hljs-keyword">while</span>((random()&amp;<span class="hljs-number">0xFFFF</span>) &lt; (ZSKIPLIST_P*<span class="hljs-number">0xFFFF</span>))<br>        level += <span class="hljs-number">1</span>;<br>    <span class="hljs-keyword">return</span> (level&lt;ZSKIPLIST_MAXLEVEL)?level:ZSKIPLIST_MAXLEVEL;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>现在当我们想查找数据的时候，可以先沿着这个新链表进行查找。当碰到比待查数据大的节点时，再到下一层进行查找。</p>
+<p><img src="/image/redis/redis%E5%85%A5%E9%97%A8/16.png" srcset="/img/loading.gif" lazyload></p>
+<p>​    比如，我们想查找23，查找的路径是沿着标红的指针所指向的方向进行的：</p>
+<p>​    1.23首先和7比较，再和19比较，比它们都大，继续向后比较。</p>
+<p>​    2.但23和26比较的时候，比26要小，因此回到下面的链表（原链表），与19在第一层的下一个节点22比较。</p>
+<p>​    3.23比22要大，沿下面的指针继续向后和26比较。23比26小，说明待查数据23在原链表中不存在。</p>
+<p>​    在这个查找过程中，由于新增加的指针，我们不再需要与链表中每个节点逐个进行比较了。需要比较节点数大概只有原来的一般。这就是跳表。为什么不用AVL树或者红黑树？因为skiplist更加简洁。因为level是随机的，得到的skiplist可能是这样的，有些在第四层，有些在第三层，有些在第二层，有些在第一层。</p>
+<p><img src="/image/redis/redis%E5%85%A5%E9%97%A8/17.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">zskiplistNode</span>&#123;</span><br>    sds ele;<br>    <span class="hljs-type">double</span> score;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">zskiplistNode</span> *<span class="hljs-title">backward</span>;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">zskiplistLevel</span>&#123;</span><br>        <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">zskiplistNode</span> *<span class="hljs-title">forward</span>;</span><br>        <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> span;<br>    &#125; level[];<br>&#125; zskiplistNode;<br><br><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">zskiplist</span>&#123;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">zskiplistNode</span> *<span class="hljs-title">header</span>, *<span class="hljs-title">tail</span>;</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> length;<br>    <span class="hljs-type">int</span> level;<br>&#125; zskiplist;<br><br>typdef <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">zset</span>&#123;</span><br>    dict *dict;<br>    zskiplist *zsl;<br>&#125; zset;<br></code></pre></td></tr></table></figure>
+
+<p><strong>应用场景</strong></p>
+<p>顺序会动态变化的列表, 比如：排行榜</p>
+<h3 id="3-6-其他数据结构简介"><a href="#3-6-其他数据结构简介" class="headerlink" title="3.6 其他数据结构简介"></a>3.6 其他数据结构简介</h3><h4 id="3-6-1-BitMaps"><a href="#3-6-1-BitMaps" class="headerlink" title="3.6.1 BitMaps"></a>3.6.1 BitMaps</h4><p>bitMaps是在字符串类型上面定义的位操作。一个字节由8个二进制位组成。</p>
+<p><img src="/image/redis/redis%E5%85%A5%E9%97%A8/18.png" srcset="/img/loading.gif" lazyload></p>
+<p>set k1 a</p>
+<p>​    获取value在offset处的值（a对应的ASCII码是97，转换为二进制数据是01100001）</p>
+<p>​    getbit k1 0</p>
+<p>​    修改二进制数据</p>
+<p>​    setbit k1 6 1</p>
+<p>​    setbit k1 7 0</p>
+<p>​    get k1</p>
+<p>​    <em>问题：怎么变成b了？（b对应的ASCII码是98，二进制数是01100010）</em></p>
+<p>​    统计二进制位中1的个数</p>
+<p>​    bitcount k1</p>
+<p>​    获取第一个1或者0的位置</p>
+<p>​    bitpos k1 1</p>
+<p>​    bitpos k1 0</p>
+<p>​    因为bit非常节省空间（1MB=8388608bit），可以用来做大数据量的统计。</p>
+<p>​    应用场景：用户访问统计， 在线用户统计</p>
+<h4 id="3-6-2-Hyperloglogs"><a href="#3-6-2-Hyperloglogs" class="headerlink" title="3.6.2 Hyperloglogs"></a>3.6.2 Hyperloglogs</h4><p>​    Hyperloglogs：提供了一种不太精确的基数统计方法，用来统计以集合中不重复的元素个数，比如统计网站的UV，或者应用的日活，月活，存在一定的误差。在redis中实现HyperLogLog，只需要12K内存就能统计2^54个数据。</p>
+<h4 id="3-6-3-Geo"><a href="#3-6-3-Geo" class="headerlink" title="3.6.3 Geo"></a>3.6.3 Geo</h4><p>​    消费金融，给客户使用的客户端有这么一个需求，要获取半径1公里以内的门店，那么我们就要把门店的经纬度保存起来。那个时候我们是直接把经纬度保存到数据库的，一个字段存经度一个字段存维度。计算距离比较复杂。Redis的GEO直接提供了这个方法。</p>
+<p>操作：增加地址位置信息，获取地址位置信息，计算两个位置的距离，获取指定范围内的地理位置集合等等。</p>
+<h4 id="3-6-4-Streams"><a href="#3-6-4-Streams" class="headerlink" title="3.6.4 Streams"></a>3.6.4 Streams</h4><p>5.0推出的数据类型。支持多播的可持久化的消息队列，用于实现发布订阅功能，借鉴了kafka的设计。</p>
+<h3 id="3-7-总结"><a href="#3-7-总结" class="headerlink" title="3.7 总结"></a>3.7 总结</h3><table>
+<thead>
+<tr>
+<th>对象</th>
+<th>对象type属性值</th>
+<th>type命令输出</th>
+<th>object_encoding</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>字符串对象</td>
+<td>OBJ_STRING</td>
+<td>string</td>
+<td>int  embstr  raw</td>
+</tr>
+<tr>
+<td>列表对象</td>
+<td>OBJ_LIST</td>
+<td>list</td>
+<td>quicklist</td>
+</tr>
+<tr>
+<td>哈希对象</td>
+<td>OBJ_HASH</td>
+<td>hash</td>
+<td>ziplist   hashtable</td>
+</tr>
+<tr>
+<td>集合对象</td>
+<td>OBJ_SET</td>
+<td>set</td>
+<td>intset   hashtable</td>
+</tr>
+<tr>
+<td>有序集合对象</td>
+<td>OBJ_ZSET</td>
+<td>zset</td>
+<td>ziplist  skiplist+hashtable</td>
+</tr>
+</tbody></table>
+<p><strong>应用场景总结</strong></p>
+<p>​    缓存——提升热点数据库的访问速度</p>
+<p>​    共享数据——数据的存储和共享的问题</p>
+<p>​    全局ID——分布式全局ID的生成方案（分库分表）</p>
+<p>​    分布式锁——进程间共享数据的原子操作保证</p>
+<p>​    在线用户统计和计数</p>
+<p>​    队列，栈——跨进程的队列/栈</p>
+<p>​    消息队列——异步解耦的消息队列</p>
+<p>   服务注册与发现——RPC通信机制的服务协调中心（Dubbo支持Redis）</p>
+<p>​    购物车</p>
+<p>​    新浪/Twitter 用户消息时间线</p>
+<p>​    抽奖逻辑（礼物，转发）</p>
+<p>​    点赞，打卡，签到</p>
+<p>​    商品标签</p>
+<p>​    用户（商品）关注（推荐）模型</p>
+<p>​    电商产品筛选</p>
+<p>​    排行榜</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/" class="category-chain-item">中间件</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/Redis/" class="category-chain-item">Redis</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/redis/">#redis</a>
+      
+        <a href="/tags/%E7%BC%93%E5%AD%98/">#缓存</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Redis入门</div>
+      <div>http://www.zivjie.cn/2023/03/04/中间件/redis/Redis入门/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Francis</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年3月4日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/03/04/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E5%88%86%E5%B8%83%E5%BC%8F/" title="Redis分布式">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Redis分布式</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/03/04/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85%E6%A8%A1%E5%BC%8F/" title="Redis发布订阅模式">
+                        <span class="hidden-mobile">Redis发布订阅模式</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

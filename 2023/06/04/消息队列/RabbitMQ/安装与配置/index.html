@@ -1,0 +1,767 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Francis">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="官网：http:&#x2F;&#x2F;www.rabbitmq.com&#x2F;getstarted.html 1 安装与配置由于RabbitMQ是用Erlang语言编写的，必须要先安装Erlang环境。 Erlang和RabbitMQ版本有对应关系：https:&#x2F;&#x2F;www.rabbitmq.com&#x2F;which-erlang.html 1.1 window 下载安装Erlang 23.1：https:&#x2F;&#x2F;www.erlan">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RabbitMQ基本介绍">
+<meta property="og:url" content="http://www.zivjie.cn/2023/06/04/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/RabbitMQ/%E5%AE%89%E8%A3%85%E4%B8%8E%E9%85%8D%E7%BD%AE/index.html">
+<meta property="og:site_name" content="Francis-Blog">
+<meta property="og:description" content="官网：http:&#x2F;&#x2F;www.rabbitmq.com&#x2F;getstarted.html 1 安装与配置由于RabbitMQ是用Erlang语言编写的，必须要先安装Erlang环境。 Erlang和RabbitMQ版本有对应关系：https:&#x2F;&#x2F;www.rabbitmq.com&#x2F;which-erlang.html 1.1 window 下载安装Erlang 23.1：https:&#x2F;&#x2F;www.erlan">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.zivjie.cn/img/Eternal%20Light%20by.png">
+<meta property="article:published_time" content="2023-06-04T05:37:21.000Z">
+<meta property="article:modified_time" content="2024-01-02T01:45:25.048Z">
+<meta property="article:author" content="Francis">
+<meta property="article:tag" content="消息队列">
+<meta property="article:tag" content="RabbitMQ">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://www.zivjie.cn/img/Eternal%20Light%20by.png">
+  
+  
+  
+  <title>RabbitMQ基本介绍 - Francis-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.zivjie.cn","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Francis</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="RabbitMQ基本介绍"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-06-04 13:37" pubdate>
+          2023年6月4日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          39 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">RabbitMQ基本介绍</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>官网：<a target="_blank" rel="noopener" href="http://www.rabbitmq.com/getstarted.html">http://www.rabbitmq.com/getstarted.html</a></p>
+<h2 id="1-安装与配置"><a href="#1-安装与配置" class="headerlink" title="1 安装与配置"></a>1 安装与配置</h2><p>由于RabbitMQ是用Erlang语言编写的，必须要先安装Erlang环境。</p>
+<p>Erlang和RabbitMQ版本有对应关系：<a target="_blank" rel="noopener" href="https://www.rabbitmq.com/which-erlang.html">https://www.rabbitmq.com/which-erlang.html</a></p>
+<h3 id="1-1-window"><a href="#1-1-window" class="headerlink" title="1.1 window"></a>1.1 window</h3><ol>
+<li>下载安装Erlang 23.1：<a target="_blank" rel="noopener" href="https://www.erlang.org/downloads/23.1%EF%BC%8Cexe%E4%B8%80%E8%B7%AFnext%E5%B0%B1%E5%8F%AF%E4%BB%A5">https://www.erlang.org/downloads/23.1，exe一路next就可以</a></li>
+<li>配置Erlang环境变量</li>
+<li>下载安装RabbitMQ 3.8.9：<a target="_blank" rel="noopener" href="http://www.rabbitmq.com/install-windows.html">http://www.rabbitmq.com/install-windows.html</a></li>
+<li>配置RabbitMQ环境变量</li>
+<li>启用RabbitMQ管理插件：</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># 启动管理界面插件</span><br><span class="hljs-string">&quot;C:\Program Files\RabbitMQ Server\rabbitmq_server-3.8.9\sbin\rabbitmq-plugins.bat&quot;</span> <span class="hljs-built_in">enable</span> rabbitmq_management<br></code></pre></td></tr></table></figure>
+
+<ol start="6">
+<li>启动RabbitMQ</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">net start RabbitMQ<br></code></pre></td></tr></table></figure>
+
+<ol start="7">
+<li>关闭RabbitMQ</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">net stop RabbitMQ<br></code></pre></td></tr></table></figure>
+
+<p>访问管理界面：<a target="_blank" rel="noopener" href="http://localhost:15672/">http://localhost:15672/</a><br>默认用户名：guest<br>默认密码为：guest</p>
+<h3 id="1-2-linux"><a href="#1-2-linux" class="headerlink" title="1.2 linux"></a>1.2 linux</h3><ol>
+<li>安装Erlang 21.3</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># 安装环境</span><br>yum -y install gcc glibc-devel make ncurses-devel openssl-devel xmlto perl wget<br><br><span class="hljs-comment"># 安装Erlang</span><br>wget http://erlang.org/download/otp_src_21.3.tar.gz<br>tar -xvf otp_src_21.3.tar.gz<br><span class="hljs-built_in">cd</span> otp_src_21.3<br>./configure --prefix=/usr/local/erlang<br><br><span class="hljs-comment"># 配置Erlang环境变量</span><br>vim /etc/profile<br><span class="hljs-comment"># 加入</span><br><span class="hljs-built_in">export</span> PATH=<span class="hljs-variable">$PATH</span>:/usr/local/erlang/bin<br><span class="hljs-built_in">source</span> /etc/profile<br></code></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>安装RabbitMQ 3.8.4</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># 安装</span><br>wget https://dl.bintray.com/rabbitmq/all/rabbitmq-server/3.8.4/rabbitmq-server-generic-unix-3.8.4.tar.xz<br>xz -d rabbitmq-server-generic-unix-3.8.4.tar.xz<br>tar -xvf rabbitmq-server-generic-unix-3.8.4.tar <br><br><span class="hljs-comment"># 配置环境变量</span><br>vim /etc/profile<br><span class="hljs-comment"># 加入</span><br><span class="hljs-built_in">export</span> PATH=<span class="hljs-variable">$PATH</span>:/usr/local/rabbitmq_server-3.8.4/sbin<br><span class="hljs-built_in">source</span> /etc/profile<br></code></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>启动RabbitMQ</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># 后台启动rabbitmq服务</span><br><span class="hljs-built_in">cd</span> /usr/local/soft/rabbitmq_server-3.8.4/sbin<br>./rabbitmq-server -detached<br><br>./rabbitmq-server start<br><br>service rabbitmq-server start<br></code></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>添加新用户</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sh">./rabbitmqctl add_user admin admin<br>./rabbitmqctl set_user_tags admin administrator<br>./rabbitmqctl set_permissions -p / admin <span class="hljs-string">&quot;.*&quot;</span> <span class="hljs-string">&quot;.*&quot;</span> <span class="hljs-string">&quot;.*&quot;</span><br></code></pre></td></tr></table></figure>
+
+<ol start="5">
+<li>启用管理插件</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">./rabbitmq-plugins <span class="hljs-built_in">enable</span> rabbitmq_management<br></code></pre></td></tr></table></figure>
+
+<ol start="6">
+<li>访问：http://虚拟机IP:15672</li>
+</ol>
+<h2 id="2-核心概念"><a href="#2-核心概念" class="headerlink" title="2 核心概念"></a>2 核心概念</h2><p><img src="/image/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/RabbitMQ/1.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="2-1-Producer"><a href="#2-1-Producer" class="headerlink" title="2.1 Producer"></a>2.1 Producer</h3><p>生产者，就是投递消息的一方。生产者创建消息，然后发布到 RabbitMQ 中。</p>
+<p>消息一般可以包含两个部分：消息体和附加信息。</p>
+<ol>
+<li>消息体（payload） 在实际应用中，消息体一般是一个带有业务逻辑结构的数据，比如一个JSON字符串。当然可以进 一步对这个消息体进行序列化操作。</li>
+<li>附加信息 用来表述这条消息，比如目标交换器的名称、路由键和一些自定义属性等等。</li>
+</ol>
+<h3 id="2-2-Broker"><a href="#2-2-Broker" class="headerlink" title="2.2 Broker"></a>2.2 Broker</h3><p>消息中间件的服务节点 。对于RabbitMQ来说， 一个RabbitMQ Broker可以简单地看作一个RabbitMQ服务节点，或者 RabbitMQ服务实例。也可以将一个RabbitMQ Broker看作一台 RabbitMQ服务器。</p>
+<h3 id="2-3-Connection"><a href="#2-3-Connection" class="headerlink" title="2.3 Connection"></a>2.3 Connection</h3><p>无论是生产者发送消息，还是消费者接收消息，都必须要跟Broker之间建立一个连接，这个连接是一个TCP的长连接。</p>
+<h3 id="2-4-Channel"><a href="#2-4-Channel" class="headerlink" title="2.4 Channel"></a>2.4 Channel</h3><p>频道或信道，是建立在Connection连接之上的一种轻量级的连接。</p>
+<p>大部分的操作是在Channel这个接口中完成的，包括定义队列的声明queueDeclare、交换机的声明 exchangeDeclare、队列的绑定queueBind、发布消息basicPublish、消费消息basicConsume等。</p>
+<p>如果把Connection比作一条光纤电缆的话，那么Channel信道就比作成光纤电缆中的其中一束光纤。一个 Connection上可以创建任意数量的Channel。</p>
+<h3 id="2-5-Queue"><a href="#2-5-Queue" class="headerlink" title="2.5 Queue"></a>2.5 Queue</h3><p>队列，是RabbitMQ的内部对象，用于存储消息。</p>
+<h3 id="2-6-Consumer"><a href="#2-6-Consumer" class="headerlink" title="2.6 Consumer"></a>2.6 Consumer</h3><p>消费者消费消息有两种模式：</p>
+<p>​    一种是Pull模式，对应的方法是basicGet。消息存放在服务端，只有消费者主动获取才能拿到消息。如果每个一段时间获取一次消息，消息的实时性会降低。但是好处是可以根据自己的消费能力决定获取消息的频率。</p>
+<p>​    另一种是Push模式，对应的方法是basicConsume，只要生产者发消息到服务器，就马上推送给消费者，消息保存在客户端，实时性很高，如果消费不过来可能会造成消息积压。Spring AMQP是push方式，通过事件机制对队列进行监听，只要有消息到队列，就会触发消费消息的方法。</p>
+<p>​    RabbitMQ中pull和push都有实现。kafka和RocketMQ只有pull。</p>
+<p>​    由于队列FIFO的特性，只有确定前一条消息被消费者接收之后，Broker才会把这条消息从数据库删除，继续投递下一条消息。</p>
+<p>​    一个消费者是可以监听多个队列的，一个队列也可以被多个消费者监听。但是在生产环境中，一般建议一个消费者只处理一个队列的雄安锡。如果需要提升处理消息的能力，可以增加多个消费者。这个时候消息会在多个消费者之间轮询。</p>
+<h3 id="2-7-Exchange"><a href="#2-7-Exchange" class="headerlink" title="2.7 Exchange"></a>2.7 Exchange</h3><p>交换器，生产者将消息发送到 Exchange (交换器，通常也可以用大写的“X”来表示)， 由交换器将消息路由到一个或者多个队列中。如果路由不到，或返回给生产者，或直接丢弃。</p>
+<p><a target="_blank" rel="noopener" href="http://tryrabbitmq.com/">http://tryrabbitmq.com/</a></p>
+<p>RabbitMQ中一共有四种类型的交换机，Direct、Topic、Fanout、Headers。其中Headers不常用。交换机的类型可以在创建的时候指定，网页或者代码中。</p>
+<h4 id="2-7-1-Direct-直连"><a href="#2-7-1-Direct-直连" class="headerlink" title="2.7.1 Direct-直连"></a>2.7.1 Direct-直连</h4><p>一个队列与直连类型的交换机绑定，需指定一个明确的绑定键（binding key）。生产者发送给消息时会携带一个路由键（routing key）。当消息的路由键与某个队列的绑定键完全匹配时，这条消息才会从交换机路由到这个队列上。多个队列也可以使用相同的绑定键。</p>
+<p><img src="/image/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/RabbitMQ/2.png" srcset="/img/loading.gif" lazyload></p>
+<p>直连类型的交换机，适用于一些业务用途明确的消息。比如HR系统中销售系统之间通信，传输时销售系统专用的消息，就可以建一个直连类型的交换机，使用明确的绑定键。</p>
+<h4 id="2-7-2-Topic-主题"><a href="#2-7-2-Topic-主题" class="headerlink" title="2.7.2 Topic-主题"></a>2.7.2 Topic-主题</h4><p>一个队列与主题类型的交换机绑定时，可以在绑定键中使用通配符。支持两个通配符：</p>
+<p>#代表0个或者多个单词</p>
+<p>*代表只有一个单词</p>
+<p>单词（word）指的是用英文的点“.”隔开的字符。例如a.bc.def是3个单词。</p>
+<p><img src="/image/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/RabbitMQ/3.png" srcset="/img/loading.gif" lazyload></p>
+<p>主题路由的交换机适用于一些根据业务主题或者消息等级过滤消息的场景，比如说一条消息可能既跟资金有关，又跟风控有关，那就可以让这个消息指定一个多级的路由键。第一个单词代表和资金有关，第二个单词代表和风控有关。下游的业务系统的队列就可以使用不同的绑定键去接收消息了。</p>
+<h4 id="2-7-3-Fanout-广播"><a href="#2-7-3-Fanout-广播" class="headerlink" title="2.7.3 Fanout-广播"></a>2.7.3 Fanout-广播</h4><p>广播类型的交换机与队列绑定时，不需要指定绑定键。因此生产者发送消息到广播类型交换机上，也不需要携带路由键。消息到达交换机时，所有与之绑定了的队列，都会收到相同消息的副本。</p>
+<p>广播类型的消息适用于一些通用的业务消息。比如产品系统产品数据变化的消息，是所有的系统都会用到的，就可以创建一个广播类型的交换机，大家自己建队列就绑定就ok了。</p>
+<h4 id="2-7-4-headers-头交换机-不常用"><a href="#2-7-4-headers-头交换机-不常用" class="headerlink" title="2.7.4 headers-头交换机(不常用)"></a>2.7.4 headers-头交换机(不常用)</h4><p>不依赖于路由键的匹配规则来路由消息，而是根据发送的消息内容中的 headers 属性进行匹配。headers 类型的交换器性能很差，而且也不实用。</p>
+<h3 id="2-8-Vhost"><a href="#2-8-Vhost" class="headerlink" title="2.8 Vhost"></a>2.8 Vhost</h3><p>虚拟主机，表示一批交换器、消息队列和相关对象。 虚拟主机是共享相同的身份认证和加密环境的独立服务器域。每个 vhost 本质上就是一个 mini 版的 RabbitMQ 服务器，拥有自己的队列、交换器、绑定和权限机制。 vhost 是 AMQP 概念的基础，必须在连接时指定，RabbitMQ 默认的vhost是 / 。Vhost除了可以提高硬件资源的利用率之外，还可以实现资源的隔离和权限的控制。</p>
+<h3 id="2-9-RoutingKey"><a href="#2-9-RoutingKey" class="headerlink" title="2.9 RoutingKey"></a>2.9 RoutingKey</h3><p>路由键。生产者将消息发给交换器的时候，一般会指定一个 RoutingKey，用来指定这个消息的路由规则。</p>
+<p>RoutingKey需要与交换器类型和绑定键 (BindingKey) 联合使用 在交换器类型和绑定键 (BindingKey) 固定的情况下，生产者可以在发送消息给交换器时，通过指定 RoutingKey 来决定消息流向哪里。</p>
+<h3 id="2-10-Binding"><a href="#2-10-Binding" class="headerlink" title="2.10 Binding"></a>2.10 Binding</h3><p>绑定，RabbitMQ 中通过绑定将交换器与队列关联起来，在绑定的时候一般会指定一个绑定键 ( BindingKey ) ，这样 RabbitMQ 就知道如何正确地将消息路由到队列了。</p>
+<h2 id="3-工作流程"><a href="#3-工作流程" class="headerlink" title="3 工作流程"></a>3 工作流程</h2><p><img src="/image/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/RabbitMQ/4.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="3-1-生产者发送消息的过程"><a href="#3-1-生产者发送消息的过程" class="headerlink" title="3.1 生产者发送消息的过程"></a>3.1 生产者发送消息的过程</h3><ol>
+<li>生产者连接到 RabbitMQ Broker，建立一个连接( Connection) ，开启一个信道 (Channel)</li>
+<li>生产者声明一个交换器 ，并设置相关属性，比如交换机类型、是否持久化等</li>
+<li>生产者声明一个队列井设置相关属性，比如是否排他、是否持久化、是否自动删除等</li>
+<li>生产者通过路由键将交换器和队列绑定起来</li>
+<li>生产者发送消息至RabbitMQ Broker，其中包含路由键、交换器等信息</li>
+<li>相应的交换器根据接收到的路由键查找相匹配的队列</li>
+<li>如果找到，则将从生产者发送过来的消息存入相应的队列中</li>
+<li>如果没有找到，则根据生产者配置的属性选择丢弃还是回退给生产者</li>
+<li>关闭信道、关闭连接</li>
+</ol>
+<h3 id="3-2-消费者接收消息的过程"><a href="#3-2-消费者接收消息的过程" class="headerlink" title="3.2 消费者接收消息的过程"></a>3.2 消费者接收消息的过程</h3><ol>
+<li>生产者连接到RabbitMQ Broker，建立一个连接( Connection) ，开启一个信道 (Channel)</li>
+<li>消费者向RabbitMQ Broker 请求消费相应队列中的消息，可能会设置相应的回调函数，以及做一些准备工作</li>
+<li>等待RabbitMQ Broker 回应并投递相应队列中的消息， 消费者接收消息</li>
+<li>消费者确认 (ack) 接收到的消息</li>
+<li>RabbitMQ 从队列中删除相应己经被确认的消息</li>
+<li>关闭信道、关闭连接</li>
+</ol>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" class="category-chain-item">消息队列</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/RabbitMQ/" class="category-chain-item">RabbitMQ</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/">#消息队列</a>
+      
+        <a href="/tags/RabbitMQ/">#RabbitMQ</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>RabbitMQ基本介绍</div>
+      <div>http://www.zivjie.cn/2023/06/04/消息队列/RabbitMQ/安装与配置/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Francis</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年6月4日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/06/04/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/Kafka/kafka%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90%E4%BB%A5%E5%8F%8A%E7%89%B9%E6%80%A7%E6%80%BB%E7%BB%93/" title="Kafka原理分析以及特性总结">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Kafka原理分析以及特性总结</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/06/03/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/Kafka/kafka%E4%BD%BF%E7%94%A8/" title="Kafka使用">
+                        <span class="hidden-mobile">Kafka使用</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

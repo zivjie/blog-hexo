@@ -222,23 +222,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/02/27/spring%E6%A1%86%E6%9E%B6/springcloud/nacos/nacos%E5%AE%89%E8%A3%85%E4%B8%8E%E9%85%8D%E7%BD%AE/" target="_self">
-          <img src="/img/Kitchen%20Open%20Late.png" srcset="/img/loading.gif" lazyload alt="nacos安装与配置">
+        <a href="/2023/03/12/java%E5%9F%BA%E7%A1%80/%E5%A4%9A%E7%BA%BF%E7%A8%8B/ConcurrentHashMap/" target="_self">
+          <img src="/img/LUNA.png" srcset="/img/loading.gif" lazyload alt="ConcurrentHashMap">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/02/27/spring%E6%A1%86%E6%9E%B6/springcloud/nacos/nacos%E5%AE%89%E8%A3%85%E4%B8%8E%E9%85%8D%E7%BD%AE/" target="_self">
-          nacos安装与配置
+        <a href="/2023/03/12/java%E5%9F%BA%E7%A1%80/%E5%A4%9A%E7%BA%BF%E7%A8%8B/ConcurrentHashMap/" target="_self">
+          ConcurrentHashMap
         </a>
       </h1>
 
       
-      <a class="index-excerpt " href="/2023/02/27/spring%E6%A1%86%E6%9E%B6/springcloud/nacos/nacos%E5%AE%89%E8%A3%85%E4%B8%8E%E9%85%8D%E7%BD%AE/" target="_self">
+      <a class="index-excerpt " href="/2023/03/12/java%E5%9F%BA%E7%A1%80/%E5%A4%9A%E7%BA%BF%E7%A8%8B/ConcurrentHashMap/" target="_self">
         <div>
-          Nacos版本：2.0.4   nacos2.x已不支持ribbon，使用nacos2.x需要手动引入LoadBalancer 1. 单机版1.1 package(基于CentOS)1234567891011121314151617#（1）下载nacos-server的二进制包，比如：nacos-server-2.0.4.tar.gz#（2）解压并进入bin目录unzip nacos-server
+          1 JDK8版本的改进在jdk1.7版本中，ConcurrentHashMap由数组+Segment+分段锁实现，其内部分为一个个段（Segment）数组，Segment通过继承ReentrantLock来进行加锁，通过每次锁住一个Segment来降低锁的粒度而且保证了每个Segment内的操作的线程安全性，从而实现全局线程安全。  但是这么做的缺陷就是每次通过 hash 确认位置时需要 2 次才
         </div>
       </a>
 
@@ -246,8 +246,160 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2023-02-27 10:55" pubdate>
-              2023-02-27
+            <time datetime="2023-03-12 09:02" pubdate>
+              2023-03-12
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/java%E5%9F%BA%E7%A1%80/" class="category-chain-item">java基础</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/java%E5%9F%BA%E7%A1%80/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" class="category-chain-item">多线程</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/">#多线程</a>
+            
+              <a href="/tags/%E9%9B%86%E5%90%88/">#集合</a>
+            
+              <a href="/tags/ConcurrentHashMap/">#ConcurrentHashMap</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2023/03/11/java%E5%9F%BA%E7%A1%80/jvm/%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6(Garbage%20Collect-GC)/" target="_self">
+          <img src="/img/rgb%20spiderman.png" srcset="/img/loading.gif" lazyload alt="垃圾回收(Garbage Collect-GC)">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/03/11/java%E5%9F%BA%E7%A1%80/jvm/%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6(Garbage%20Collect-GC)/" target="_self">
+          垃圾回收(Garbage Collect-GC)
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt " href="/2023/03/11/java%E5%9F%BA%E7%A1%80/jvm/%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6(Garbage%20Collect-GC)/" target="_self">
+        <div>
+          1 对象的引用Java中的引用的定义：如果reference(引用)类型的数据中存储的数值代表的是另外一块内存的起始地址，就称这块内存代表着一个引用。  希望能描述这样一类对象：当内存空间还足够时，则能保留在内存之中；如果内存空间在进行垃圾收集后还是非常紧张，则可以抛弃这些对象。 很多系统的缓存功能都符合这样的应用场景。四种引用类型： 强引用：在Java中最常见的就是强引用，也是在开发过程中经常会
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-03-11 17:21" pubdate>
+              2023-03-11
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/java%E5%9F%BA%E7%A1%80/" class="category-chain-item">java基础</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/java%E5%9F%BA%E7%A1%80/jvm/" class="category-chain-item">jvm</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/jvm/">#jvm</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2023/03/11/spring%E6%A1%86%E6%9E%B6/springcloud/nacos/nacos%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/" target="_self">
+          <img src="/img/Lonely%20Night%20.png" srcset="/img/loading.gif" lazyload alt="nacos配置中心">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/03/11/spring%E6%A1%86%E6%9E%B6/springcloud/nacos/nacos%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/" target="_self">
+          nacos配置中心
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt " href="/2023/03/11/spring%E6%A1%86%E6%9E%B6/springcloud/nacos/nacos%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/" target="_self">
+        <div>
+          Nacos版本：2.0.4  nacos2.x已不支持ribbon，使用nacos2.x需要手动引入LoadBalancer 1 基本使用使用外部数据源 12345spring.datasource.platform=mysqldb.num=1db.url.0=jdbc:mysql://127.0.0.1:3306/mynacos?characterEncoding=utf8&amp;connec
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-03-11 16:27" pubdate>
+              2023-03-11
             </time>
           </div>
         
@@ -291,87 +443,11 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/java/">#java</a>
-            
               <a href="/tags/springcloud/">#springcloud</a>
             
               <a href="/tags/nacos/">#nacos</a>
             
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/02/27/spring%E6%A1%86%E6%9E%B6/springcloud/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B%E4%BB%A5%E5%8F%8A%E7%89%88%E6%9C%AC%E6%9B%B4%E8%BF%AD/" target="_self">
-          <img src="/img/Mountain%20lake.png" srcset="/img/loading.gif" lazyload alt="架构演进以及版本更迭">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/02/27/spring%E6%A1%86%E6%9E%B6/springcloud/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B%E4%BB%A5%E5%8F%8A%E7%89%88%E6%9C%AC%E6%9B%B4%E8%BF%AD/" target="_self">
-          架构演进以及版本更迭
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt " href="/2023/02/27/spring%E6%A1%86%E6%9E%B6/springcloud/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B%E4%BB%A5%E5%8F%8A%E7%89%88%E6%9C%AC%E6%9B%B4%E8%BF%AD/" target="_self">
-        <div>
-          1. 架构演进1.1 单体架构 1.2 垂直化拆分按功能模块进行垂直化拆分  1.3 集群+负载均衡 1.4 SOASOA：Service Oriented Architecture  ESB：Enterprise Service Bus 企业服务总线。ESB就相当于是一根管道，主要是为了集成不同协议的服务，使得不同服务之间能够彼此调用  1.5 微服务 2. 微服务架构下问题的解决方案Cloud
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-02-27 10:35" pubdate>
-              2023-02-27
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/spring%E6%A1%86%E6%9E%B6/" class="category-chain-item">spring框架</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/spring%E6%A1%86%E6%9E%B6/springcloud/" class="category-chain-item">springcloud</a>
-  
-  
-
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/java/">#java</a>
-            
-              <a href="/tags/springcloud/">#springcloud</a>
+              <a href="/tags/%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/">#配置中心</a>
             
           </div>
         
@@ -383,23 +459,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/02/22/lua/Lua-redis/" target="_self">
-          <img src="/img/4K%E9%BB%84%E6%98%8F.png" srcset="/img/loading.gif" lazyload alt="Lua脚本-redis">
+        <a href="/2023/03/11/%E4%B8%AD%E9%97%B4%E4%BB%B6/zookeeper/Zookeeper-API/" target="_self">
+          <img src="/img/Anomaly%20by.png" srcset="/img/loading.gif" lazyload alt="Zookeeper-API">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/02/22/lua/Lua-redis/" target="_self">
-          Lua脚本-redis
+        <a href="/2023/03/11/%E4%B8%AD%E9%97%B4%E4%BB%B6/zookeeper/Zookeeper-API/" target="_self">
+          Zookeeper-API
         </a>
       </h1>
 
       
-      <a class="index-excerpt " href="/2023/02/22/lua/Lua-redis/" target="_self">
+      <a class="index-excerpt " href="/2023/03/11/%E4%B8%AD%E9%97%B4%E4%BB%B6/zookeeper/Zookeeper-API/" target="_self">
         <div>
-          1  在redis中调用lua脚本使用eval方法，语法格式： 1234567eval lua-script key-num [key1 key2 key3 ...] [value1 value2 value3 ...]//eval 代表执行Lua语言的命令//lua-script 代表Lua语言脚本内容//key-num 表示参数中有多少个key，需要注意的是Redis中的key是从1开始的，如
+          1 Zookeeper API1.1 引入Zookeeper依赖12345&lt;dependency&gt;	&lt;groupId&gt;org.apache.zookeeper&lt;/groupId&gt;	&lt;artifactId&gt;zookeeper&lt;/artifactId&gt;	&lt;version&gt;3.7.1&lt;/version&gt;&lt;/depe
         </div>
       </a>
 
@@ -407,77 +483,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2023-02-22 16:13" pubdate>
-              2023-02-22
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Lua/" class="category-chain-item">Lua</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/redis/">#redis</a>
-            
-              <a href="/tags/lua/">#lua</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/02/22/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB/" target="_self">
-          <img src="/img/Fantasy%20World.png" srcset="/img/loading.gif" lazyload alt="Redis为什么这么快">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/02/22/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB/" target="_self">
-          Redis为什么这么快
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt " href="/2023/02/22/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB/" target="_self">
-        <div>
-          总结起来主要有三点：1.纯内存结构。2.请求处理单线程。3.多路复用机制 1  原因1.1 内存KV结构的内存数据库，时间复杂度是O(1)。 1.2 单线程这里说的单线程其实指的是处理客户端的请求是单线程的，可以把它叫做主线程。从4.0版本之后，还引入了一些线程处理其他的事情，比如清理脏数据，无用连接的释放，大key的删除。 ​    把处理请求的主线程设置成单线程有什么好处呢？ ​    1.没
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-02-22 16:00" pubdate>
-              2023-02-22
+            <time datetime="2023-03-11 15:22" pubdate>
+              2023-03-11
             </time>
           </div>
         
@@ -497,7 +504,7 @@
   
     <span>></span>
     
-  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/Redis/" class="category-chain-item">Redis</a>
+  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/Zookeeper/" class="category-chain-item">Zookeeper</a>
   
   
 
@@ -514,9 +521,7 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/redis/">#redis</a>
-            
-              <a href="/tags/%E7%BC%93%E5%AD%98/">#缓存</a>
+              <a href="/tags/Zookeeper/">#Zookeeper</a>
             
           </div>
         
@@ -528,23 +533,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/02/22/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E4%BA%8B%E5%8A%A1/" target="_self">
-          <img src="/img/Fantasy%20World%20(2).png" srcset="/img/loading.gif" lazyload alt="Redis事务">
+        <a href="/2023/03/11/java%E5%9F%BA%E7%A1%80/jvm/%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA/" target="_self">
+          <img src="/img/post.png" srcset="/img/loading.gif" lazyload alt="运行时数据区">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/02/22/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E4%BA%8B%E5%8A%A1/" target="_self">
-          Redis事务
+        <a href="/2023/03/11/java%E5%9F%BA%E7%A1%80/jvm/%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA/" target="_self">
+          运行时数据区
         </a>
       </h1>
 
       
-      <a class="index-excerpt " href="/2023/02/22/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E4%BA%8B%E5%8A%A1/" target="_self">
+      <a class="index-excerpt " href="/2023/03/11/java%E5%9F%BA%E7%A1%80/jvm/%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA/" target="_self">
         <div>
-          1 为什么要用事务Redis的单个命令是原子性的（比如get set mget mset），要么成功要么失败，不存在并发干扰的问题。如果涉及到多个命令的时候，需要把多个命令作为一个不可分割的处理序列，就必须要依赖redis的功能特性来实现了。 Redis提供了事务的功能，可以把一组命令一起执行。Redis的事务有3个特点：  按进入队列的顺序执行。  不会受到其他客户端的请求的影响  事务不能嵌套
+          在加载阶段的第二三步可以发现由运行时数据，堆，方法区等名词。第二步将这个字节流所代表的静态存储机构转化为方法区的运行时数据结构。第三步在java堆中生成一个代表这个类的java.lang.Class对象，作为方法区中这些数据的访问入口。说白了就是类文件被类加载器加载进来之后，类中的内容（比如变量，常量，方法，对象等这些数据得要有个去处，也就是要存起来，存储的位置肯定是JVM中有对应的空间） 1 官
         </div>
       </a>
 
@@ -552,8 +557,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2023-02-22 16:00" pubdate>
-              2023-02-22
+            <time datetime="2023-03-11 15:15" pubdate>
+              2023-03-11
             </time>
           </div>
         
@@ -568,12 +573,12 @@
     
       <span class="category-chain">
         
-  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/" class="category-chain-item">中间件</a>
+  <a href="/categories/java%E5%9F%BA%E7%A1%80/" class="category-chain-item">java基础</a>
   
   
     <span>></span>
     
-  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/Redis/" class="category-chain-item">Redis</a>
+  <a href="/categories/java%E5%9F%BA%E7%A1%80/jvm/" class="category-chain-item">jvm</a>
   
   
 
@@ -590,9 +595,7 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/redis/">#redis</a>
-            
-              <a href="/tags/%E7%BC%93%E5%AD%98/">#缓存</a>
+              <a href="/tags/jvm/">#jvm</a>
             
           </div>
         
@@ -604,23 +607,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/02/21/spring%E6%A1%86%E6%9E%B6/springboot/springboot%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" target="_self">
-          <img src="/img/Ghost%20of%20Tsushima.png" srcset="/img/loading.gif" lazyload alt="Springboot启动流程">
+        <a href="/2023/03/11/java%E5%9F%BA%E7%A1%80/jvm/jvm%E8%B0%83%E4%BC%98/" target="_self">
+          <img src="/img/Sci-Fi%20Energy%20Core.png" srcset="/img/loading.gif" lazyload alt="jvm调优">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/02/21/spring%E6%A1%86%E6%9E%B6/springboot/springboot%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" target="_self">
-          Springboot启动流程
+        <a href="/2023/03/11/java%E5%9F%BA%E7%A1%80/jvm/jvm%E8%B0%83%E4%BC%98/" target="_self">
+          jvm调优
         </a>
       </h1>
 
       
-      <a class="index-excerpt " href="/2023/02/21/spring%E6%A1%86%E6%9E%B6/springboot/springboot%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" target="_self">
+      <a class="index-excerpt " href="/2023/03/11/java%E5%9F%BA%E7%A1%80/jvm/jvm%E8%B0%83%E4%BC%98/" target="_self">
         <div>
-          1. 启动方式12345678910111213141516171819@SpringBootApplication public class Application &#123;    //方式一    public static void main(String[] args) &#123;        SpringApplication.run(Application.class, arg
+          1 常用命令1. jps—查看java进程  2. jinfo： （1）实时查看和调整JVM配置参数 （2）用法：jinfo -flag name PID    查看某个java进程的name属性的值 ​           例：jinfo -flag MaxHeapSize PID ​                  jinfo -flag UseG1GC PID （3）修改：参数只有被标记为
         </div>
       </a>
 
@@ -628,8 +631,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2023-02-21 12:01" pubdate>
-              2023-02-21
+            <time datetime="2023-03-11 13:18" pubdate>
+              2023-03-11
             </time>
           </div>
         
@@ -644,12 +647,12 @@
     
       <span class="category-chain">
         
-  <a href="/categories/spring%E6%A1%86%E6%9E%B6/" class="category-chain-item">spring框架</a>
+  <a href="/categories/java%E5%9F%BA%E7%A1%80/" class="category-chain-item">java基础</a>
   
   
     <span>></span>
     
-  <a href="/categories/spring%E6%A1%86%E6%9E%B6/Springboot/" class="category-chain-item">Springboot</a>
+  <a href="/categories/java%E5%9F%BA%E7%A1%80/jvm/" class="category-chain-item">jvm</a>
   
   
 
@@ -666,9 +669,7 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/java/">#java</a>
-            
-              <a href="/tags/springboot/">#springboot</a>
+              <a href="/tags/jvm/">#jvm</a>
             
           </div>
         
@@ -680,23 +681,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/02/17/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E5%85%A5%E9%97%A8/" target="_self">
-          <img src="/img/Eternal%20Light%20by.png" srcset="/img/loading.gif" lazyload alt="Redis入门">
+        <a href="/2023/03/11/java%E5%9F%BA%E7%A1%80/jvm/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/" target="_self">
+          <img src="/img/Portal%20to.png" srcset="/img/loading.gif" lazyload alt="类加载器(ClassLoader)">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/02/17/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E5%85%A5%E9%97%A8/" target="_self">
-          Redis入门
+        <a href="/2023/03/11/java%E5%9F%BA%E7%A1%80/jvm/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/" target="_self">
+          类加载器(ClassLoader)
         </a>
       </h1>
 
       
-      <a class="index-excerpt " href="/2023/02/17/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E5%85%A5%E9%97%A8/" target="_self">
+      <a class="index-excerpt " href="/2023/03/11/java%E5%9F%BA%E7%A1%80/jvm/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/" target="_self">
         <div>
-          1 redis定位与特性1.1 SQL与NoSQL​    大部分时候，我们都会首先考虑用关系型数据库来存储我们的数据，比如SQLServer，Oracle，MySQL 等等。关系型数据库的特点： ​    1.它以表格的形式，基于行存储数据，是一个二维的模式。 ​    2.它存储的是结构化的数据，数据存储有固定的模式（scheme），数据需要适应表结构。 ​    3.表与表之间存在关联（Re
+          负责读取Java字节代码，并转换成java.lang.Class 类的一个实例的代码模块。类加载器除了用于加载类外，还可用于确定类在Java虚拟机中的唯一性。一个类在同一个类加载器中具有唯一性(Uniqueness)，而不同类加载器中是允许同名类存在的，这里的同名是指全限定名相同。但是在整个JVM里，纵然全限定名相同，若类加载器不同，则仍然不算作是同一个类，无法通过 instanceOf 、equ
         </div>
       </a>
 
@@ -704,8 +705,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2023-02-17 11:12" pubdate>
-              2023-02-17
+            <time datetime="2023-03-11 11:22" pubdate>
+              2023-03-11
             </time>
           </div>
         
@@ -720,12 +721,12 @@
     
       <span class="category-chain">
         
-  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/" class="category-chain-item">中间件</a>
+  <a href="/categories/java%E5%9F%BA%E7%A1%80/" class="category-chain-item">java基础</a>
   
   
     <span>></span>
     
-  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/Redis/" class="category-chain-item">Redis</a>
+  <a href="/categories/java%E5%9F%BA%E7%A1%80/jvm/" class="category-chain-item">jvm</a>
   
   
 
@@ -742,9 +743,7 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/redis/">#redis</a>
-            
-              <a href="/tags/%E7%BC%93%E5%AD%98/">#缓存</a>
+              <a href="/tags/jvm/">#jvm</a>
             
           </div>
         
@@ -756,23 +755,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/02/17/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85%E6%A8%A1%E5%BC%8F/" target="_self">
-          <img src="/img/Cyberpunk%20World.png" srcset="/img/loading.gif" lazyload alt="Redis发布订阅模式">
+        <a href="/2023/03/11/java%E5%9F%BA%E7%A1%80/jvm/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/" target="_self">
+          <img src="/img/Pirates.png" srcset="/img/loading.gif" lazyload alt="类加载机制">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/02/17/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85%E6%A8%A1%E5%BC%8F/" target="_self">
-          Redis发布订阅模式
+        <a href="/2023/03/11/java%E5%9F%BA%E7%A1%80/jvm/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/" target="_self">
+          类加载机制
         </a>
       </h1>
 
       
-      <a class="index-excerpt " href="/2023/02/17/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85%E6%A8%A1%E5%BC%8F/" target="_self">
+      <a class="index-excerpt " href="/2023/03/11/java%E5%9F%BA%E7%A1%80/jvm/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/" target="_self">
         <div>
-          1 列表的局限通过队列的rpush和blpop可以实现消息队列（队尾进队头出），没有任何元素可以弹出的时候，连接会被阻塞。但是基于list实现的消息队列，不支持一对多的消息分发，相当于只有一个消费者。 2 发布订阅模式除了通过list实现消息队列之外，Redis还提供了发布订阅的功能 2.1 订阅频道消息的生产者和消费者是不同的客户端，连接到同一个redis的服务。通过什么对象把生产者和消费者关联
+          类加载机制是指将类的字节码文件所包含的数据读入内存，同时会生成数据的访问入口的一种特殊机制。那么可以得知，类加载的最终产品是数据访问入口。  加载.class文件的方式： ​    1.从本地系统中直接加载：最常使用 ​    2.通过网络下载class文件：Web Applet，也就是小程序应用 ​    3.从zip，jar等归档文件中加载class文件：后续演变成jar，war格式 ​
         </div>
       </a>
 
@@ -780,8 +779,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2023-02-17 11:12" pubdate>
-              2023-02-17
+            <time datetime="2023-03-11 11:00" pubdate>
+              2023-03-11
             </time>
           </div>
         
@@ -796,12 +795,12 @@
     
       <span class="category-chain">
         
-  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/" class="category-chain-item">中间件</a>
+  <a href="/categories/java%E5%9F%BA%E7%A1%80/" class="category-chain-item">java基础</a>
   
   
     <span>></span>
     
-  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/Redis/" class="category-chain-item">Redis</a>
+  <a href="/categories/java%E5%9F%BA%E7%A1%80/jvm/" class="category-chain-item">jvm</a>
   
   
 
@@ -818,9 +817,7 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/redis/">#redis</a>
-            
-              <a href="/tags/%E7%BC%93%E5%AD%98/">#缓存</a>
+              <a href="/tags/jvm/">#jvm</a>
             
           </div>
         
@@ -832,23 +829,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/02/17/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" target="_self">
-          <img src="/img/Artic%20Sunset.png" srcset="/img/loading.gif" lazyload alt="MySQL性能优化">
+        <a href="/2023/03/11/java%E5%9F%BA%E7%A1%80/jvm/jvm%E5%88%9D%E8%AF%86/" target="_self">
+          <img src="/img/Mountain%20Peaks.png" srcset="/img/loading.gif" lazyload alt="jvm初识">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/02/17/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" target="_self">
-          MySQL性能优化
+        <a href="/2023/03/11/java%E5%9F%BA%E7%A1%80/jvm/jvm%E5%88%9D%E8%AF%86/" target="_self">
+          jvm初识
         </a>
       </h1>
 
       
-      <a class="index-excerpt " href="/2023/02/17/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" target="_self">
+      <a class="index-excerpt " href="/2023/03/11/java%E5%9F%BA%E7%A1%80/jvm/jvm%E5%88%9D%E8%AF%86/" target="_self">
         <div>
-          1 优化思路​    说到性能调优，大部分时候想要实现的目标是让查询更快。一个查询的流程又是由很多个环节组成的，每个环节都会消耗时间。要减少查询所消耗的时间，就要从每一个环节入手。  确定环境： 12select version();show variables like &#x27;%engine%&#x27;;  2 连接-配置优化​    第一个环节是客户端连接到服务端，连接这一块有可能出现
+          1  官网1.1 JDK 8https://docs.oracle.com/javase/8/ 1.2  The relation of JDK/JRE/JVMReference -&gt; Developer Guides -&gt; 定位到：https://docs.oracle.com/javase/8/docs/index.html   1.3 源码到类文件1.3.1 源码12345678
         </div>
       </a>
 
@@ -856,8 +853,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2023-02-17 11:10" pubdate>
-              2023-02-17
+            <time datetime="2023-03-11 10:30" pubdate>
+              2023-03-11
             </time>
           </div>
         
@@ -872,12 +869,12 @@
     
       <span class="category-chain">
         
-  <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/" class="category-chain-item">数据库</a>
+  <a href="/categories/java%E5%9F%BA%E7%A1%80/" class="category-chain-item">java基础</a>
   
   
     <span>></span>
     
-  <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/MySQL/" class="category-chain-item">MySQL</a>
+  <a href="/categories/java%E5%9F%BA%E7%A1%80/jvm/" class="category-chain-item">jvm</a>
   
   
 
@@ -894,7 +891,7 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/mysql/">#mysql</a>
+              <a href="/tags/jvm/">#jvm</a>
             
           </div>
         
@@ -906,23 +903,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/02/16/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%E4%BA%8B%E5%8A%A1%E5%92%8C%E9%94%81/" target="_self">
-          <img src="/img/aftershock.png" srcset="/img/loading.gif" lazyload alt="MySQL事务和锁">
+        <a href="/2023/03/11/java%E5%9F%BA%E7%A1%80/jvm/%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/" target="_self">
+          <img src="/img/Remote%20Bay%20Milky.png" srcset="/img/loading.gif" lazyload alt="内存模型">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/02/16/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%E4%BA%8B%E5%8A%A1%E5%92%8C%E9%94%81/" target="_self">
-          MySQL事务和锁
+        <a href="/2023/03/11/java%E5%9F%BA%E7%A1%80/jvm/%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/" target="_self">
+          内存模型
         </a>
       </h1>
 
       
-      <a class="index-excerpt " href="/2023/02/16/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/MySQL%E4%BA%8B%E5%8A%A1%E5%92%8C%E9%94%81/" target="_self">
+      <a class="index-excerpt " href="/2023/03/11/java%E5%9F%BA%E7%A1%80/jvm/%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/" target="_self">
         <div>
-          1. 数据库事务1.1 事务的典型场景​    在项目中，什么地方使用事务？是根据业务类型来使用的还是根据数据操作类型来使用的？无论你是在方法上加@Transactional注解，还是在xml文件中配置切面，还是直接用JDBC的方法。很多时候我们需要事务是因为我们希望涉及数据库的多个操作都成功，比如客户下单，会操作订单表，资金表，物流表等等，就需要放在一个事务中执行。 ​    一个非常典型的案例
+          1 图解一块是非堆区，一块是堆区。堆分为两大区，old区和young区。young区分为两大快，一个是Survivor区（s0+s1），一块是Eden区。 Eden:s0:s1=8:1:1。s0和s1一样大，也可以叫做From和To。  2 对象创建所在区域一般情况下，新创建的对象都会被分配到Eden区，一些特殊大的对象会直接分配到Old区。  比如有对象A，B，C等创建在Eden区，但是Eden
         </div>
       </a>
 
@@ -930,8 +927,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2023-02-16 15:58" pubdate>
-              2023-02-16
+            <time datetime="2023-03-11 10:02" pubdate>
+              2023-03-11
             </time>
           </div>
         
@@ -946,12 +943,12 @@
     
       <span class="category-chain">
         
-  <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/" class="category-chain-item">数据库</a>
+  <a href="/categories/java%E5%9F%BA%E7%A1%80/" class="category-chain-item">java基础</a>
   
   
     <span>></span>
     
-  <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/MySQL/" class="category-chain-item">MySQL</a>
+  <a href="/categories/java%E5%9F%BA%E7%A1%80/jvm/" class="category-chain-item">jvm</a>
   
   
 
@@ -968,7 +965,7 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/mysql/">#mysql</a>
+              <a href="/tags/jvm/">#jvm</a>
             
           </div>
         
@@ -980,7 +977,7 @@
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <a class="extend prev" rel="prev" href="/page/10/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/#board">9</a><a class="page-number" href="/page/10/#board">10</a><span class="page-number current">11</span><a class="page-number" href="/page/12/#board">12</a><a class="extend next" rel="next" href="/page/12/#board"><i class="iconfont icon-arrowright"></i></a>
+      <a class="extend prev" rel="prev" href="/page/10/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/#board">9</a><a class="page-number" href="/page/10/#board">10</a><span class="page-number current">11</span><a class="page-number" href="/page/12/#board">12</a><a class="page-number" href="/page/13/#board">13</a><a class="extend next" rel="next" href="/page/12/#board"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
 

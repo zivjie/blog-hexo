@@ -1,0 +1,794 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Francis">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1 JDK8版本的改进在jdk1.7版本中，ConcurrentHashMap由数组+Segment+分段锁实现，其内部分为一个个段（Segment）数组，Segment通过继承ReentrantLock来进行加锁，通过每次锁住一个Segment来降低锁的粒度而且保证了每个Segment内的操作的线程安全性，从而实现全局线程安全。  但是这么做的缺陷就是每次通过 hash 确认位置时需要 2 次才">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ConcurrentHashMap">
+<meta property="og:url" content="http://www.zivjie.cn/2023/03/12/java%E5%9F%BA%E7%A1%80/%E5%A4%9A%E7%BA%BF%E7%A8%8B/ConcurrentHashMap/index.html">
+<meta property="og:site_name" content="Francis-Blog">
+<meta property="og:description" content="1 JDK8版本的改进在jdk1.7版本中，ConcurrentHashMap由数组+Segment+分段锁实现，其内部分为一个个段（Segment）数组，Segment通过继承ReentrantLock来进行加锁，通过每次锁住一个Segment来降低锁的粒度而且保证了每个Segment内的操作的线程安全性，从而实现全局线程安全。  但是这么做的缺陷就是每次通过 hash 确认位置时需要 2 次才">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.zivjie.cn/img/LUNA.png">
+<meta property="article:published_time" content="2023-03-12T01:02:00.000Z">
+<meta property="article:modified_time" content="2024-01-02T01:30:41.911Z">
+<meta property="article:author" content="Francis">
+<meta property="article:tag" content="多线程">
+<meta property="article:tag" content="集合">
+<meta property="article:tag" content="ConcurrentHashMap">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://www.zivjie.cn/img/LUNA.png">
+  
+  
+  
+  <title>ConcurrentHashMap - Francis-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.zivjie.cn","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Francis</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="ConcurrentHashMap"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-03-12 09:02" pubdate>
+          2023年3月12日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          14k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          113 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">ConcurrentHashMap</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="1-JDK8版本的改进"><a href="#1-JDK8版本的改进" class="headerlink" title="1 JDK8版本的改进"></a>1 JDK8版本的改进</h2><p>在jdk1.7版本中，ConcurrentHashMap由数组+Segment+分段锁实现，其内部分为一个个段（Segment）数组，Segment通过继承ReentrantLock来进行加锁，通过每次锁住一个Segment来降低锁的粒度而且保证了每个Segment内的操作的线程安全性，从而实现全局线程安全。</p>
+<p><img src="/image/%E5%A4%9A%E7%BA%BF%E7%A8%8B/ConcurrentHashMap/1.png" srcset="/img/loading.gif" lazyload></p>
+<p>但是这么做的缺陷就是每次通过 hash 确认位置时需要 2 次才能定位到当前 key 应该落在哪个槽：</p>
+<ol>
+<li><p>通过 hash 值和 段数组长度-1 进行位运算确认当前 key 属于哪个段，即确认其在 segments 数组的位置。</p>
+</li>
+<li><p>再次通过 hash 值和 table 数组（即 ConcurrentHashMap 底层存储数据的数组）长度 - 1进行位运算确认其所在桶。</p>
+</li>
+</ol>
+<p>为了进一步优化性能，在 jdk1.8 版本中，对 ConcurrentHashMap 做了优化，取消了分段锁的设计，取而代之的是通过 cas 操作和 synchronized 关键字来实现优化（synchronized锁住的是Node节点），而扩容的时候也利用了一种分而治之的思想来提升扩容效率，在 JDK1.8 中 ConcurrentHashMap 的存储结构和 HashMap 基本一致，如下图所示：</p>
+<p><img src="/image/%E5%A4%9A%E7%BA%BF%E7%A8%8B/ConcurrentHashMap/2.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="2-为什么key和value不允许为null"><a href="#2-为什么key和value不允许为null" class="headerlink" title="2 为什么key和value不允许为null"></a>2 为什么key和value不允许为null</h2><p>在 HashMap 中，key 和 value 都是可以为 null 的，但是在 ConcurrentHashMap 中却不允许。</p>
+<p>作者 Doug Lea 本身对这个问题有过回答，在并发编程中，null 值容易引来歧义， 假如先调用 get(key) 返回的结果是 null，那么无法确认是因为当时这个 key 对应的 value 本身放的就是 null，还是说这个 key 值根本不存在，这会引起歧义，如果在非并发编程中，可以进一步通过调用 containsKey 方法来进行判断，但是并发编程中无法保证两个方法之间没有其他线程来修改 key 值，所以就直接禁止了 null 值的存在。</p>
+<p>而且作者 Doug Lea 本身也认为，假如允许在集合，如 map 和 set 等存在 null 值的话，即使在非并发集合中也有一种公开允许程序中存在错误的意思，这也是 Doug Lea 和 Josh Bloch（HashMap作者之一） 在设计问题上少数不同意见之一，而 ConcurrentHashMap 是 Doug Lea 一个人开发的，所以就直接禁止了 null 值的存在。</p>
+<h2 id="3-ConcurrentHashMap如何保证线程的安全性"><a href="#3-ConcurrentHashMap如何保证线程的安全性" class="headerlink" title="3 ConcurrentHashMap如何保证线程的安全性"></a>3 ConcurrentHashMap如何保证线程的安全性</h2><p>在 ConcurrentHashMap 中，采用了大量的分而治之的思想来降低锁的粒度，提升并发性能。其源码中大量使用了cas 操作来保证安全性，而不是和 HashTable 一样，不论什么方法，直接简单粗暴的使用 synchronized关键字来实现。</p>
+<h3 id="3-1-如何用CAS保证数组初始化的安全"><a href="#3-1-如何用CAS保证数组初始化的安全" class="headerlink" title="3.1 如何用CAS保证数组初始化的安全"></a>3.1 如何用CAS保证数组初始化的安全</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Node&lt;K, V&gt;[] initTable()&#123;<br>    Node&lt;K, V&gt;[] tab; <span class="hljs-type">int</span> sc;<br>    <span class="hljs-keyword">while</span>((tab = table) == <span class="hljs-literal">null</span> || tab.length == <span class="hljs-number">0</span>)&#123;<br>        <span class="hljs-keyword">if</span>((sc = sizeCtl) &lt; <span class="hljs-number">0</span>) <span class="hljs-comment">//有线程在扩容，让出cpu</span><br>            Thread.<span class="hljs-keyword">yield</span>();<br>        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (U.compareAndSwapInt(<span class="hljs-built_in">this</span>, SIZECTL, sc, -<span class="hljs-number">1</span>)) &#123; <span class="hljs-comment">//将sizeCtl改为-1，表示正在扩容</span><br>            <span class="hljs-keyword">try</span> &#123;<br>                <span class="hljs-keyword">if</span>((tab = table) == <span class="hljs-literal">null</span> || tab.length == <span class="hljs-number">0</span>)&#123;<br>                    <span class="hljs-comment">//首次初始化之后会对sc赋值为下一次扩容的大小</span><br>                    <span class="hljs-type">int</span> <span class="hljs-variable">n</span> <span class="hljs-operator">=</span> (sc &gt; <span class="hljs-number">0</span>) ? sc : DEFAULT_CAPACITY;<br>                    Node&lt;K, V&gt;[] nt = (Node&lt;K, V&gt;[]) <span class="hljs-keyword">new</span> <span class="hljs-title class_">Node</span>&lt;?, ?&gt;[n];<br>                    table = tab = nt;<br>                    sc = n - (n &gt;&gt;&gt; <span class="hljs-number">2</span>); <span class="hljs-comment">//计算下次扩容的大小，即：当前容量的3/4</span><br>                &#125;<br>            &#125; <span class="hljs-keyword">finally</span> &#123;<br>                sizeCtl = sc; <span class="hljs-comment">//将sc赋值给sizeCtl</span><br>            &#125;<br>            <span class="hljs-keyword">break</span>;<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> tab;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这里面有一个非常重要的变量 sizeCtl，这个变量对理解整个 ConcurrentHashMap 的原理非常重要。sizeCtl 有四个含义：</p>
+<p>​       sizeCtl&lt;-1 表示有 N-1 个线程正在执行扩容操作，如 -2 就表示有 2-1 个线程正在扩容。</p>
+<p>​       sizeCtl=-1 占位符，表示当前正在初始化数组。</p>
+<p>​       sizeCtl=0 默认状态，表示数组还没有被初始化。</p>
+<p>​       sizeCtl&gt;0 记录下一次需要扩容的大小。</p>
+<p>第二个分支采用了 CAS 操作，因为 SIZECTL 默认为 0，所以这里如果可以替换成功，则当前线程可以执行初始化操作，CAS 失败，说明其他线程抢先一步把 sizeCtl 改为了 -1。扩容成功之后会把下一次扩容的阈值赋值给sc，即 sizeCtl。</p>
+<h3 id="3-2-put操作如何保证数组元素的可见性"><a href="#3-2-put操作如何保证数组元素的可见性" class="headerlink" title="3.2 put操作如何保证数组元素的可见性"></a>3.2 put操作如何保证数组元素的可见性</h3><p>ConcurrentHashMap 中存储数据采用的 Node 数组是采用了 volatile 来修饰的，但是这只能保证数组的引用在不同线程之间是可用的，并不能保证数组内部的元素在各个线程之间也是可见的，所以判定某一个桶是否有元素，并不能直接通过下标来访问。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">final</span> V <span class="hljs-title function_">putVal</span><span class="hljs-params">(K key, V value, <span class="hljs-type">boolean</span> onlyIfAbsent)</span> &#123;<br>    <span class="hljs-keyword">if</span> (key == <span class="hljs-literal">null</span> || value == <span class="hljs-literal">null</span>) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">NullPointerException</span>();<br>    <span class="hljs-type">int</span> <span class="hljs-variable">hash</span> <span class="hljs-operator">=</span> sprerad(key.hashCode()); <span class="hljs-comment">//获取hash值</span><br>    <span class="hljs-type">int</span> <span class="hljs-variable">binCount</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; <span class="hljs-comment">//记录链表长度</span><br>    <span class="hljs-keyword">for</span> (Node&lt;K, V&gt;[] tab = table;;) &#123; <span class="hljs-comment">//自旋</span><br>        Node&lt;K,V&gt; f; <span class="hljs-type">int</span> n, i, fh;<br>        <span class="hljs-keyword">if</span>(tab == <span class="hljs-literal">null</span> || (n = tab.length) == <span class="hljs-number">0</span>) <span class="hljs-comment">//数组没有初始化</span><br>            tab = initTable(); <span class="hljs-comment">//初始化数组</span><br>        <span class="hljs-comment">//tabAt为null表示当前位置没有元素，采用Unsafe方法获取元素而不是直接tab[i]</span><br>        <span class="hljs-comment">//volatile修饰数组只针对数组的引用保证可见，对内部元素则不一定</span><br>        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> ((f = tabAt(tab, i = (n-<span class="hljs-number">1</span>) &amp; hash)) == <span class="hljs-literal">null</span>)&#123;<br>            <span class="hljs-comment">//cas操作去put，如果cas失败说明其他线程抢先去操作，继续自旋(for循环)</span><br>            <span class="hljs-keyword">if</span>(casTabAt(tab, i, <span class="hljs-literal">null</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Node</span>&lt;K,V&gt;(hash, key, value, <span class="hljs-literal">null</span>)))<br>                <span class="hljs-keyword">break</span>;<br>        &#125;<br>        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> ((fh = f.hash) == MOVED)<br>            tab = helpTransfer(tab, f);<br>        <span class="hljs-keyword">else</span> &#123; <span class="hljs-comment">//当前下标已经有元素</span><br>			<span class="hljs-type">V</span> <span class="hljs-variable">oldVal</span> <span class="hljs-operator">=</span> <span class="hljs-literal">null</span>;<br>            <span class="hljs-comment">//这里就相当于每次只锁住一个下标，锁的粒度更细了。所以最多可以支持的并发数比1.7版本的分段设计更多了</span><br>            <span class="hljs-keyword">synchronized</span> (f) &#123; <span class="hljs-comment">//锁住f节点，即当前链表或者红黑树的头节点</span><br>            	<span class="hljs-keyword">if</span> (tabAt(tab, i) == f) &#123;<br>                	<span class="hljs-keyword">if</span> (fh &gt;= <span class="hljs-number">0</span>) &#123; <span class="hljs-comment">//这里要判断是否大于等于0是因为如果当前线程已经被转移了，hash值会被改为负数</span><br>                    	binCount = <span class="hljs-number">1</span>;<br>                        <span class="hljs-keyword">for</span> (Node&lt;K,V&gt; e = f;; ++binCount) &#123;<br>                            K ek;<br>                            <span class="hljs-keyword">if</span>(e.hash == hash &amp;&amp;<br>                               ((ek = e.key) == key ||<br>                                (ek != <span class="hljs-literal">null</span> &amp;&amp; key.equals(ek))))&#123;<br>                                oldVal = e.val;<br>                                <span class="hljs-keyword">if</span>(!onlyIfAbsent)<br>                                    e.val = value;<br>                                <span class="hljs-keyword">break</span>;<br>                            &#125;<br>                            ...<br>                        &#125;<br>                        ...	<br>                    &#125;<br>                    ...<br>                &#125;<br>                ...<br>            &#125;<br>            ...<br>        &#125;<br>    &#125;<br>    addCount(<span class="hljs-number">1L</span>, binCount);<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//tableAt 方法实际上就是一个 CAS 操作</span><br><span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> &lt;K,V&gt; Node&lt;K,V&gt; <span class="hljs-title function_">tabAt</span><span class="hljs-params">(Node&lt;K,V&gt;[] tab, <span class="hljs-type">int</span> i)</span>&#123;<br>    <span class="hljs-keyword">return</span> (Node&lt;K,V&gt;) U.getObjectVolatile(tab, ((<span class="hljs-type">long</span>) i &lt;&lt; ASHIFT) + ABASE);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-3-精妙的计算方式"><a href="#3-3-精妙的计算方式" class="headerlink" title="3.3 精妙的计算方式"></a>3.3 精妙的计算方式</h3><p>在 HashMap 中，调用 put 方法之后会通过 ++size 的方式来存储当前集合中元素的个数，但是在并发模式下，这种操作是不安全的，所以不能通过这种方式。直接通过 CAS 操作来修改 size 是可行的，但是假如同时有非常多的线程要修改 size 操作，那么只会有一个线程能够替换成功，其他线程只能不断的尝试 CAS，这会影响到 ConcurrentHashMap 集合的性能，所以作者就想到了一个分而治之的思想来完成计数。作者定义了一个数组来计数，而且这个用来计数的数组也能扩容，每次线程需要计数的时候，都通过随机的方式获取一个数组下标的位置进行操作，这样就可以尽可能的降低了锁的粒度，最后获取 size 时，则通过遍历数组来实现计数：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//用来计数的数组，大小为2的N次幂，默认为2</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">transient</span> <span class="hljs-keyword">volatile</span> ConuterCell[] counterCells;<br><br><span class="hljs-meta">@sun</span>.misc.Contended <span class="hljs-keyword">static</span> fianl <span class="hljs-keyword">class</span> <span class="hljs-title class_">CounterCell</span> &#123; <span class="hljs-comment">//数组中的对象</span><br>    <span class="hljs-keyword">volatile</span> <span class="hljs-type">long</span> value; <span class="hljs-comment">//存储元素个数</span><br>    CounterCell(<span class="hljs-type">long</span> x) &#123; value = x; &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>addCount计数方法</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addCount</span><span class="hljs-params">(<span class="hljs-type">long</span> x, <span class="hljs-type">int</span> check)</span>&#123;<br>    CounterCell[] as; <span class="hljs-type">long</span> b, s;<br>    <span class="hljs-comment">/** CounterCell数组是否为空，如果不为空，则尝试通过cas操作将baseCount加上x，如果发现BASECOUNT和baseCount不相等，</span><br><span class="hljs-comment">    *   则说明当前存在锁竞争，所以需要改用CountCell来计数，（baseCount只有在没有线程竞争时用来计数）</span><br><span class="hljs-comment">    */</span><br>    <span class="hljs-keyword">if</span>((as = counterCells) != <span class="hljs-literal">null</span> || !U.compareAndSwapLong(<span class="hljs-built_in">this</span>, BASECOUNT, b = baseCount, s = b + x)) &#123;<br>        CounterCell a; <span class="hljs-type">long</span> v; <span class="hljs-type">int</span> m;<br>        <span class="hljs-type">boolean</span> <span class="hljs-variable">uncontended</span> <span class="hljs-operator">=</span> <span class="hljs-literal">true</span>; <span class="hljs-comment">//true表示没有线程竞争</span><br>        <span class="hljs-comment">//CounterCell计数数组为空，则直接调用fullAddCount</span><br>        <span class="hljs-keyword">if</span> (as == <span class="hljs-literal">null</span> || (m = as.length - <span class="hljs-number">1</span>) &lt; <span class="hljs-number">0</span> ||<br>            <span class="hljs-comment">//Random在线程并发的时候会有性能问题以及可能会产生相同的随机数，性能也没有ThreadLocalRandom.getProbe好</span><br>            (a = as[ThreadLocalRandom.getProbe() &amp; m]) == <span class="hljs-literal">null</span> ||<br>            <span class="hljs-comment">//通过CAS操作会修改当前数组下标中对应的计数，如果修改失败则表示有线程竞争</span><br>            !(uncontended = U.compareAndSwapLong(a, CELLVALUE, v = a.value, v + x))) &#123;<br>            <span class="hljs-comment">//内部包含CounterCell的扩容，初始化等操作</span><br>            fullAddCount(x, uncontended);<br>            <span class="hljs-keyword">return</span>;<br>        &#125;<br>        ...    <br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>首先会判断 CounterCell 数组是不是为空，这里的 CAS 操作是将 BASECOUNT 和 baseCount 进行比较，如果相等，则说明当前没有其他线程过来修改 baseCount（即 CAS 操作成功），此时则不需要使用 CounterCell 数组，而直接采用 baseCount 来计数。</p>
+<p>假如 CounterCell 为空且 CAS 失败，那么就会通过调用 fullAddCount 方法来对 CounterCell 数组进行初始化。</p>
+<p><strong>fullAddCount方法</strong></p>
+<p>这个方法也很长，里面包含了对 CounterCell 数组的初始化和赋值等操作。</p>
+<ol>
+<li><strong>初始化CountCell数组：</strong></li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (cellsBusy == <span class="hljs-number">0</span> &amp;&amp; counterCells == as &amp;&amp; <br>        U.compareAndSwapInt(<span class="hljs-built_in">this</span>, CELLSBUSY, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>))&#123;<br>    <span class="hljs-type">boolean</span> <span class="hljs-variable">init</span> <span class="hljs-operator">=</span> <span class="hljs-literal">false</span>;<br>    <span class="hljs-keyword">try</span> &#123;  <span class="hljs-comment">// Initialize table</span><br>        <span class="hljs-keyword">if</span> (counterCells == as) &#123;<br>            CounterCell[] rs = <span class="hljs-keyword">new</span> <span class="hljs-title class_">CounterCell</span>[<span class="hljs-number">2</span>]; <span class="hljs-comment">//默认构造一个长度为2的数组</span><br>            rs[h &amp; <span class="hljs-number">1</span>] = <span class="hljs-keyword">new</span> <span class="hljs-title class_">CounterCell</span>(x); <span class="hljs-comment">//计算下标（h是一个随机数，x表示添加元素的数量）</span><br>            counterCells = rs;<br>            init = <span class="hljs-literal">true</span>; <span class="hljs-comment">//初始化完成标志</span><br>        &#125;<br>    &#125; <span class="hljs-keyword">finally</span> &#123;<br>        cellsBusy = <span class="hljs-number">0</span>; <span class="hljs-comment">//恢复cellsBusy标识</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这里面有一个比较重要的变量 cellsBusy，默认是 0，表示当前没有线程在初始化或者扩容，所以这里判断如果 cellsBusy==0，而 as 其实在前面就是把全局变量 CounterCell 数组的赋值，这里之所以再判断一次就是再确认有没有其他线程修改过全局数组 CounterCell，所以条件满足的话就会通过 CAS 操作修改 cellsBusy 为 1，表示当前自己在初始化了，其他线程就不能同时进来初始化操作了。</p>
+<p>最后可以看到，默认是一个长度为 2 的数组，也就是采用了 2 个数组位置进行存储当前 ConcurrentHashMap 的元素数量。</p>
+<ol start="2">
+<li><strong>CountCell如何赋值</strong></li>
+</ol>
+<p>初始化完成之后，如果再次调用 put 方法，那么就会进入 fullAddCount 方法的另一个分支：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">for</span> (;;) &#123;<br>    CounterCell[] as; CounterCell a; <span class="hljs-type">int</span> n; <span class="hljs-type">long</span> v;<br>    <span class="hljs-comment">//CounterCell不为空，则表示已经初始化</span><br>    <span class="hljs-keyword">if</span> ((as = counterCells) != <span class="hljs-literal">null</span> &amp;&amp; (n = as.length) &gt; <span class="hljs-number">0</span>) &#123;<br>        <span class="hljs-comment">//获得当前使用CounterCell，数组的下标</span><br>        <span class="hljs-keyword">if</span> ((a = as[(n - <span class="hljs-number">1</span>) &amp; h]) == <span class="hljs-literal">null</span>) &#123; <span class="hljs-comment">//当前位置还没有设置数量</span><br>            <span class="hljs-comment">//cellsBusy=0表示CounterCell没有初始化</span><br>            <span class="hljs-keyword">if</span> (cellsBusy == <span class="hljs-number">0</span>) &#123;<br>                <span class="hljs-type">CounterCell</span> <span class="hljs-variable">r</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">CounterCell</span>(x);<br>                <span class="hljs-comment">//cellBusy由0改为1表示有线程正在操作CounterCell数组</span><br>                <span class="hljs-keyword">if</span> (cellsBusy == <span class="hljs-number">0</span> &amp;&amp;<br>                    U.compareAndSwapInt(<span class="hljs-built_in">this</span>, CELLSBUSY, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>)) &#123;<br>                    <span class="hljs-type">boolean</span> <span class="hljs-variable">created</span> <span class="hljs-operator">=</span> <span class="hljs-literal">false</span>;<br>                    <span class="hljs-keyword">try</span> &#123;<br>                        <span class="hljs-comment">//计算下标，并将CounterCell对象放到CounterCell[]数组对应下标</span><br>                        CounterCell[] rs; <span class="hljs-type">int</span> m, j;<br>                        <span class="hljs-keyword">if</span> ((rs = counterCells) != <span class="hljs-literal">null</span> &amp;&amp;<br>                            (m = rs.length) &gt; <span class="hljs-number">0</span> &amp;&amp;<br>                            rs[j = (m - <span class="hljs-number">1</span>) &amp; h] == <span class="hljs-literal">null</span>) &#123;<br>                            rs[j] = r;<br>                            created = <span class="hljs-literal">true</span>; <span class="hljs-comment">//是否创建成功标记设置为true</span><br>                        &#125;<br>                    &#125; <span class="hljs-keyword">finally</span> &#123;<br>                        cellsBusy = <span class="hljs-number">0</span>;<br>                    &#125;<br>                &#125;<br>            &#125;<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这里面首先判断了 CounterCell 数组不为空，然后会再次判断数组中的元素是不是为空，因为如果元素为空，就需要初始化一个 CounterCell 对象放到数组，而如果元素不为空，则只需要 CAS 操作替换元素中的数量即可。所以这里面的逻辑也很清晰，初始化 CounterCell 对象的时候也需要将 cellBusy 由 0 改成 1。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//如果当前位置的元素不为空，则通过cas操作加上数量</span><br><span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (U.compareAndSwapLong(a, CELLVALUE, v = a.value, v + x))<br>    <span class="hljs-keyword">break</span>;<br><span class="hljs-comment">//两个不相等代表有其他线程创建了新的CounterCell数组</span><br><span class="hljs-comment">//或者当前CounterCell数组大小已经大于等于CPU数量（保证并发数不会操作CPU数量）</span><br><span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (counterCells != as || n &gt;= NCPU)<br>    <span class="hljs-comment">//设置当前线程的循环失败不进行扩容</span><br>    collide = <span class="hljs-literal">false</span>;<br><span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (!collide)<br>    collide = <span class="hljs-literal">true</span>; <span class="hljs-comment">//恢复collide状态，下次循环可继续扩容</span><br><span class="hljs-comment">//如果进入这个分支，则说明当前竞争压力过大，需要对CounterCell数组进行扩容</span><br><span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (cellsBusy == <span class="hljs-number">0</span> &amp;&amp;<br>        U.compareAndSwapInt(<span class="hljs-built_in">this</span>, CELLSBUSY, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>)) &#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">//再次判断是否相等，相等表示当前没有其他线程扩容CounterCell数组</span><br>        <span class="hljs-keyword">if</span> (counterCells == as) &#123;<br>            CounterCell[] rs = <span class="hljs-keyword">new</span> <span class="hljs-title class_">CounterCell</span>[n &lt;&lt; <span class="hljs-number">1</span>]; <span class="hljs-comment">//扩容大小为扩大2倍</span><br>            <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; n; ++i) <span class="hljs-comment">//迁移数据</span><br>                rs[i] = as[i];<br>            coountCells = rs;<br>        &#125;<br>    &#125; <span class="hljs-keyword">finally</span> &#123;<br>        cellsBusy = <span class="hljs-number">0</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>主要看上述代码最后一个分支，一旦会进入这个分支，就说明前面所有分支都不满足，即：</p>
+<p>​       当前 CounterCell 数组已经初始化完成。</p>
+<p>​       当前通过 hash 计算出来的 CounterCell 数组下标中的元素不为 null。</p>
+<p>​       直接通过 CAS 操作修改 CounterCell 数组中指定下标位置中对象的数量失败，说明有其他线程在竞争修改同一个数组下标中的元素。</p>
+<p>​       当前操作不满足不允许扩容的条件。</p>
+<p>​       当前没有其他线程创建了新的 CounterCell 数组，且当前 CounterCell 数组的大小仍然小于 CPU 数量。</p>
+<p>所以接下来就需要对 CounterCell 数组也进行扩容，这个扩容的方式和 ConcurrentHashMap 的扩容一样，也是将原有容量乘以 2，所以其实 CounterCell 数组的容量也是满足 2 的 N 次幂。</p>
+<h3 id="3-4-ConcurrentHashMap扩容"><a href="#3-4-ConcurrentHashMap扩容" class="headerlink" title="3.4 ConcurrentHashMap扩容"></a>3.4 ConcurrentHashMap扩容</h3><p>接下来回到 addCount 方法，因为这个方法在添加元素数量的同时，也会判断当前 ConcurrentHashMap 的大小是否达到了扩容的阈值，如果达到，需要扩容。ConcurrentHashMap 扩容也支持多线程同时进行。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">if</span> (check &gt;= <span class="hljs-number">0</span>) &#123;<br>	Node&lt;K,V&gt;[] tab, nt; <span class="hljs-type">int</span> n, sc;<br>	<span class="hljs-keyword">while</span> (s &gt;= (<span class="hljs-type">long</span>)(sc = sizeCtl) &amp;&amp; (tab = table) != <span class="hljs-literal">null</span> &amp;&amp;<br>           (n = tab.length) &lt; MAXIMUM_CAPACITY) &#123;<br>		<span class="hljs-type">int</span> <span class="hljs-variable">rs</span> <span class="hljs-operator">=</span> resizeStamp(n); <span class="hljs-comment">//获取扩容戳</span><br>		<span class="hljs-keyword">if</span> (sc &lt; <span class="hljs-number">0</span>) &#123;<br>			<span class="hljs-keyword">if</span> ((sc &gt;&gt;&gt; RESIZE_STAMP_SHIFT) != rs || sc == rs + <span class="hljs-number">1</span> || <br>                sc == rs + MAX_RESIZERS || (nt = nextTable) == <span class="hljs-literal">null</span> || <br>                transferIndex &lt;= <span class="hljs-number">0</span>)<br>                <span class="hljs-keyword">break</span>;<br>            <span class="hljs-keyword">if</span> (U.compareAndSwapInt(<span class="hljs-built_in">this</span>, SIZECTL, sc, sc + <span class="hljs-number">1</span>))<br>                transfer(tab, nt);<br>         &#125;<br>         <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (U.compareAndSwapInt(<span class="hljs-built_in">this</span>, SIZECTL, sc, (rs &lt;&lt; RESIZE_STAMP_SHIFT) + <span class="hljs-number">2</span>))<br>             transfer(tab, <span class="hljs-literal">null</span>);<br>         s = sumCount();<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这里 check 是传进来的链表长度，&gt;=0 才开始检查是否需要扩容，紧挨之后是一个 while 循环，主要是满足两个条件：</p>
+<ol>
+<li><p>sizeCtl在初始化的时候会被赋值为下一次扩容的大小（扩容之后也会），所以 &gt;=sizeCtl 表示的就是是否达到扩容阈值。</p>
+</li>
+<li><p>table 不为 null 且当前数组长度小于最大值 2 的 30 次方。</p>
+</li>
+</ol>
+<p><strong>扩容戳有什么用：</strong>当满足扩容条件之后，首先会先调用一个方法来获取扩容戳，这个扩容戳比较有意思，要理解扩容戳，必须从二进制的角度来分析。resizeStamp 方法就一句话，其中 RESIZE_STAMP_BITS 是一个默认值 16。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-title function_">resizeStamp</span><span class="hljs-params">(<span class="hljs-type">int</span> n)</span> &#123;<br>    <span class="hljs-keyword">return</span> Integer.numberOfLeadingZeros(n) | (<span class="hljs-number">1</span> &lt;&lt; (RESIZE_STAMP_BITS - <span class="hljs-number">1</span>));<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>（1） Integer.numberOfLeadingZeros(n) 这个方法，实际上这个方法就是做一件事，那就是获取当前数据转成二进制后的最高非 0 位前的 0 的个数。举个例子：</p>
+<figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs angelscript">就以<span class="hljs-number">16</span>为准，<span class="hljs-number">16</span>转成二进制是<span class="hljs-number">10000</span>，最高非<span class="hljs-number">0</span>位是在第<span class="hljs-number">5</span>位，因为<span class="hljs-built_in">int</span>类型是<span class="hljs-number">32</span>位，所以他前面还有<span class="hljs-number">27</span>位，而且都是<span class="hljs-number">0</span>，那么这个方法得到的结果就是<span class="hljs-number">27</span>（<span class="hljs-number">1</span>的前面还有<span class="hljs-number">27</span>个<span class="hljs-number">0</span>）。<br></code></pre></td></tr></table></figure>
+
+<p>（2）1 &lt;&lt; (RESIZE_STAMP_BITS - 1) 在当前版本就是 1&lt;&lt;15，也就是得到一个二进制数 1000000000000000，这里也是要做一件事，把这个 1 移动到第 16 位。最后这两个数通过 | 操作一定得到的结果就是第 16 位是 1，因为 int 是 32 位，最多也就是 32 个 0，而且因为 n 的默认大小是 16（ConcurrentHashMap 默认大小），所以实际上最多也就是 27（11011）个 0，执行 | 运算最多也就是影响低 5 位的结果。</p>
+<p>27 转成二进制为 0000000000000000000000000011011，然后和 00000000000000001000000000000000 执行 | 运算，最终得到的而结果就是 00000000000000010000000000011011，注意：这里之所以要保证第 16 位为 1，是为了保证 sizeCtl 变量为负数，因为前面提到，这个变量为负数才代表当前有线程在扩容。</p>
+<p><strong>首次扩容为什么计数要 +2 而不是 +1</strong></p>
+<p>首次扩容一定不会走前面两个条件，而是走的最后一个条件，这个条件通过 CAS 操作将 rs 左移了 16（RESIZE_STAMP_SHIFT）位，然后加上一个 2，为什么是加 2 呢？</p>
+<p>要回答这个问题先回答另一个问题，上面通过方法获得的扩容戳 rs 究竟有什么用？实际上这个扩容戳代表了两个含义：</p>
+<ol>
+<li><p>高 16 为代表当前扩容的标记，可以理解为一个纪元。</p>
+</li>
+<li><p>低 16 代表了扩容的线程数。</p>
+</li>
+</ol>
+<p>因为 rs 最终是要赋值给 sizeCtl 的，而 sizeCtl 负数才代表扩容，而将 rs 左移 16 位就刚好使得最高位为 1，此时低 16 位全部是 0，而因为低 16 位要记录扩容线程数，所以应该 +1，但是这里是 +2，原因是 sizeCtl 中 -1 这个数值已经被使用了，用来代替当前有线程准备扩容，所以如果直接 +1 是会和标志位发生冲突。所以继续回到上图中的第二个if语句，就是正常继续 +1 了，只有初始化第一次记录扩容线程数的时候才需要 +2。</p>
+<p><strong>扩容条件</strong></p>
+<p>看上代码中第一个if语句，这里面有 5 个条件，代表是满足这 5 个条件中的任意一个，则不进行扩容：</p>
+<ol>
+<li><p>(sc &gt;&gt;&gt; RESIZE_STAMP_SHIFT) != rs 这个条件实际上有 bug，在 JDK12 中已经换掉。</p>
+</li>
+<li><p>sc == rs + 1 表示最后一个扩容线程正在执行首位工作，也代表扩容即将结束。</p>
+</li>
+<li><p>sc == rs + MAX_RESIZERS 表示当前已经达到最大扩容线程数，所以不能继续让线程加入扩容。</p>
+</li>
+<li><p>扩容完成之后会把 nextTable（扩容的新数组） 设为 null。</p>
+</li>
+<li><p>transferIndex &lt;= 0 表示当前可供扩容的下标已经全部分配完毕，也代表了当前线程扩容结束。</p>
+</li>
+</ol>
+<p><strong>多并发下如何实现扩容</strong></p>
+<p>在 ConcurrentHashMap 中采用的是分段扩容法，即每个线程负责一段，默认最小是 16，也就是说如果 ConcurrentHashMap 中只有 16 个槽位，那么就只会有一个线程参与扩容。如果大于 16 则根据当前 CPU 数来进行分配，最大参与扩容线程数不会超过 CPU 数。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">transfer</span><span class="hljs-params">(Node&lt;K,V&gt;[] tab, Node&lt;K,V&gt;[] nextTab)</span>&#123;<br>    <span class="hljs-type">int</span> <span class="hljs-variable">n</span> <span class="hljs-operator">=</span> tab.length, stride;<br>    <span class="hljs-comment">//如果n/8在除以NCPU得到的数小于16，则只会有一个线程进行扩容</span><br>    <span class="hljs-keyword">if</span> ((stride = (NCPU &gt; <span class="hljs-number">1</span>) ? (n &gt;&gt;&gt; <span class="hljs-number">3</span>) / NCPU : n) &lt; MIN_TRANSFER_STRIDE)<br>        stride = MIN_TRANSFER_STRIDE; <span class="hljs-comment">//subdivide range默认每个线程最低位数为16</span><br>    <span class="hljs-comment">//nextTab是扩容后的新数组，为空表示新数组还没有被初始化</span><br>    <span class="hljs-keyword">if</span> (nextTab == <span class="hljs-literal">null</span>)&#123;<br>        <span class="hljs-keyword">try</span> &#123;<br>            Node&lt;K,V&gt;[] nt = (Node&lt;K,V&gt;[])<span class="hljs-keyword">new</span> <span class="hljs-title class_">Node</span>&lt;?,?&gt;[n &lt;&lt; <span class="hljs-number">1</span>]; <span class="hljs-comment">//构建一个新数组</span><br>            nextTab = nt;<br>        &#125; <span class="hljs-keyword">catch</span> (Throwable ex) &#123;<br>            sizeCtl = Integer.MAX_VALUE; <span class="hljs-comment">//扩容失败后将sizeCtl设为最大值，也就是不再触发扩容</span><br>            <span class="hljs-keyword">return</span>;<br>        &#125;<br>        nextTable = nextTab;<br>        transferIndex = n; <span class="hljs-comment">//transferIndex表示转移数据的下标，默认记录为旧数组大小</span><br>    &#125;<br>    <span class="hljs-type">int</span> <span class="hljs-variable">nextn</span> <span class="hljs-operator">=</span> nextTab.length;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>扩容空间和 HashMap 一样，每次扩容都是将原空间大小左移一位，即扩大为之前的两倍。注意这里的 transferIndex 代表的就是推进下标，默认为旧数组的大小。</p>
+<p><strong>扩容时的数据迁移如何保证安全性</strong></p>
+<p>初始化好了新的数组，接下来就是要准备确认边界。也就是要确认当前线程负责的槽位，确认好之后会从大到小开始往前推进，比如线程一负责 1-16，那么对应的数组边界就是 0-15，然后会从最后一位 15 开始迁移数据：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">int</span> <span class="hljs-variable">nextn</span> <span class="hljs-operator">=</span> nextTabl.length;<br>ForwardingNode&lt;K,V&gt; fwd = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ForwardingNode</span>&lt;K,V&gt;(nextTab);<br><span class="hljs-type">boolean</span> <span class="hljs-variable">advance</span> <span class="hljs-operator">=</span> <span class="hljs-literal">true</span>;<br><span class="hljs-type">boolean</span> <span class="hljs-variable">finishing</span> <span class="hljs-operator">=</span> <span class="hljs-literal">false</span>;<br><span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>,bound = <span class="hljs-number">0</span>;;)&#123;<br>    Node&lt;K,V&gt; f; <span class="hljs-type">int</span> fh;<br>    <span class="hljs-keyword">while</span> (advance) &#123;<br>        <span class="hljs-type">int</span> nextIndex, nextBound;<br>        <span class="hljs-keyword">if</span> (--i &gt;= bound || finishing)<br>            advance = <span class="hljs-literal">false</span>;<br>        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> ((nextIndex = transferIndex) &lt;= <span class="hljs-number">0</span>) &#123;<br>            i = -<span class="hljs-number">1</span>;<br>            advance = <span class="hljs-literal">false</span>;<br>        &#125;<br>        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (U.compareAndSwapInt(<span class="hljs-built_in">this</span>, TRANSFERINDEX, nextIndex,<br>                                     nextBound = (nextIndex &gt; stride ? nextIndex - stride : <span class="hljs-number">0</span>))) &#123;<br>            bound = nextBound;<br>            i = nextIndex - <span class="hljs-number">1</span>;<br>            advance = <span class="hljs-literal">false</span>;<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这里面有三个变量比较关键：</p>
+<ol>
+<li><p>fwd 节点，这个代表的是占位节点，最关键的就是这个节点的 hash 值为 -1，所以一旦发现某一个节点中的 hash 值为 -1 就可以知道当前节点已经被迁移了。</p>
+</li>
+<li><p>advance：代表是否可以继续推进下一个槽位，只有当前槽位数据被迁移完成之后才可以设置为 true</p>
+</li>
+<li><p>finishing：是否已经完成数据迁移。</p>
+</li>
+</ol>
+<p>知道了这几个变量，再看看上面的代码，第一次一定会进入 while 循环，因为默认 advance 为 true，第一次进入循环的目的为了确认边界，因为边界值还没有确认，所以会直接走到最后一个分支，通过 CAS 操作确认边界。确认边界这里直接表述很难理解，通过一个例子来说明：</p>
+<figure class="highlight gauss"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs gauss">假设说最开始的空间为<span class="hljs-number">16</span>，那么扩容后的空间就是<span class="hljs-number">32</span>，此时transferIndex为旧数组大小<span class="hljs-number">16</span>，而在第二个<span class="hljs-keyword">if</span>判断中，transferIndex赋值给了<span class="hljs-built_in">nextIndex</span>，所以<span class="hljs-built_in">nextIndex</span>为<span class="hljs-number">16</span>，而stride代表的是每个线程负责的槽位数，最小就是<span class="hljs-number">16</span>，所以stride也是<span class="hljs-number">16</span>，所以nextBound= <span class="hljs-built_in">nextIndex</span> &gt; stride ? <span class="hljs-built_in">nextIndex</span> - stride : <span class="hljs-number">0</span> 皆可以得到：nextBound=<span class="hljs-number">0</span>和i=<span class="hljs-number">15</span>了，也就是当前线程负责<span class="hljs-number">0</span><span class="hljs-number">-15</span>的数组下标，且从<span class="hljs-number">0</span>开始推进，确认边界后立刻将advance设置为false，也就是会跳出<span class="hljs-keyword">while</span>循环，从而执行下面的数据迁移部分逻辑。<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>因为 nextBound=0，所以 CAS 操作实际上也是把 transferIndex 变成了 0，表示当前扩容的数组下标已经全部分配完毕，这也是前面不满足扩容的第 5 个条件。</p>
+</blockquote>
+<p>数据迁移时，会使用 synchronized 关键字对当前节点进行加锁，也就是说锁的粒度精确到了每一个节点，可以说大大提升了效率。加锁之后的数据迁移和 HashMap 基本一致，也是通过区分高低位两种情况来完成迁移。</p>
+<p>当前节点完成数据迁移之后，advance 变量会被设置为 true，也就是说可以继续往前推进节点了，所以会重新进入上面的 while 循环的前面两个分支，把下标 i 往前推进之后再次把 advance 设置为 false，然后重复操作，直到下标推进到 0 完成数据迁移。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">if</span> (i &lt; <span class="hljs-number">0</span> || i &gt;= n || i + n &gt;= nextn) &#123;<br>    <span class="hljs-type">int</span> sc;<br>    <span class="hljs-keyword">if</span> (finishing) &#123; <span class="hljs-comment">//finishing=true表示完成迁移</span><br>        nextTable = <span class="hljs-literal">null</span>;<br>        table = nextTab;<br>        sizeCtl = (n &lt;&lt; <span class="hljs-number">1</span>) - (n &gt;&gt;&gt; <span class="hljs-number">1</span>); <span class="hljs-comment">//设置下一次扩容的大小为新数组空间大小的3/4</span><br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br>    <span class="hljs-comment">//首次进入这里，通过cas将sizeCtl-1表示扩容的线程数-1，因为自己已经完成扩容</span><br>    <span class="hljs-keyword">if</span> (U.compareAndSwapInt(<span class="hljs-built_in">this</span>, SIZECTL, sc = sizeCtl, sc - <span class="hljs-number">1</span>)) &#123;<br>        <span class="hljs-keyword">if</span> ((sc - <span class="hljs-number">2</span>) != resizeStamp(n) &lt;&lt; RESIZE_STAMP_SHIFT)<br>            <span class="hljs-keyword">return</span>;<br>        finishing = advance = <span class="hljs-literal">true</span>;<br>        i = n; <span class="hljs-comment">// recheck before commit再次循环检查一遍</span><br>    &#125;<br>&#125;<br><span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> ((f = tabAt(tab, i)) == <span class="hljs-literal">null</span>)<br>    advance = casTabAt(tab, i, <span class="hljs-literal">null</span>, fwd); <span class="hljs-comment">//数组迁移完成后把当前节点设置成fwd</span><br><span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> ((fh = f.hash) == MOVED) <span class="hljs-comment">//检测当前节点是否已被迁移，如果是的话将advance设置为true，继续推进下标</span><br>    advance = <span class="hljs-literal">true</span>; <span class="hljs-comment">// already processed</span><br><span class="hljs-keyword">else</span> &#123;<br>    <span class="hljs-keyword">synchronized</span> (f) &#123; <span class="hljs-comment">//这部分是负责具体迁移的代码和HashMap差不多</span><br>        <br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>while 循环彻底结束之后，会进入到下面这个 if 判断，当前线程自己完成了迁移之后，会将扩容线程数进行递减，递减之后会再次通过一个条件判断，这个条件其实就是前面进入扩容前条件的反推，如果成立说明扩容已经完成，扩容完成之后会将 nextTable 设置为 null，所以上面不满足扩容的第 4 个条件就是在这里设置的。</p>
+<h3 id="3-5-总结"><a href="#3-5-总结" class="headerlink" title="3.5 总结"></a>3.5 总结</h3><p>在整个 ConcurrentHashMap 中，整个思想就是降低锁的粒度，减少锁的竞争，所以采用了大量的分而治之的思想，比如多线程同时进行扩容，以及通过一个数组来实现 size 的计数等。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/java%E5%9F%BA%E7%A1%80/" class="category-chain-item">java基础</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/java%E5%9F%BA%E7%A1%80/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" class="category-chain-item">多线程</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/">#多线程</a>
+      
+        <a href="/tags/%E9%9B%86%E5%90%88/">#集合</a>
+      
+        <a href="/tags/ConcurrentHashMap/">#ConcurrentHashMap</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>ConcurrentHashMap</div>
+      <div>http://www.zivjie.cn/2023/03/12/java基础/多线程/ConcurrentHashMap/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Francis</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年3月12日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/03/12/java%E5%9F%BA%E7%A1%80/%E5%A4%9A%E7%BA%BF%E7%A8%8B/%E9%94%81-synchronized/" title="锁-synchronized">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">锁-synchronized</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/03/11/java%E5%9F%BA%E7%A1%80/jvm/%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6(Garbage%20Collect-GC)/" title="垃圾回收(Garbage Collect-GC)">
+                        <span class="hidden-mobile">垃圾回收(Garbage Collect-GC)</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,756 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Francis">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1 Watchhttps:&#x2F;&#x2F;zookeeper.apache.org&#x2F;doc&#x2F;current&#x2F;zookeeperProgrammers.html#ch_zkWatches 图解：  支持watch的命令  watch的注册基本上都是读事件  12345helpconfig [-c] [-w] [-s]get [-s] [-w] pathls [-s] [-w] [-R] pathstat [-w">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Zookeeper高级特性">
+<meta property="og:url" content="http://www.zivjie.cn/2023/03/18/%E4%B8%AD%E9%97%B4%E4%BB%B6/zookeeper/Zookeeper%E9%AB%98%E7%BA%A7%E7%89%B9%E6%80%A7/index.html">
+<meta property="og:site_name" content="Francis-Blog">
+<meta property="og:description" content="1 Watchhttps:&#x2F;&#x2F;zookeeper.apache.org&#x2F;doc&#x2F;current&#x2F;zookeeperProgrammers.html#ch_zkWatches 图解：  支持watch的命令  watch的注册基本上都是读事件  12345helpconfig [-c] [-w] [-s]get [-s] [-w] pathls [-s] [-w] [-R] pathstat [-w">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.zivjie.cn/img/aftershock.png">
+<meta property="article:published_time" content="2023-03-18T01:33:00.000Z">
+<meta property="article:modified_time" content="2024-01-02T01:57:15.061Z">
+<meta property="article:author" content="Francis">
+<meta property="article:tag" content="Zookeeper">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://www.zivjie.cn/img/aftershock.png">
+  
+  
+  
+  <title>Zookeeper高级特性 - Francis-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.zivjie.cn","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Francis</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Zookeeper高级特性"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-03-18 09:33" pubdate>
+          2023年3月18日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          7.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          61 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Zookeeper高级特性</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="1-Watch"><a href="#1-Watch" class="headerlink" title="1 Watch"></a>1 Watch</h2><p><a target="_blank" rel="noopener" href="https://zookeeper.apache.org/doc/current/zookeeperProgrammers.html#ch_zkWatches">https://zookeeper.apache.org/doc/current/zookeeperProgrammers.html#ch_zkWatches</a></p>
+<p>图解：</p>
+<p><img src="/image/zookeeper/4.png" srcset="/img/loading.gif" lazyload></p>
+<p>支持watch的命令</p>
+<blockquote>
+<p>watch的注册基本上都是读事件</p>
+</blockquote>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-built_in">help</span><br>config [-c] [-w] [-s]<br>get [-s] [-w] path<br><span class="hljs-built_in">ls</span> [-s] [-w] [-R] path<br><span class="hljs-built_in">stat</span> [-w] path<br></code></pre></td></tr></table></figure>
+
+<h3 id="1-1-watch体验"><a href="#1-1-watch体验" class="headerlink" title="1.1 watch体验"></a>1.1 watch体验</h3><blockquote>
+<p>分类： </p>
+<p>get stat 监听节点数据的变化 </p>
+<p>ls (-R) 针对(子)节点的变化</p>
+</blockquote>
+<h4 id="1-1-1-监听节点数据变化"><a href="#1-1-1-监听节点数据变化" class="headerlink" title="1.1.1 监听节点数据变化"></a>1.1.1 监听节点数据变化</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># 创建节点并添加监听</span><br>create /zk-watch 111<br>get -w /zk-watch<br><span class="hljs-comment"># 来到另外一个客户端</span><br><span class="hljs-built_in">set</span> /zk-watch 222<br><br><span class="hljs-comment"># 观察第一个zkClient的变化，发现收到通知</span><br><span class="hljs-comment">#WATCHER::</span><br><span class="hljs-comment">#WatchedEvent state:SyncConnected type:NodeDataChanged path:/zk-watch</span><br><br><span class="hljs-comment"># 收到watch通知之后，就可以进行对应的业务逻辑处理。但如果再修改/zk-watch的值，发现就不会收到watch通知了，因为该命令下的watch通知是一次性的，要想再收到，得继续添加watch监听</span><br>get -w /zk-watch<br></code></pre></td></tr></table></figure>
+
+<h4 id="1-1-2-监听-子-节点的创建和删除"><a href="#1-1-2-监听-子-节点的创建和删除" class="headerlink" title="1.1.2 监听(子)节点的创建和删除"></a>1.1.2 监听(子)节点的创建和删除</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># 创建子节点并对父节点添加watch</span><br>create /zk-watch/sub1<br>get -w /zk-watch<br><span class="hljs-comment"># 修改/zk-watch/sub1节点的数据值，发现watch并没有生效，因为get只监听单个节点</span><br><span class="hljs-built_in">set</span> /zk-watch/sub1 111<br><span class="hljs-comment"># 通过ls添加对(子)节点的增加和删除监听</span><br><span class="hljs-built_in">ls</span> -w /zk-watch<br>create /zk-watch/sub2 111<br><span class="hljs-comment"># 继续添加zk-watch节点的子节点，发现并没有收到通知，因为ls也是一次性的</span><br>create /zk-watch/sub3 111<br></code></pre></td></tr></table></figure>
+
+<h4 id="1-1-3-永久监听"><a href="#1-1-3-永久监听" class="headerlink" title="1.1.3 永久监听"></a>1.1.3 永久监听</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs sh">create /zk-watch-update 666<br>addWatch /zk-watch-update<br><span class="hljs-built_in">set</span> /zk-watch-update 999<br><span class="hljs-built_in">set</span> /zk-watch-update 888<br>create /zk-watch-update/sub1<br>create /zk-watch-update/sub2<br>delete /zk-watch-update/sub1<br><span class="hljs-built_in">set</span> /zk-watch-update/sub2 222<br>create /zk-watch-update/sub2/sub1 111<br>delete /zk-watch-update/sub2/sub1<br>delete /zk-watch-update/sub2<br>delete /zk-watch-update<br></code></pre></td></tr></table></figure>
+
+<h2 id="2-Monitoring-监控"><a href="#2-Monitoring-监控" class="headerlink" title="2  Monitoring-监控"></a>2  Monitoring-监控</h2><h3 id="2-1-The-Four-Letter-Words"><a href="#2-1-The-Four-Letter-Words" class="headerlink" title="2.1 The Four Letter Words"></a>2.1 The Four Letter Words</h3><p><a target="_blank" rel="noopener" href="https://zookeeper.apache.org/doc/current/zookeeperAdmin.html#sc_4lw">https://zookeeper.apache.org/doc/current/zookeeperAdmin.html#sc_4lw</a></p>
+<p>ZooKeeper响应一小组命令。每个命令由四个字母组成。您可以通过客户端端口的 telnet 或 nc 向 ZooKeeper 发出命令。说白了就是由4个字母组成的命令，可以通过telnet或ncat使用客户端向zkServere发出命令。</p>
+<ol>
+<li>修改zoo.cfg文件</li>
+</ol>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-attr">（1）打开zoo.cfg文件</span><br><span class="hljs-attr">（2）添加一行配置</span>:<span class="hljs-string"></span><br>	<span class="hljs-attr">4lw.commands.whitelist</span>=<span class="hljs-string">*</span><br>	<span class="hljs-attr">echo</span> <span class="hljs-string">&quot;4lw.commands.whitelist=*&quot; &gt;&gt; zoo.cfg</span><br><span class="hljs-attr">（3）重启zk服务</span><br>	<span class="hljs-attr">zkServer.sh</span> <span class="hljs-string">restart</span><br></code></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>体验一下</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs sh">（1）安装ncat: yum install -y nc<br>（2）查看节点是否正常<br>	<span class="hljs-built_in">echo</span> ruok | ncat localhost 2181<br>（3）查看节点相关配置<br>	<span class="hljs-built_in">echo</span> conf | ncat localhost 2181<br>（4）查看节点更详细的状态<br>	<span class="hljs-built_in">echo</span> <span class="hljs-built_in">stat</span> | ncat localhost 2181<br>（5）查看节点更详细的状态<br>	<span class="hljs-built_in">echo</span> srvr | ncat localhost 2181<br>（6）查看临时节点<br>	<span class="hljs-built_in">echo</span> dump| ncat localhost 2181<br>（7）查看watch<br>	get -w /zk-watch<br>	<span class="hljs-built_in">echo</span> wchc| ncat localhost 2181<br>（8）查看server的<span class="hljs-built_in">env</span><br>	<span class="hljs-built_in">echo</span> envi| ncat localhost 2181<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-2-AdminServer"><a href="#2-2-AdminServer" class="headerlink" title="2.2 AdminServer"></a>2.2 AdminServer</h3><p><a target="_blank" rel="noopener" href="https://zookeeper.apache.org/doc/current/zookeeperAdmin.html#sc_adminserver">https://zookeeper.apache.org/doc/current/zookeeperAdmin.html#sc_adminserver</a></p>
+<p><strong>3.5.0 中的新功能：</strong>管理服务器是一个嵌入式 Jetty 服务器，为四个字母的单词命令提供 HTTP 接口。默认情况下，服务器在端口 8080 上启动，并通过转到 URL “/command/[命令名称]”（例如 <a target="_blank" rel="noopener" href="http://localhost:8080/commands/stat%EF%BC%89%E5%8F%91%E5%87%BA%E5%91%BD%E4%BB%A4%E3%80%82%E5%91%BD%E4%BB%A4%E5%93%8D%E5%BA%94%E4%BB%A5">http://localhost:8080/commands/stat）发出命令。命令响应以</a> JSON 形式返回。与原始协议不同，命令不限于四个字母的名称，命令可以有多个名称;例如，“STMK”也可以称为“set_trace_mask”。要查看所有可用命令的列表，请将浏览器指向 URL /command（例如，<a target="_blank" rel="noopener" href="http://localhost:8080/commands%EF%BC%89">http://localhost:8080/commands）</a></p>
+<h3 id="2-3-JMX-Java-Management-Extensions"><a href="#2-3-JMX-Java-Management-Extensions" class="headerlink" title="2.3 JMX(Java Management Extensions)"></a>2.3 JMX(Java Management Extensions)</h3><p>（1）zkServer.sh中配置JMX</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sh">ZOOMAIN=<span class="hljs-string">&quot;-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=8888</span><br><span class="hljs-string">-Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false</span><br><span class="hljs-string">-Djava.rmi.server.hostname=192.168.0.8</span><br><span class="hljs-string">-Dcom.sun.management.jmxremote.local.only=false</span><br><span class="hljs-string">org.apache.zookeeper.server.quorum.QuorumPeerMain&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>（2）重启zkServer</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">zkServer.sh restart<br></code></pre></td></tr></table></figure>
+
+<p>（3）查看8888端口监听</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">lsof -i:8888 <br></code></pre></td></tr></table></figure>
+
+<p>（4）打开本地jconsole，连接指定JMX的ip和port：192.168.0.8:8888</p>
+<p><img src="/image/zookeeper/5.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="3-ACL-权限"><a href="#3-ACL-权限" class="headerlink" title="3 ACL-权限"></a>3 ACL-权限</h2><p><a target="_blank" rel="noopener" href="https://zookeeper.apache.org/doc/current/zookeeperProgrammers.html#sc_ZooKeeperAccessControl">https://zookeeper.apache.org/doc/current/zookeeperProgrammers.html#sc_ZooKeeperAccessControl</a></p>
+<h3 id="3-1-ACL的组成"><a href="#3-1-ACL的组成" class="headerlink" title="3.1 ACL的组成"></a>3.1 ACL的组成</h3><p>scheme : id : permission </p>
+<ol>
+<li><strong>scheme：表示策略</strong> </li>
+</ol>
+<p>（1）world 该scheme只有一个id，为anyone，表示所有人，格式为 world:anyone:permission </p>
+<p>（2）auth 该scheme表示需要认证登录，也就是对应注册的用户需拥有权限才可以访问，格式为 auth:user:password:permission </p>
+<p>（3）digest 该scheme表示需要密码加密才能访问，格式为 digest:username:BASE64(password):permission</p>
+<p>（4）ip 该scheme表示指定的ip才能访问，格式为 ip:localhost:permission </p>
+<p>（5）super 该scheme表示超管，拥有所有权限</p>
+<ol start="2">
+<li><p><strong>id：表示允许访问的用户</strong> </p>
+</li>
+<li><p><strong>permission：表示访问的权限</strong></p>
+</li>
+</ol>
+<p>（1）CREATE: you can create a child node </p>
+<p>（2）READ: you can get data from a node and list its children. </p>
+<p>（3）WRITE: you can set data for a node </p>
+<p>（4）DELETE: you can delete a child node </p>
+<p>（5）ADMIN: you can set permissions</p>
+<h3 id="3-2-ACL体验"><a href="#3-2-ACL体验" class="headerlink" title="3.2 ACL体验"></a>3.2 ACL体验</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># 创建节点并查看权限</span><br>create /zk-acl 111<br>getAcl /zk-acl<br><span class="hljs-comment"># 设置某个用户对某个节点的权限</span><br>create /zk-jack 666<br>setAcl /zk-jack auth:jack:123:cdrwa<br><span class="hljs-comment"># 表示该用户还没有在zk中注册，注册一下</span><br>addauth digest jack:123<br>setAcl /zk-jack auth:jack:123:cdrwa<br>getAcl /zk-jack<br><span class="hljs-comment"># 这样一来，对于/zk-jack节点的操作，就需要先登录一下，打开另外一个客户端，执行如下命令，提示:Insufficient permission : /zk-jack</span><br><span class="hljs-built_in">ls</span> /zk-jack<br>get /zk-jack<br><span class="hljs-comment"># 授权</span><br>addauth digest jack:123<br>get /zk-jack<br></code></pre></td></tr></table></figure>
+
+<h2 id="4-序列化与反序列化"><a href="#4-序列化与反序列化" class="headerlink" title="4 序列化与反序列化"></a>4 序列化与反序列化</h2><p>常见的序列化方式：json、protobuf、thrif、avro等。Zookeeper使用的序列化方式是jute，Java类需要实现Record接口，底层使用的是DataOutput和 DataInput。</p>
+<p>（1）引入依赖</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.projectlombok<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>lombok<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>1.18.24<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>junit<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>junit<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">scope</span>&gt;</span>test<span class="hljs-tag">&lt;/<span class="hljs-name">scope</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.apache.zookeeper<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>zookeeper<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>3.7.1<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>（2）定义Java类并测试</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Data</span><br><span class="hljs-meta">@AllArgsConstructor</span><br><span class="hljs-meta">@NoArgsConstructor</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Person</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Record</span>&#123;<br>    <span class="hljs-keyword">private</span> String username;<br>    <span class="hljs-keyword">private</span> Integer age;<br>    <br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">serialize</span><span class="hljs-params">(OutputArchive archive, String tag)</span> <span class="hljs-keyword">throws</span> IOException&#123;<br>        archive.startRecord(<span class="hljs-built_in">this</span>, tag);<br>        archive.writeString(username, <span class="hljs-string">&quot;username&quot;</span>);<br>        archive.writeInt(age, <span class="hljs-string">&quot;age&quot;</span>);<br>        archive.endRecord(<span class="hljs-built_in">this</span>, tag);<br>    &#125;<br>    <br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">serialize</span><span class="hljs-params">(InputArchive archive, String tag)</span> <span class="hljs-keyword">throws</span> IOException&#123;<br>        archive.startRecord(tag);<br>        username = archive.readString(<span class="hljs-string">&quot;username&quot;</span>);<br>        age = archive.readInt(<span class="hljs-string">&quot;age&quot;</span>);<br>        archive.endRecord(tag);<br>    &#125;<br>    <br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> Exception&#123;<br>        <span class="hljs-comment">//序列化</span><br>        <span class="hljs-type">ByteArrayOutputStream</span> <span class="hljs-variable">byteArrayOutputStream</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ByteArrayOutputStream</span>();<br>        <span class="hljs-type">BinaryOutputArchive</span> <span class="hljs-variable">binaryOutputArchive</span> <span class="hljs-operator">=</span> BinaryOutputArchive.getArchive(byteArrayOutputStream);<br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">Person</span>(<span class="hljs-string">&quot;Jack&quot;</span>, <span class="hljs-number">16</span>).serialize(binaryOutputArchive, <span class="hljs-string">&quot;person&quot;</span>);<br>		<span class="hljs-type">ByteBuffer</span> <span class="hljs-variable">byteBuffer</span> <span class="hljs-operator">=</span> ByteBuffer.wrap(byteArrayOutputStream.toByteArray());<br>        <span class="hljs-comment">// 反序列化</span><br>		<span class="hljs-type">ByteBufferInputStream</span> <span class="hljs-variable">byteBufferInputStream</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ByteBufferInputStream</span>(byteBuffer);<br>		<span class="hljs-type">BinaryInputArchive</span> <span class="hljs-variable">binaryInputArchive</span> <span class="hljs-operator">=</span> BinaryInputArchive.getArchive(byteBufferInputStream);<br>		<span class="hljs-type">Person</span> <span class="hljs-variable">person</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Person</span>();<br>		person.deserialize(binaryInputArchive, <span class="hljs-string">&quot;person&quot;</span>);<br>		System.out.println(person.toString());<br>		<span class="hljs-comment">// 关闭资源</span><br>		byteArrayOutputStream.close();<br>		byteBufferInputStream.close();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="5-快照数据与事务日志"><a href="#5-快照数据与事务日志" class="headerlink" title="5 快照数据与事务日志"></a>5 快照数据与事务日志</h2><p>快照数据：记录所有ZNode节点及数据某一时刻的快照，保存在zoo.cfg文件配置项的dataDir目录的 version-2中，格式为snapshot.zxid 事务日志：记录每一次事务操作的记录，保存在dataLogDir[dataDir]目录的version-2中，格式为 log.zxid</p>
+<p>数据与日志里都是二进制数据，不能直接打开，需要使用以下工具：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sh">zkSnapShotToolkit.sh snapshot.zxid<br>zkTxnLogToolkit.sh log.zxid<br></code></pre></td></tr></table></figure>
+
+<h3 id="5-1-zkServer第一次启动"><a href="#5-1-zkServer第一次启动" class="headerlink" title="5.1 zkServer第一次启动"></a>5.1 zkServer第一次启动</h3><p>zkServer第一次启动时，因为此时zxid的值为0，会生成一个snapshot.0的数据快照文件，对应的源码是FileTnxSnapLog#save方法。</p>
+<p>文件的大小不会进行预分配，而是取决于内存DataTree的大小。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java">snapLog.serialize(dataTree, sessionsWithTimeouts, snapshotFile, syncSnap);<br><span class="hljs-keyword">new</span> <span class="hljs-title class_">SnapshotInfo</span>(Util.getZxidFromName(snapShot.getName(), SNAPSHOT_FILE_PREFIX),snapShot.lastModified() / <span class="hljs-number">1000</span>)<br></code></pre></td></tr></table></figure>
+
+<p>查看快照日志文件内容</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">zkSnapShotToolkit.sh snapshot.0<br></code></pre></td></tr></table></figure>
+
+<h3 id="5-2-第一次创建事务日志文件"><a href="#5-2-第一次创建事务日志文件" class="headerlink" title="5.2 第一次创建事务日志文件"></a>5.2 第一次创建事务日志文件</h3><p>使用客户端连接zk server时，也是事务事件，会生成了一个log.1的事务日志文件，对应的源码是 FileTxnLog#append方法。</p>
+<p>文件的大小会进行预分配，也就是FilePadding#preAllocaSize = 65536 * 1024 Byte = 64M 也就是说每个事务日志文件的默认大小是64M，可以直接在windows中查看文件。如果事务日志文件的空间剩余不足4KB，则会再次预分配64M的磁盘空间。从这里可以看出，快照文件和日志文件最好不要放在一起，防止文件句柄数的频繁打开。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">zkTxnLogToolkit.sh log.1<br></code></pre></td></tr></table></figure>
+
+<h3 id="5-3-新建数据快照文件和事务日志文件"><a href="#5-3-新建数据快照文件和事务日志文件" class="headerlink" title="5.3 新建数据快照文件和事务日志文件"></a>5.3 新建数据快照文件和事务日志文件</h3><p>每进行一次事务操作，事务日志中都会增加一条记录，当经过snapCount(默认100000)的过半随机次数(即在5万到10万之间)的事务写入之后，就会触发一次快照数据文件生成，同时也会新生成一个事务日志文件。</p>
+<p>注意：每一次重新启动zk server，如果之前有zxid的变化，则也会创建一个新的快照数据文件，同时在后续的事务操作中，也会新建一个新的事务日志文件。</p>
+<p>具体源码见SyncRequestProcessor#shouldSnapshot()方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">shouldSnapshot</span><span class="hljs-params">()</span> &#123;<br>	<span class="hljs-type">int</span> <span class="hljs-variable">logCount</span> <span class="hljs-operator">=</span> zks.getZKDatabase().getTxnCount();<br>	<span class="hljs-type">long</span> <span class="hljs-variable">logSize</span> <span class="hljs-operator">=</span> zks.getZKDatabase().getTxnSize();<br>	<span class="hljs-keyword">return</span> (logCount &gt; (snapCount / <span class="hljs-number">2</span> + randRoll)) <br>        || (snapSizeInBytes &gt; <span class="hljs-number">0</span> &amp;&amp; logSize &gt; (snapSizeInBytes / <span class="hljs-number">2</span> + randSize));<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="5-4-数据快照文件和事务日志文件的清理"><a href="#5-4-数据快照文件和事务日志文件的清理" class="headerlink" title="5.4 数据快照文件和事务日志文件的清理"></a>5.4 数据快照文件和事务日志文件的清理</h3><blockquote>
+<p>QuorumPeerConfig</p>
+</blockquote>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-attr">purgeInterval</span>=<span class="hljs-string">0   #触发自动清理的时间间隔，单位是小时，默认值为0，表示不开启自动清理的功能</span><br><span class="hljs-attr">snapRetainCount</span>=<span class="hljs-string">3   #自动清理保留3个事务日志和快照数据</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="5-5-总结"><a href="#5-5-总结" class="headerlink" title="5.5 总结"></a>5.5 总结</h3><p>针对每一次事务操作，都会将其保存到事务日志文件中，同时会将数据的变化应用到内存DataTree中。当经过了一定次数的事务操作后，则会将内存DataTree中的全量数据保存到数据快照文件中。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/" class="category-chain-item">中间件</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/Zookeeper/" class="category-chain-item">Zookeeper</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Zookeeper/">#Zookeeper</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Zookeeper高级特性</div>
+      <div>http://www.zivjie.cn/2023/03/18/中间件/zookeeper/Zookeeper高级特性/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Francis</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年3月18日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/03/18/spring%E6%A1%86%E6%9E%B6/springcloud/sentinel/sentinel%E5%85%A5%E9%97%A8/" title="sentinel入门">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">sentinel入门</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/03/18/spring%E6%A1%86%E6%9E%B6/springcloud/sentinel/sentinel%E9%80%82%E9%85%8D%E5%BC%80%E6%BA%90%E6%A1%86%E6%9E%B6/" title="sentinel适配开源框架">
+                        <span class="hidden-mobile">sentinel适配开源框架</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

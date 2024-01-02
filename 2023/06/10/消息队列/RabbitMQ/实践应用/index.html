@@ -1,0 +1,864 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Francis">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1 订单延迟关闭1.1 业务场景假设有一个业务场景：超过30分钟未付款的订单自动关闭，这个功能怎么做？ 思路：发一条跟订单相关的消息，30分钟后被消费，在消费者的代码中查询订单数据，如果支付状态是未付款，就关闭订单。 RabbitMQ本身不支持延迟投递，总的来说有2种实现方案： ​    1、先存储到数据库，用定时任务扫描 ​    2、利用RabbitMQ的死信队列（Dead Letter Qu">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RabbitMQ实践应用">
+<meta property="og:url" content="http://www.zivjie.cn/2023/06/10/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/RabbitMQ/%E5%AE%9E%E8%B7%B5%E5%BA%94%E7%94%A8/index.html">
+<meta property="og:site_name" content="Francis-Blog">
+<meta property="og:description" content="1 订单延迟关闭1.1 业务场景假设有一个业务场景：超过30分钟未付款的订单自动关闭，这个功能怎么做？ 思路：发一条跟订单相关的消息，30分钟后被消费，在消费者的代码中查询订单数据，如果支付状态是未付款，就关闭订单。 RabbitMQ本身不支持延迟投递，总的来说有2种实现方案： ​    1、先存储到数据库，用定时任务扫描 ​    2、利用RabbitMQ的死信队列（Dead Letter Qu">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.zivjie.cn/img/Fantasy%20World%20(2).png">
+<meta property="article:published_time" content="2023-06-10T03:32:21.000Z">
+<meta property="article:modified_time" content="2024-01-02T01:45:40.684Z">
+<meta property="article:author" content="Francis">
+<meta property="article:tag" content="消息队列">
+<meta property="article:tag" content="RabbitMQ">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://www.zivjie.cn/img/Fantasy%20World%20(2).png">
+  
+  
+  
+  <title>RabbitMQ实践应用 - Francis-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.zivjie.cn","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Francis</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="RabbitMQ实践应用"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-06-10 11:32" pubdate>
+          2023年6月10日 中午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          15k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          130 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">RabbitMQ实践应用</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="1-订单延迟关闭"><a href="#1-订单延迟关闭" class="headerlink" title="1 订单延迟关闭"></a>1 订单延迟关闭</h2><h3 id="1-1-业务场景"><a href="#1-1-业务场景" class="headerlink" title="1.1 业务场景"></a>1.1 业务场景</h3><p>假设有一个业务场景：超过30分钟未付款的订单自动关闭，这个功能怎么做？</p>
+<p>思路：发一条跟订单相关的消息，30分钟后被消费，在消费者的代码中查询订单数据，如果支付状态是未付款，就关闭订单。</p>
+<p>RabbitMQ本身不支持延迟投递，总的来说有2种实现方案：</p>
+<p>​    1、先存储到数据库，用定时任务扫描</p>
+<p>​    2、利用RabbitMQ的死信队列（Dead Letter Queue）实现</p>
+<p>定时任务比较容易实现，比如每隔一分钟扫描一次，查出30分钟之前未付款的订单，把状态改成关闭。但是如果瞬间要处理的数据量过大，比如10万条，把这些数据查询到内存中逐条处理，也会给服务器带来很大的压力，影响正常业务的运行。</p>
+<p>第二点，死信队列</p>
+<h3 id="1-2-Message-TTL-Time-To-Live"><a href="#1-2-Message-TTL-Time-To-Live" class="headerlink" title="1.2 Message TTL (Time To Live)"></a>1.2 Message TTL (Time To Live)</h3><h4 id="1-2-1-队列的属性"><a href="#1-2-1-队列的属性" class="headerlink" title="1.2.1 队列的属性"></a>1.2.1 队列的属性</h4><p>首先队列有一个消息过期属性。就像丰巢超过24小时就收费一样，通过设置这个属性，超过了指定的消息将会被丢弃。这个属性叫：x-message-ttl</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> Queue <span class="hljs-title function_">queue</span><span class="hljs-params">()</span>&#123;<br>    Map&lt;String, Object&gt; map = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>    <span class="hljs-comment">// 队列中的消息未被消费11秒后过期</span><br>    map.put(<span class="hljs-string">&quot;x-message-ttl&quot;</span>, <span class="hljs-number">11000</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Queue</span>(<span class="hljs-string">&quot;TTL_Queue&quot;</span>, <span class="hljs-literal">true</span>, <span class="hljs-literal">false</span>, <span class="hljs-literal">false</span>, map);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>但是这种方式不是那么灵活。所以RabbitMQ的消息也有单独的过期事件属性。</p>
+<h4 id="1-2-2-消息的属性"><a href="#1-2-2-消息的属性" class="headerlink" title="1.2.2 消息的属性"></a>1.2.2 消息的属性</h4><p>在发送消息的时候通过MessageProperties指定消息属性。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">MessageProperties</span> <span class="hljs-variable">messageProperties</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">MessageProperties</span>();<br><span class="hljs-comment">// 消息过期属性，单位ms</span><br>messageProperties.setExpiration(<span class="hljs-string">&quot;4000&quot;</span>);<br><span class="hljs-type">Message</span> <span class="hljs-variable">message</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Message</span>(<span class="hljs-string">&quot;这条消息4秒后过期&quot;</span>.getBytes(), messageProperties);<br>rabbitTemplate.send(<span class="hljs-string">&quot;TTL_EXCHANGE&quot;</span>)<br></code></pre></td></tr></table></figure>
+
+<p>如果同时指定了message TTL和Queue TTL，则小的那个时间生效。</p>
+<p>有了过期时间还不够，这个消息不能直接丢弃，不然就没办法消费了。最好是丢到一个容器中，这样就可以实现延迟消费了。这里来了解一下死信的概念。</p>
+<h3 id="1-3-死信"><a href="#1-3-死信" class="headerlink" title="1.3 死信"></a>1.3 死信</h3><p>消息过期后，如果没有任何配置，是会直接丢弃的。可以通过配置让这样的消息变成死信（Dead Letter），在别的地方存储。</p>
+<h4 id="1-3-1-死信去哪里"><a href="#1-3-1-死信去哪里" class="headerlink" title="1.3.1 死信去哪里"></a>1.3.1 死信去哪里</h4><p>队列在创建的时候可以指定一个死信交换机DLX（Dead Letter Exchange）。死信交换机绑定的队列被称为死信队列DLQ（Dead Letter Queue），DLX实际上也是普通的交换机，DLQ也是普通的队列。</p>
+<p>也就是说，如果消息过期了，队列指定了DLX，就会发送到DLX。如果DLX指定DLQ，就会路由到DLQ。路由到DLQ后，就可以消费了。</p>
+<h4 id="1-3-2-死信队列的使用"><a href="#1-3-2-死信队列的使用" class="headerlink" title="1.3.2 死信队列的使用"></a>1.3.2 死信队列的使用</h4><p>下面通过一个例子来演示死信队列的使用。</p>
+<p>​    1、声明原交换机，原队列，相互绑定。指定原队列的死信交换机。</p>
+<p>​    2、声明死信交换机，死信队列，并且通过“#”绑定，代表无条件路由</p>
+<p>​    3、最终消费者监听死信队列，在这里实现检查订单状态逻辑。</p>
+<p>​    4、生产者发送消息测试，设置消息10秒过期。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs java">![<span class="hljs-number">5</span>](E:\Project\blog-hexo\source\image\消息队列\RabbitMQ\<span class="hljs-number">5.</span>png)<span class="hljs-comment">//指定队列的死信交换机</span><br>Map&lt;String, Object&gt; arguments = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>arguments.put(<span class="hljs-string">&quot;x-dead-letter-exchange&quot;</span>, <span class="hljs-string">&quot;DEAD_LETTER_EXCHANGE&quot;</span>);<br><span class="hljs-comment">//arguments.put(&quot;x-expires&quot;, &quot;9000&quot;);  //设置队列的TTL</span><br><span class="hljs-comment">//arguments.put(&quot;x-max-length&quot;, 4);    //如果设置了队列的最大长度，超过长度时，先入队的消息会被发送到DLX</span><br><br><span class="hljs-comment">//声明队列（默认交换机AMQP default, Direct）</span><br><span class="hljs-comment">//String queue, boolean durable, boolean exclusive, boolean antoDelete, Map&lt;String, Object&gt; arguments</span><br>channel.queueDeclare(<span class="hljs-string">&quot;ORI_USE_QUEUE&quot;</span>,<span class="hljs-literal">false</span>,<span class="hljs-literal">false</span>,<span class="hljs-literal">false</span>,arguments);<br><span class="hljs-comment">//声明死信交换机</span><br>channel.exchangeDeclare(<span class="hljs-string">&quot;DEAD_LETTER_EXCHANGE&quot;</span>,<span class="hljs-string">&quot;topic&quot;</span>,<span class="hljs-literal">false</span>,<span class="hljs-literal">false</span>,<span class="hljs-literal">false</span>,<span class="hljs-literal">null</span>);<br><span class="hljs-comment">//声明死信队列</span><br>channel.queueDeclare(<span class="hljs-string">&quot;DEAD_LETTER_QUEUE&quot;</span>,<span class="hljs-literal">false</span>,<span class="hljs-literal">false</span>,<span class="hljs-literal">false</span>,<span class="hljs-literal">null</span>);<br><span class="hljs-comment">//绑定</span><br>channel.queueBind(<span class="hljs-string">&quot;DEAD_LETTER_QUEUE&quot;</span>,<span class="hljs-string">&quot;DEAD_LETTER_EXCHANGE&quot;</span>,<span class="hljs-string">&quot;#&quot;</span>);<br>System.out.println(<span class="hljs-string">&quot;wating for message&quot;</span>);<br></code></pre></td></tr></table></figure>
+
+<h4 id="1-3-3-消息流转"><a href="#1-3-3-消息流转" class="headerlink" title="1.3.3 消息流转"></a>1.3.3 消息流转</h4><p><img src="/image/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/RabbitMQ/5.png" srcset="/img/loading.gif" lazyload></p>
+<p>总结一下，利用消息的过期时间，过期后投递到DLX，路由到DLQ，监听DLQ，实现了延迟队列。</p>
+<p>消息的流转流程：生产者——原交换机——原队列（超过TTL之后）——死信交换机——死信队列——最终消费者。</p>
+<h3 id="1-4-延迟队列的其他实现"><a href="#1-4-延迟队列的其他实现" class="headerlink" title="1.4 延迟队列的其他实现"></a>1.4 延迟队列的其他实现</h3><p>使用死信队列实现延时消息的缺点：</p>
+<p>​    （1）如果统一用队列来设置消息的TTL，当梯度非常多的情况下，比如1分钟，2分钟，5分钟，10分钟，20分钟，30分钟……需要创建很多交换机和队列来路由消息。</p>
+<p>​    （2）如果单独设置消息的TTL，则可能会造成队列中的消息阻塞——前一条消息没有出队（没有被消费），后面的消息无法投递（比如第一条消息过期TTL是30min，第二条消息TTL是10min。10分钟后，及时第二条消息应该投递了，但是由于第一条消息还未出队，所以无法投递）</p>
+<p>​    （3）可能存在一定的时间误差</p>
+<p>在RabbitMQ3.5.7及以后的版本提供了一个插件（rabbitmq-delayed-message-exchange）来实现演示队列功能（Linux和windows都可用）。同时插件依赖Erlang/OPT18.0及以上。</p>
+<p>​    插件源码地址：<a target="_blank" rel="noopener" href="https://github.com/rabbitmq/rabbitmq-delayed-message-exchange">https://github.com/rabbitmq/rabbitmq-delayed-message-exchange</a></p>
+<p>​    插件下载地址：<a target="_blank" rel="noopener" href="https://bintray.com/rabbitmq/community-plugins.rabbitmq_delayed_message_exchange">https://bintray.com/rabbitmq/community-plugins.rabbitmq_delayed_message_exchange</a></p>
+<p>使用方法：</p>
+<ol>
+<li>进入目录</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sh">whereis rabbitmq<br><span class="hljs-built_in">cd</span> /usr/lib/rabbitmq/lib/rabbitmq_server-3.6.12/plugins<br></code></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>下载插件</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">wget https://bintray.com/rabbitmq/community-plugins/download_file?file_path=rabbitmq_delayed_message_exchange-0.0.1.ez<br></code></pre></td></tr></table></figure>
+
+<p>如果下载的文件名带问号，则需要改名，如图：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-built_in">mv</span> download_file?file_path=rabbitmq_delayed_message_exchange-0.0.1.ez rabbitmq_delayed_message_exchange-0.0.1.ez<br></code></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>启用插件</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">rabbitmq-plugins <span class="hljs-built_in">enable</span> rabbitmq_delayed_message_exchange<br></code></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>停用插件</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">rabbitmq-plugins <span class="hljs-built_in">disable</span> rabbitmq_delayed_message_exchange<br></code></pre></td></tr></table></figure>
+
+<ol start="5">
+<li>插件使用</li>
+</ol>
+<p>通过声明一个x-delayed-message类型的Exchange来使用delayed-messageing特性。x-delayed-message是插件提供的类型，并不是rabbitmq本身的（区别于direct，topic，fanout，headers）。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Bean(&quot;delayExchange&quot;)</span><br><span class="hljs-keyword">public</span> TopicExchange <span class="hljs-title function_">exchange</span><span class="hljs-params">()</span>&#123;<br>    Map&lt;String, Object&gt; arges = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>    arges.put(<span class="hljs-string">&quot;x-delay-type&quot;</span>, <span class="hljs-string">&quot;direct&quot;</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">TopicExchange</span>(<span class="hljs-string">&quot;DELAY_EXCHANGE&quot;</span>,<span class="hljs-literal">true</span>,<span class="hljs-literal">false</span>,arges);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>生产者：消息属性中指定x-delay参数</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">MessageProperties</span> <span class="hljs-variable">messageProperties</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">MessageProperties</span>();<br><span class="hljs-comment">// 延迟的间隔时间，目标时刻减去当前时刻</span><br>messageProperties.setHeader(<span class="hljs-string">&quot;x-delay&quot;</span>, delayTime.getTime() - now.getTime());<br><span class="hljs-type">Message</span> <span class="hljs-variable">message</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Message</span>(msg.getBytes(),messageProperties);<br>rabbitTempliate.send(<span class="hljs-string">&quot;DELAY_EXCHANGE&quot;</span>, <span class="hljs-string">&quot;#&quot;</span>, message);<br></code></pre></td></tr></table></figure>
+
+<p>补充：除了消息过期，还有什么情况消息会变成死信？</p>
+<p>​    1）消息被消费者拒绝并且未设置重回队列：（NACK || Reject）&amp;&amp;requeue == false</p>
+<p>​    2）队列达到最大长度，超过了Max length（消息数）或者Max length bytes（字节数），最先入队的消息会被发送到DLX。</p>
+<p>RabbitMQ的消息是存在磁盘上的，如果内存节点，会同时存在磁盘和内存中。当RabbitMQ生产MQ消息的速度远大于消费消息的速度时，会产生大量的消息堆积，占用系统资源，导致机器性能下降。流量控制可以从几方面来控制，一个是服务端，一个是消费端。</p>
+<h2 id="2-服务端流控"><a href="#2-服务端流控" class="headerlink" title="2 服务端流控"></a>2 服务端流控</h2><p><a target="_blank" rel="noopener" href="https://www.rabbitmq.com/configure.html">https://www.rabbitmq.com/configure.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.rabbitmq.com/flow-control.html">https://www.rabbitmq.com/flow-control.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.rabbitmq.com/memory.html">https://www.rabbitmq.com/memory.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.rabbitmq.com/disk-alarms.html">https://www.rabbitmq.com/disk-alarms.html</a></p>
+<h3 id="2-1-队列长度"><a href="#2-1-队列长度" class="headerlink" title="2.1 队列长度"></a>2.1 队列长度</h3><p>队列有两个控制长度的属性：</p>
+<p>x-max-length：队列中最大存储最大消息数，超过这个数量，对头的消息会被丢弃。</p>
+<p>x-max-length-bytes：队列存储的最大消息容量（单位bytes），超过这个容量，对头的消息会被丢弃。</p>
+<p>需要注意的是，设置队列长度只在消息堆积的情况下有意义，而且会删除先入队的消息，不能真正的实现服务端限流</p>
+<h3 id="2-2-内存控制"><a href="#2-2-内存控制" class="headerlink" title="2.2 内存控制"></a>2.2 内存控制</h3><p><a target="_blank" rel="noopener" href="https://www.rabbitmq.com/configure.html">https://www.rabbitmq.com/configure.html</a></p>
+<p>RabbitMQ会在启动时检测机器的物理内存数值。默认当MQ占用40%以上内存时，MQ会主动抛出一个内存警告并阻塞所有连接（Connections）。可以通过修改rabbitmq.config文件来调整内存阈值，默认值是0.4，如下所示：windows默认配置文件：advanced.config</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-attr">[&#123;rabbit,</span> <span class="hljs-string">[&#123;vm_memory_high_watermark, 0.4&#125;]&#125;]</span><br></code></pre></td></tr></table></figure>
+
+<p>也可以用命令动态设置，如果设置成0，则所有的消息都不能发布。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">rabbitmqctl set_vm_memory_high_watermark 0.3<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-3-磁盘控制"><a href="#2-3-磁盘控制" class="headerlink" title="2.3 磁盘控制"></a>2.3 磁盘控制</h3><p><a target="_blank" rel="noopener" href="https://www.rabbitmq.com/configure.html">https://www.rabbitmq.com/configure.html</a></p>
+<p>另一种方式是通过磁盘来控制消息的发布。当磁盘剩余可用空间低于指定的值时（默认50MB），触发流控措施。例如：指定为磁盘的30%或者2GB</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-attr">disk_free_limie.ralative</span>=<span class="hljs-string">3.0</span><br><span class="hljs-attr">disk_free_limit.absolute</span>=<span class="hljs-string">2GB</span><br></code></pre></td></tr></table></figure>
+
+<p>还有一种情况，虽然Broker消息存储的过来，但是push模型下（consume，有消息就消费），消费者消费不过来了，这个时候也要对流量进行控制。</p>
+<h2 id="3-消费端流控"><a href="#3-消费端流控" class="headerlink" title="3 消费端流控"></a>3 消费端流控</h2><p><a target="_blank" rel="noopener" href="https://www.rabbitmq.com/consumer-perfetch.html">https://www.rabbitmq.com/consumer-perfetch.html</a></p>
+<p>默认情况下，如果不进行配置，RabbitMQ会尽可能快速地把队列中地消息发送给消费者。因为消费者会在本地缓存消息，如果消息数量过多，可能导致OOM或者影响其他进程地正常运行。</p>
+<p>在消费者处理消息地能力有限，例如消费者数量太少，或者单条消息地处理时间过长的情况下，如果希望在一定数量的消息消费完之前，不再推送消息过来，就要用到消费端的流量限制措施。</p>
+<p>可以基于Consumer或者channel设置prefetch count的值，含义为Consumer端的最大的unacked messages数目。当超过这个数值的消息未被确认，RabbitMQ会停止投递新的消息给该消费者。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java">channel.basicQos(<span class="hljs-number">2</span>); <span class="hljs-comment">//如果超过2条消息没有发送ACK，当前消费者不再接受队列消息</span><br>channel.basicConsume(QUEUE_NAME, <span class="hljs-literal">false</span>, consumer);<br></code></pre></td></tr></table></figure>
+
+<p>启动两个消费者，其中一个Consumer2消费很慢，qos设置为2，最多一次给它发两条消息，其他的消息都被Consumer1接收了。这个叫能者多劳。</p>
+<h2 id="4-消息可靠性投递"><a href="#4-消息可靠性投递" class="headerlink" title="4 消息可靠性投递"></a>4 消息可靠性投递</h2><p>一个经典的面试题：在使用MQ实现异步通信的过程中，有消息丢了怎么办？或者MQ消息重复了怎么办？</p>
+<p>​    这个就是RabbitMQ的可靠性投递。当然，RabbitMQ在设计的时候其实就考虑了这一点，提供了很多保证消息可靠性投递的机制。这个可以说是RabbitMQ比较突出的一个特性。</p>
+<p>​    可靠性只是问题的一个方面，发送消息的效率同样是需要考虑的问题，而这两个因素是无法兼得的，如果在发送消息的每一个环节都采取相关措施来保证可靠性，势必会对消息的收发效率造成影响。在一些业务实时一致性要求不是很高的场合，可以牺牲一些可靠性来换取效率。</p>
+<p>在使用RabbitMQ收发消息的时候，有几个主要环节：</p>
+<p>​    1）消息从生产者发送到Broker，生产者把消息发到Broker之后，怎么知道自己的消息有没有被Broker成功接收？如果Broker不给应答，生产者不断地发送，那有可能是一厢情愿，消息全部进了黑洞。</p>
+<p>​    2）消息从Exchange路由到Queue，Exchange是一个绑定列表，它的职责是分发消息。如果它没有办法履行它地指责怎么办？也就是说，找不到队列或者找不到正确的队列，怎么处理？</p>
+<p>​    3）消息在Queue中存储，队列有自己的数据库（Mnesia），它是真正用来存储消息的。如果还没有消费者来消费，那么消息要一直存储在队列中。怎么保证消息在队列中稳定的存储呢？</p>
+<p>​    4）消费者订阅Queue并消费消息，队列的特性是什么？FIFO。队列中的消息是一条一条的投递的，也就是说，只有上一条消息被消费者接收以后，才能把这一条消息从数据库删掉，继续投递下一条消息。Broker怎么知道消费者已经接受了消息呢？</p>
+<h3 id="4-1-消息发送到RabbitMQ服务器"><a href="#4-1-消息发送到RabbitMQ服务器" class="headerlink" title="4.1 消息发送到RabbitMQ服务器"></a>4.1 消息发送到RabbitMQ服务器</h3><p>第一个环节是生产者发送消息到Broker。可能因为网络连接或者Broker的问题（比如硬盘故障，硬盘写满了）导致消息发送失败，生产者不能确定Broker有没有正确的接收。如果去设计，肯定要给生产者发送消息的接口一个应答，生产者才可以明确知道消息有没有发送成功。在RabbitMQ中提供了两种机制<strong>服务端确认机制</strong>，也就是在生产者发送消息给RabbitMQ的服务端的时候，服务端会通过某种方式返回一个应答，只要生产者收到了这个应答，就知道消息发送成功了。</p>
+<p>​    第一种是Transaction（事务）模式，第二种Confirm（确认）模式。</p>
+<h4 id="4-1-1-Transaction-事务-模式"><a href="#4-1-1-Transaction-事务-模式" class="headerlink" title="4.1.1 Transaction(事务)模式"></a>4.1.1 Transaction(事务)模式</h4><p>在创建channel的时候，可以把信道设置成事务模式，然后就可以发布消息给RabbitMQ了。如果channel.txCommit();的方法调用成功，就说明事务提交成功，则消息一定到达了RabbitMQ中。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">try</span>&#123;<br>    channel.txSelect();<br>    <span class="hljs-comment">// 发送消息</span><br>    channel.basicPublish(<span class="hljs-string">&quot;&quot;</span>,QUEUE_NAME,<span class="hljs-literal">null</span>,msg.getBytes());<br>    channel.txCommit();<br>    System.out.println(<span class="hljs-string">&quot;消息发送成功&quot;</span>)；<br>&#125; <span class="hljs-keyword">catch</span>(Exception e) &#123;<br>    channel.txRollback();<br>    System.out.println(<span class="hljs-string">&quot;消息已经回滚&quot;</span>)；<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>如果在事务提交之前由于RabbitMQ异常奔溃或者其他原因抛出异常，这个时候便可以将其进行捕获，进而通过执行channel.txRoolback()方法来实现事务回滚。</p>
+<p>在事务模式中，只有收到了服务端的Commit-OK的指令，才能提交成功。所以可以解决生产者和服务端确认的问题。但是事务模式有一个缺点，它是阻塞的，一条消息没有发送完毕，不能发送下一条消息，它会榨干RabbitMQ服务器的性能。所以不建议在生产环境中使用。 SpringBoot中的设置： rabbitTemplate.setChannelTransacted(true)；</p>
+<h4 id="4-1-2-Confirm-确认-模式"><a href="#4-1-2-Confirm-确认-模式" class="headerlink" title="4.1.2 Confirm(确认)模式"></a>4.1.2 Confirm(确认)模式</h4><p>确认模式有三种</p>
+<ol>
+<li>普通确认模式</li>
+</ol>
+<p>在生产者这边通过调用channel.confirmSelect()方法将信道设置为Confirm模式，然后发送消息。一旦消息被投递到交换机后（跟是否路由到队列没有关系），RabbitMQ就会发送一个确认（Basic.Ack）个生产者，也就是调用channel.waitForConfirms()返回true，这样生产者就知道消息被服务端接受了。如果网络错误，会抛出连接异常。如果交换机不存在，会抛出404错误。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//开启发送方确认模式</span><br>channel.confirmSelect();<br>channel.basicPublish(<span class="hljs-string">&quot;&quot;</span>,QUEUE_NAME,<span class="hljs-literal">null</span>,msg.getBytes());<br><span class="hljs-comment">//普通confirm模式，发送一条，确认一条</span><br><span class="hljs-keyword">if</span>(channel.waitForConfirms())&#123;<br>    System.out.println(<span class="hljs-string">&quot;消息发送成功&quot;</span>)；<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>批量确认模式</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">try</span> &#123;<br>    channel.confirmSelect();<br>    <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i=<span class="hljs-number">0</span>;i&lt;<span class="hljs-number">5</span>;i++)&#123;<br>        channel.basicPublish(<span class="hljs-string">&quot;&quot;</span>,QUEUE_NAME,<span class="hljs-literal">null</span>,(msg+<span class="hljs-string">&quot;-&quot;</span>+i).getBytes());<br>    &#125;<br>    <span class="hljs-comment">//批量确认结果，ACK如果是Multiple=True，代表ACK中的Delivery-Tag之前的消息都被确认了</span><br>    <span class="hljs-comment">//比如5条消息可能只收到1个ACK，也可能收到2个（抓包才能看得到）</span><br>    <span class="hljs-comment">//知道所有信息都发布，只要有一个未被Broker确认就会IOException</span><br>    channel.waitForConfirmsOrDie();<br>    System.out.println(<span class="hljs-string">&quot;消息发送完毕，批量确认成功&quot;</span>)；<br>&#125; <span class="hljs-keyword">catch</span>(Exception e)&#123;<br>    <span class="hljs-comment">//发生异常，可能需要对所有消息进行重发</span><br>    e.printStackTrace();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>只要channel.waitForConfirmsOrDie();方法没有抛出异常，就代表消息都被服务端接受了。批量确认的方式比单条确认的方式效率要高，但是也有两个问题：第一个就是批量的数量的确定。对于不同的业务，到底发送多少条消息确认一次？数量太少，效率提升不上去。数量多的话，又会带来另一个问题，比如发1000条消息才确认一次，如果前面999条消息都被服务端接收了，如果第1000条消息被拒绝了，那么前面所有的消息都要重发。</p>
+<p>异步确认模式需要添加一个ConfirmListen，并且用一个SortedSet来维护一个批次中没有被确认的消息。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">final</span> SortedSet&lt;Long&gt; confirmSet = Collections.sunchronizedSortedSet(<span class="hljs-keyword">new</span> <span class="hljs-title class_">TreeSet</span>&lt;Long&gt;());<br><span class="hljs-comment">//这里不会打印所有响应的ACK，ACK可能有多个，有可能一次确认多条，也有可能一次确认一条</span><br><span class="hljs-comment">//异步监听确认和未确认的消息</span><br><span class="hljs-comment">//如果要重复运行，先停掉之前的生产者，清空队列</span><br>channel.addConfirmListener(<span class="hljs-keyword">new</span> <span class="hljs-title class_">ConfirmListener</span>()&#123;<br>    <br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">handleNack</span><span class="hljs-params">(<span class="hljs-type">long</span> deliveryTag, <span class="hljs-type">boolean</span> multiple)</span> <span class="hljs-keyword">throws</span> Exception&#123;<br>        System.out.println(<span class="hljs-string">&quot;Broker 未确认消息，标识：&quot;</span> + deliveryTag);<br>        <span class="hljs-keyword">if</span>(multiple)&#123;<br>            <span class="hljs-comment">//headSet表示后面参数之前的所有元素全部删除</span><br>            confirmSet.headSet(deliveryTag + <span class="hljs-number">1L</span>).clear();<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            confirmSet.remove(deliveryTag);<br>        &#125;<br>        <span class="hljs-comment">//todo 这里添加重发的方法</span><br>    &#125;<br>    <br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">handleAck</span><span class="hljs-params">(<span class="hljs-type">long</span> deliveryTag, <span class="hljs-type">boolean</span> multiple)</span> <span class="hljs-keyword">throws</span> Exception&#123;<br>        <span class="hljs-comment">//如果true表示批量执行了deliveryTag这个值以前的所有消息，如果为false的话表示单条确认</span><br>        System.out.println(<span class="hljs-string">&quot;Broker 已确认消息，标识：%d，多个消息：%b&quot;</span>, deliveryTag, multiple);<br>        <span class="hljs-keyword">if</span>(multiple)&#123;<br>            <span class="hljs-comment">//headSet表示后面参数之前的所有元素全部删除</span><br>            confirmSet.headSet(deliveryTag + <span class="hljs-number">1L</span>).clear();<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            confirmSet.remove(deliveryTag);<br>        &#125;<br>        System.out.println(<span class="hljs-string">&quot;未确认的消息：&quot;</span> + confirmSet);<br>    &#125;<br>&#125;);<br><br><span class="hljs-comment">//开启发送放确认模式</span><br>channel.confirmSelect();<br><span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i=<span class="hljs-number">0</span>;i&lt;<span class="hljs-number">10</span>;i++)&#123;<br>    <span class="hljs-type">long</span> <span class="hljs-variable">nextSeqNo</span> <span class="hljs-operator">=</span> channel.getNextPublishSeqNo();<br>    channel.basicPublish(<span class="hljs-string">&quot;&quot;</span>,QUEUE_NAME,<span class="hljs-literal">null</span>,(msg+<span class="hljs-string">&quot;-&quot;</span>+i).getBytes());<br>    confirmSet.add(nextSeqNo);<br>&#125;<br>System.out.println(<span class="hljs-string">&quot;所有消息：&quot;</span> + confirmSet);<br></code></pre></td></tr></table></figure>
+
+<p>SpringBoot：Confirm模式是在Channel上开启的，RabbitTemplate对Channel进行了封装。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java">rabbitTemplate.setConfirmCallback(<span class="hljs-keyword">new</span> <span class="hljs-title class_">RabbitTemplate</span>.ConfirmCallback()&#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">confirm</span><span class="hljs-params">(CorrelationData correlationData, <span class="hljs-type">boolean</span> ack, String cause)</span>&#123;<br>        <span class="hljs-keyword">if</span>(!ack)&#123;<br>            System.out.println(<span class="hljs-string">&quot;发送消息失败&quot;</span>);<br>            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RuntimeException</span>(<span class="hljs-string">&quot;发送异常&quot;</span> + cause);<br>        &#125;<br>    &#125;<br>&#125;);<br></code></pre></td></tr></table></figure>
+
+<h3 id="4-2-消息从交换机到队列"><a href="#4-2-消息从交换机到队列" class="headerlink" title="4.2 消息从交换机到队列"></a>4.2 消息从交换机到队列</h3><p>第二个环节就是消息从交换机路由到队列。可能因为routingkey错误，或者队列不存在（但是生产环境基本上不会出现这两种问题）。</p>
+<p>有两种方式处理无法路由的消息，一种是让服务端重发给生产者，一种是让交换机路由到另一个备份的交换机。</p>
+<ol>
+<li>消息回发</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java">channel.addReturnListener(<span class="hljs-keyword">new</span> <span class="hljs-title class_">ReturnListener</span>()&#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">handleReturn</span><span class="hljs-params">(<span class="hljs-type">int</span> replyCode, String repluText, String exchange, String routingKey, AMQP.BasicProperties properties, <span class="hljs-type">byte</span>[] body)</span> <span class="hljs-keyword">throws</span> IOException&#123;<br>        System.out.println(<span class="hljs-string">&quot;.....&quot;</span>);<br>    &#125;<br>&#125;)<br></code></pre></td></tr></table></figure>
+
+<p>SpringBoot消息回发的方式：使用mandatory参数和ReturnListener（在Spring AMQP中是ReturnCallback）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java">rabbitTemplate.setMandatory(<span class="hljs-literal">true</span>);<br>rabbitTemplate.setReturnCallback(<span class="hljs-keyword">new</span> <span class="hljs-title class_">RabbitTemplate</span>.ReturnCallback()&#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">returnedMessage</span><span class="hljs-params">(Message message, <span class="hljs-type">int</span> replyCode, String repluText, String exchange, String routingKey)</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;.....&quot;</span>);<br>    &#125;<br>&#125;)<br></code></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>消息路由到备份交换机的方式。</li>
+</ol>
+<p>在创建交换机的时候，从属性中指定备份交换机。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java">Map&lt;String, Object&gt; arguments = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>arguments.put(<span class="hljs-string">&quot;alternate-exchange&quot;</span>, <span class="hljs-string">&quot;ALTERNATE_EXCHANGE&quot;</span>); <span class="hljs-comment">//指定交换机的备份交换机</span><br>channel.exchangeDeclare(<span class="hljs-string">&quot;TEST_EXCHANGE&quot;</span>,<span class="hljs-string">&quot;topic&quot;</span>,<span class="hljs-literal">false</span>,<span class="hljs-literal">false</span>,<span class="hljs-literal">false</span>,arguments);<br></code></pre></td></tr></table></figure>
+
+<p>（注意区别，队列可以指定死信交换机；交换机可以指定备份交换机）</p>
+<h3 id="4-3-消息在队列中存储"><a href="#4-3-消息在队列中存储" class="headerlink" title="4.3 消息在队列中存储"></a>4.3 消息在队列中存储</h3><p>第三个环节是消息在队列存储，如果没有消费者的话，队列一直存在数据库中。如果RabbitMQ的服务或者硬件发生故障，比如系统宕机，重启，关闭等等，可能会导致内存中的消息丢失，所以要把消息本身和元数据（队列，交换机，绑定）都保存到磁盘。集群。</p>
+<h3 id="4-4-消息投递到消费者"><a href="#4-4-消息投递到消费者" class="headerlink" title="4.4 消息投递到消费者"></a>4.4 消息投递到消费者</h3><p>服务端应该以某种方式得知消费者对消息的接收情况，并决定是否重新投递这条消息给其他消费者。RabbitMQ提供了消费者的消息确认机制（message acknowledgement），消费者可以自动或者手动地发送ACK给服务端。</p>
+<p>​    没有收到ACK地消息，消费者断开连接后，RabbitMQ会把这条消息发送给其他消费者。如果没有其他消费者，消费者重启后会重新消费这条消息，重复执行业务逻辑。</p>
+<p>​    消费者给Broker应答有两种方式，一种是自动ACK，一种是手动ACK。</p>
+<p>​    首先是自动ACK，这个也是默认的情况。也就是没有在消费者处编写ACK的代码，消费者会在收到消息地时候就自动发送ACK，而不是在方法执行完毕地时候发送ACK（并不关心你有没有正常收到消息）。如果想要等消息消费完毕或者方法执行完毕才发送ACK，需要先把自动ACK设置成手动ACK。把autoAck设置成false。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">channel.basicConsume(QUEUE_NAME,<span class="hljs-literal">false</span>,consumer);<br></code></pre></td></tr></table></figure>
+
+<p>这个时候RabbitMQ会等待消费者显示地回复ACK后才从队列中移去消息。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">channel.basicAck(envelope.getDeliveryTag(),<span class="hljs-literal">true</span>);<br></code></pre></td></tr></table></figure>
+
+<p>在SpringBoot中：application.properties</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-attr">spring.rabbitmq.listener.direct.acknowledge-mode</span>=<span class="hljs-string">manual</span><br><span class="hljs-attr">spring.rabbitmq.listener.simple.acknowledge-mode</span>=<span class="hljs-string">manual</span><br></code></pre></td></tr></table></figure>
+
+<p>SimpleRabbitListenerContainer或者SimpleRabbitListenerContainerFactory</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">factory.setAcknowledgeMode(AcknowledgeMode,MANUAL);<br></code></pre></td></tr></table></figure>
+
+<p>注意这三个值的区别：NONE-自动ACK；MANUAL-手动ACK；AUTO-如果方法未抛出异常，则发送ack。如果方法抛出异常，并且不是AmqpRejectAndDontRequeueEsception则发送nack，并且重新入对。如果抛出异常时则发送nack不会重新入队。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SecondConsumer</span>&#123;<br>    <span class="hljs-meta">@RabbitHandler</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">process</span><span class="hljs-params">(String msgContent, Channel channel, Message message)</span> <span class="hljs-keyword">throws</span> IOException &#123;<br>        channel.basicAck(message.getMessageProperties().getDeliveryTag(), <span class="hljs-literal">false</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>如果消费者出了问题，确实是不能发送ACK告诉服务端成功消费了，也有拒绝消息的指令，而且还可以让消息重新入队给其他消费者消费。如果消息无法处理或者消费失败，也有两种拒绝的方式，Basic.Reject()拒绝单条，Basic.Nack()批量拒绝。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">if</span>(msg.contains(<span class="hljs-string">&quot;拒收&quot;</span>))&#123;<br>    <span class="hljs-comment">//拒绝消息</span><br>    <span class="hljs-comment">//requeue:是否重新入队列，true-是，false-直接丢弃，相当于告诉队列可以直接删除调</span><br>    <span class="hljs-comment">//TODO 如果只有这一个消费者，requeue为true的时候会造成消息重复消费</span><br>    channel.basicReject(envelop.getDeliveryTag(),<span class="hljs-literal">false</span>);<br>&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(msg.contains(<span class="hljs-string">&quot;异常&quot;</span>))&#123;<br>    <span class="hljs-comment">//批量拒绝</span><br>    channel.basicNack(envelope.getDeliveryTag(),<span class="hljs-literal">true</span>,<span class="hljs-literal">false</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>如果requeue参数设置为true，可以把这条消息重新存入队列，以便发给下一个消费者（当然，只有一个消费者的时候，这种方式可能会出现无线循环重复消费的情况。可以投递到新的队列中，或者只打印异常的日志）。</p>
+<p>​    简单总结一下：从生产者到Broker，交换机到队列，队列本身，队列到消费者，都有相应的方法知道消费有没有正常流转，或者说当消息没有正常流转的时候采取相关措施。</p>
+<p>​    思考：服务端收到了ACK或者NACK，生产者会知道吗？即使消费者没有接收到消息，或者消费时出现异常，生产者也是完全不知情的。这个是符合解耦思想的。但是如果现在为了保证一致性，生产者必须知道消费者有没有成功消费，怎么办?所以，这个是生产者最终确定消费者有没有消费成功的两种方式：</p>
+<p>​    1）消费者收到消息，处理完毕后，调用生产者的API（是否破坏解耦？）</p>
+<p>​    2）消费者收到消息，处理完毕后，发送一条响应消息给生产者。</p>
+<h3 id="4-5-消费者回调"><a href="#4-5-消费者回调" class="headerlink" title="4.5 消费者回调"></a>4.5 消费者回调</h3><p>1）调用生产者API</p>
+<p>​    例如：提单系统给其他系统发送了保险消息后，其他系统必须在处理完消息后调用提单系统提供的API，来修改提单系统中这笔数据的状态。只要API没有被调用，数据状态没有被修改，提单系统就认为下游系统没有收到这条消息。</p>
+<p>2）发送响应消息给生产者</p>
+<p>​    例如：商业银行与人民银行二代支付通信（使用IBM MQ），无论是人行收到了商业银行的消息，还是商业银行收到了人行的消息，都必须发送一条响应消息（叫做回执报文）。整个通信的流程设计的非常复杂，但是对于金融场景下的消息可靠性保证，是很有用的。</p>
+<h3 id="4-6-补偿机制"><a href="#4-6-补偿机制" class="headerlink" title="4.6 补偿机制"></a>4.6 补偿机制</h3><p>如果生产者的API就是没有被调用，也没有收到消费者的响应消息，怎么办？生产者和消费者之间应该约定一个超时时间，对于这个时间没有得到响应的消息，才确定为消费失败，比如5分钟。5分钟，对于临时性故障的处理，比如网络恢复，或者重启应用，重启数据库，应该够了。过了5分钟依然没有得到回复的消息，才判断为消费失败。确定失败以后怎么办呢？肯定要重发消息了。不过这里面有几个问题：</p>
+<p>​    1.谁来重发？</p>
+<p>​    假设这个消息是由业务人员操作产生的，对于异步的操作来说，他只要提交了请求就OK了，后面成不成功是不归他管的。所以肯定是后台的代码重发的，不可能让业务人员重新做一笔交易。先创建一个定时任务，比如30秒跑一次，找到业务表里面的这条业务状态是中间状态的记录，查询出来，构建为MQ消息，重新发送。也可以单独设计一张消息表，把本系统所以发送出去的消息全部异步地等级起来，找出状态是未回复地消息发送（注意：这种做法会消耗性能，消耗数据库存储空间）。</p>
+<p>​    2.隔多久重发一次？</p>
+<p>​    假如消费者一直没有回复，比如它重启要20分钟，你5分钟之内尝试重发，肯定还不能正常消费。所以重发肯定不止发一次，要尝试多次，但是又不能发的太频繁，给它一点恢复的时间。不可以设置为1分钟重发一次。也可以设置衰减机制，第一次隔一分钟，第二次隔两分钟。时间由定时任务的执行时间决定。</p>
+<p>​    3.一共重发几次？</p>
+<p>​    重发消息务必控制次数，比如设置3次。这个要在消息表中记录次数来实现，发一次就加一。</p>
+<p>​    4.重发什么内容？</p>
+<p>​    重发，是否发送一摸一样的内容？参考：ATM机上运行的系统叫C端（ATMC）银行的前置系统或者渠道系统叫P端，它接收ATMC的消息，再转发给卡系统或者核心系统。</p>
+<p>​    1）如果客户存款，没有收到核心系统的应答，怎么处理？</p>
+<p>​    因为不知道有没有记账成功，不能给客户吐钞，否则会造成银行短款。因为已经吞钞了，所以要保证成功。最多发送3次存款确认报文。</p>
+<p>​    2）如果客户取款，ATMC未得到核心系统的应答时，怎么处理？</p>
+<p>​    因为没有吐钞，所以要保证失败。最多发送3次存款冲正报文。</p>
+<h3 id="4-7-消息幂等性"><a href="#4-7-消息幂等性" class="headerlink" title="4.7 消息幂等性"></a>4.7 消息幂等性</h3><p>如果消费者状态是正常的，每一条消息都可以正常处理。只是在响应或者调用API的时候出了问题，会不会出现消息的重复处理？例如：存款1000元，ATMC重发了3次存款交易，核心系统一共处理了4次，账户余额增加了4000元。所以，为了避免相同消息的重复处理，必须要采取一定的措施。RabbitMQ服务端是没有这种控制的（同一批的消息有个递增的DeliveryTag），它并不知道对于你的业务来说什么才是重复的消息。所以这个只能在消费端控制。</p>
+<p>​    消息出现重复可能会有两个原因：</p>
+<p>​    1.生产者得问题，环节一重复发送消息，比如在开启了Confirm模式但未收到确认，消费者重复投递。</p>
+<p>​    2.由于消费者未发送ACK或者其他原因，消息重复消费。</p>
+<p>​    3.生产者代码或者网络问题</p>
+<p>​    对于重复发送的消息，可以对每一条消息生成一个唯一的业务员ID，通过日志或者消息落库来做重复控制。</p>
+<h3 id="4-8-最终一致"><a href="#4-8-最终一致" class="headerlink" title="4.8 最终一致"></a>4.8 最终一致</h3><p>如果确实是消费者宕机了，或者代码出现了BUG导致无法正常消费，在尝试多次重发以后，消息最终也没有得到处理，怎么办？例如存款的场景，客户的钱已经被吞了，但是余额没有增加，这个时候银行出现了长款，要怎么处理？如果客户没有主动通知银行，他没有及时查询余额，这个问题是怎么发现的？银行最终怎么把这个账务做平？</p>
+<p>​    在金融系统中，都会有双方对账或者多方对账的操作，通常是在一天业务结束之后，第二天营业之前，金融系统中，多一分钱少一分钱都是非常严重的问题。</p>
+<p>​    会约定一个标准，比如ATM跟核心系统对账，肯定是以核心系统的账务为准。ATMC获取到的对账文件，然后解析，登记成数据，然后跟自己记录的流水比较，找出有问题的数据。对账之后，再手工平账。比如取款寄了账但是没吐钞的，做一笔冲正。存款吞了钞没记账的，要么把钱退给客户，要么补一笔钱。</p>
+<h3 id="4-9-消息的顺序性"><a href="#4-9-消息的顺序性" class="headerlink" title="4.9 消息的顺序性"></a>4.9 消息的顺序性</h3><p>消息的顺序性指的是消费者消费消息的顺序跟生产者生产消息的顺序是一致的。</p>
+<p>​    在RabbitMQ中，一个队列有多个消费者，由于不同的消费者消费消息的速度是不一样的，顺序无法保证。只有一个队列仅有一个消费者的情况才能保证顺序消费（不同的业务消息发送到不同的专用的队列）。除非负载均衡，不要用多个消费者消费消息，消费端捕获异常。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" class="category-chain-item">消息队列</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/RabbitMQ/" class="category-chain-item">RabbitMQ</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/">#消息队列</a>
+      
+        <a href="/tags/RabbitMQ/">#RabbitMQ</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>RabbitMQ实践应用</div>
+      <div>http://www.zivjie.cn/2023/06/10/消息队列/RabbitMQ/实践应用/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Francis</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年6月10日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/06/11/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/RocketMQ/%E5%AE%89%E8%A3%85%E4%B8%8E%E9%85%8D%E7%BD%AE/" title="RocketMQ安装与配置">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">RocketMQ安装与配置</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/06/10/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/RabbitMQ/%E9%9B%86%E7%BE%A4%E4%B8%8E%E9%AB%98%E5%8F%AF%E7%94%A8/" title="RabbitMQ集群与高可用">
+                        <span class="hidden-mobile">RabbitMQ集群与高可用</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

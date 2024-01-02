@@ -1,0 +1,902 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Francis">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1 生产者原理源码地址：https:&#x2F;&#x2F;github.com&#x2F;apache&#x2F;kafka&#x2F;tree&#x2F;trunk&#x2F;clients 1.1 生产者发送消息消息发送的整体流程。生产端主要由两个线程协调运行。这两条线程分别为main线程和sender线程（发送线程）。  1Producer&lt;String, String&gt; producer &#x3D; new KafkaProducer&lt;&gt;(">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kafka原理分析以及特性总结">
+<meta property="og:url" content="http://www.zivjie.cn/2023/06/04/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/Kafka/kafka%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90%E4%BB%A5%E5%8F%8A%E7%89%B9%E6%80%A7%E6%80%BB%E7%BB%93/index.html">
+<meta property="og:site_name" content="Francis-Blog">
+<meta property="og:description" content="1 生产者原理源码地址：https:&#x2F;&#x2F;github.com&#x2F;apache&#x2F;kafka&#x2F;tree&#x2F;trunk&#x2F;clients 1.1 生产者发送消息消息发送的整体流程。生产端主要由两个线程协调运行。这两条线程分别为main线程和sender线程（发送线程）。  1Producer&lt;String, String&gt; producer &#x3D; new KafkaProducer&lt;&gt;(">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.zivjie.cn/img/Ghost%20of%20Tsushima.png">
+<meta property="article:published_time" content="2023-06-04T06:32:21.000Z">
+<meta property="article:modified_time" content="2024-01-02T01:45:15.957Z">
+<meta property="article:author" content="Francis">
+<meta property="article:tag" content="消息队列">
+<meta property="article:tag" content="Kafka">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://www.zivjie.cn/img/Ghost%20of%20Tsushima.png">
+  
+  
+  
+  <title>Kafka原理分析以及特性总结 - Francis-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.zivjie.cn","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Francis</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Kafka原理分析以及特性总结"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-06-04 14:32" pubdate>
+          2023年6月4日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          14k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          117 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Kafka原理分析以及特性总结</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="1-生产者原理"><a href="#1-生产者原理" class="headerlink" title="1 生产者原理"></a>1 生产者原理</h2><p>源码地址：<a target="_blank" rel="noopener" href="https://github.com/apache/kafka/tree/trunk/clients">https://github.com/apache/kafka/tree/trunk/clients</a></p>
+<h3 id="1-1-生产者发送消息"><a href="#1-1-生产者发送消息" class="headerlink" title="1.1 生产者发送消息"></a>1.1 生产者发送消息</h3><p>消息发送的整体流程。生产端主要由两个线程协调运行。这两条线程分别为main线程和sender线程（发送线程）。</p>
+<p><img src="/image/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/Kafka/3.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">Producer&lt;String, String&gt; producer = <span class="hljs-keyword">new</span> <span class="hljs-title class_">KafkaProducer</span>&lt;&gt;(pros);<br></code></pre></td></tr></table></figure>
+
+<p>在创建KafkaProducer的时候，创建了一个Sender对象，并且启动了一个IO线程。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-built_in">this</span>.sender = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Sender</span>(logContext, kafkaClient, <span class="hljs-built_in">this</span>.metadata);<br><span class="hljs-type">String</span> <span class="hljs-variable">ioThreadName</span> <span class="hljs-operator">=</span> NETWORK_THREAD_PREFIX + <span class="hljs-string">&quot;|&quot;</span> + clientId;<br><span class="hljs-built_in">this</span>.ioThread = <span class="hljs-keyword">new</span> <span class="hljs-title class_">KafkaThread</span>(ioThreadName, <span class="hljs-built_in">this</span>.sender, <span class="hljs-literal">true</span>);<br><span class="hljs-built_in">this</span>.ioThread.start();<br></code></pre></td></tr></table></figure>
+
+<h4 id="1-1-1-拦截器"><a href="#1-1-1-拦截器" class="headerlink" title="1.1.1 拦截器"></a>1.1.1 拦截器</h4><p>接下来执行拦截器的逻辑，在producer.send方法中</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">ProducerRecord&lt;K,V&gt; interceptedRecord = <span class="hljs-built_in">this</span>.interceptors.onSend(record);<br></code></pre></td></tr></table></figure>
+
+<p>拦截器的作用是实现消息的定制化（类似于Spring Interceptor、Mybatis的插件，Quartz的监听器）。这个拦截器定义的位置是在：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java">List&lt;String&gt; interceptors = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br>interceptors.add(<span class="hljs-string">&quot;com.test.interceptor.TestInterceptor&quot;</span>);<br>props.put(Producer.Config.INTERCEPTOR_CLASS_CONFIG, interceptors);<br></code></pre></td></tr></table></figure>
+
+<p>可以在生产者的属性中指定多个拦截器，形成拦截器链。举个例子，假设发送消息的时候要扣钱，发一条消息1分钱（把这个功能叫做按量付费），就可以用拦截器实现。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">TestInterceptor</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">ProducerInterceptor</span>&lt;String, String&gt; &#123;<br>    <span class="hljs-comment">//发送消息的时候触发</span><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> ProducerRecord&lt;String, String&gt; <span class="hljs-title function_">onSend</span><span class="hljs-params">(ProducerRecord&lt;String, String&gt; record)</span>&#123;<br>        System.out.println(<span class="hljs-string">&quot;扣钱&quot;</span>);<br>        <span class="hljs-keyword">return</span> record;<br>    &#125;<br>    <br>    <span class="hljs-comment">//收到服务端ack时触发</span><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onAcknowledgement</span><span class="hljs-params">(RecordMetadata metadata, Exception exception)</span>&#123;<br>        System.out.println(<span class="hljs-string">&quot;消息被服务端接收了&quot;</span>);<br>    &#125;<br>    <br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">close</span><span class="hljs-params">()</span>&#123;<br>        System.out.println(<span class="hljs-string">&quot;生产者关闭了&quot;</span>);<br>    &#125;<br>    <br>    <span class="hljs-comment">//用键值对配置的时候触发</span><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">configure</span><span class="hljs-params">(Map&lt;String, ?&gt; configs)</span>&#123;<br>        System.out.println(<span class="hljs-string">&quot;configure.....&quot;</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="1-1-2-序列化"><a href="#1-1-2-序列化" class="headerlink" title="1.1.2 序列化"></a>1.1.2 序列化</h4><p>调用send方法后，第二步是利用指定的工具对key和value进行序列化</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">serializedKey = keySerializer.serializze(record.topic,record.headers(),record.key());<br></code></pre></td></tr></table></figure>
+
+<p>Serializer.java——kafka针对不同的数据类型自带了相应的序列化工具。除了自带的序列化工具之外，可以使用如Avro，JSON，Thrift，Prorobuf等，或者使用自定义类型的序列化器来实现，实现Serializer接口即可。</p>
+<h4 id="1-1-3-路由指定-分区器"><a href="#1-1-3-路由指定-分区器" class="headerlink" title="1.1.3 路由指定-分区器"></a>1.1.3 路由指定-分区器</h4><p>然后是路由指定</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">int</span> <span class="hljs-variable">partition</span> <span class="hljs-operator">=</span> partition(record, serializedKey, serializedValue, cluster);<br></code></pre></td></tr></table></figure>
+
+<p>一条消息会发送到哪个partition呢？它返回的是一个分区的编号，从0开始。首先分一下有四种情况：</p>
+<p>​    1、指定了partition；</p>
+<p>​    2、没有指定partition，自定义了分区器</p>
+<p>​    3、没有指定partition，没有自定义分区器，但是key不为空</p>
+<p>​    4、没有指定partition，没有自定义分区器，但是key是空的</p>
+<p><strong>第一种情况：</strong>指定partition的情况下，直接将指定的值直接作为partition值；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i=<span class="hljs-number">0</span>;i&lt;<span class="hljs-number">10</span>;i++)&#123;<br>    <span class="hljs-comment">//自定义，随机选择分区</span><br>    <span class="hljs-type">int</span> <span class="hljs-variable">partition</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Random</span>().nextInt(partitionSize);<br>    ProducerRecord&lt;String, Integer&gt; producerRecord = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ProducerRecord</span>&lt;&gt;(topic, partition, <span class="hljs-literal">null</span>, i);<br>    <span class="hljs-type">RecoirdMetadata</span> <span class="hljs-variable">metadata</span> <span class="hljs-operator">=</span> producer.send(prodducerRecord).get();<br>    System.out.println(<span class="hljs-string">&quot;Sent to partition: &quot;</span> + metadata.partition() + <span class="hljs-string">&quot;, offset: &quot;</span> + metadata.offset);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>第二种情况：</strong>自定义分区器，将使用自定义的分区器算法选择分区，比如SimplePartitioner，用ProducerAutoPartition指定，发送消息</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">props.put(<span class="hljs-string">&quot;partition.class&quot;</span>, <span class="hljs-string">&quot;com.test.partition.SimplePartitioner&quot;</span>);<br></code></pre></td></tr></table></figure>
+
+<p><strong>第三种情况：</strong>没有指定partition值但是有key的情况下，使用默认分区器DefaultPartitioner，将key的hash值与topic的partution数进行取余得到partition值；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">return</span> Utils.toPositive(Utils.murmur2(keyBytes)) % numPartitions;<br></code></pre></td></tr></table></figure>
+
+<p><strong>第四种情况：</strong>既没有partition值又没有key值得情况下，第一次调用时随机生成一个证书（后面每次调用在这个整数上自增），将这个值与topic可用得partition总数取余得到partition值，也就是常说得round-robin算法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">Integer</span> <span class="hljs-variable">random</span> <span class="hljs-operator">=</span> Utils.toPositive(ThreadLocalRandom.current().nextInt());<br>newPart = availablePartitions.get(random % availablePartitions.size()).partiton();<br></code></pre></td></tr></table></figure>
+
+<h4 id="1-1-4-消息累加器"><a href="#1-1-4-消息累加器" class="headerlink" title="1.1.4 消息累加器"></a>1.1.4 消息累加器</h4><p>选择分区后并没有直接发送消息，而是把消息放入了消息累加器。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">RecordAccumulator.<span class="hljs-type">RecordAppendResult</span> <span class="hljs-variable">result</span> <span class="hljs-operator">=</span> accumulator.append(tp,timestamp,serializedKey,serializedValue,headers,interceptCallback,remainingWaitMs);<br></code></pre></td></tr></table></figure>
+
+<p>RecordAccumulator本质上是一个ConcurrentMap，一个partition一个Batch。batch满了之后，会唤醒Sender线程，发送消息。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">if</span>(rasult.batchIsFull || result.newBatchCreated)&#123;<br>    log.trace(<span class="hljs-string">&quot;Waking up the sender since topic &#123;&#125; partition &#123;&#125; is either full or getting a new batch&quot;</span>, record.topic(), partition);<br>    <span class="hljs-built_in">this</span>.sender.wakeup();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>小结一下：可以在拦截器中自定义消息处理逻辑，也可以选择自己喜欢得序列化工具，还可以自由选择分区。</p>
+<h3 id="1-2-服务端响应ack"><a href="#1-2-服务端响应ack" class="headerlink" title="1.2 服务端响应ack"></a>1.2 服务端响应ack</h3><h4 id="1-2-1-响应策略"><a href="#1-2-1-响应策略" class="headerlink" title="1.2.1 响应策略"></a>1.2.1 响应策略</h4><p>kafka服务端应该要有一种响应客户端的方式，只有在服务端确认以后，生产者才发送下一轮的消息，否则重新发送数据。因为消息是存储在不同的partition中的，所以是写入到partition之后响应生产者。</p>
+<p>当然，单个partition（leader）写入成功，还是不够可靠，如果有多个副本，follower也要写入成功才可以。服务端发送ACK给生产者总体上有两种思路：</p>
+<p>​    第一种是需要有半数以上的follower节点完成同步，这样的话客户端等待的时间就短一些，延迟低。</p>
+<p>​    第二种需要所有的follower全部完成同步，才发送ACK给客户端，延迟相对来说高一些，但是节点挂掉的影响相对来说小一些，因为所有的节点数据都是完整的。</p>
+<p>​    kafka选择了第二种方案。部署同样机器数量的情况下，第二种方案的可靠性更高。例如部署5台机器，那么第一种方案最多可能会有2台机器丢失数据，第二种都不会丢失。而且网络延迟对kakfa的影响不大。</p>
+<h4 id="1-2-2-ISR"><a href="#1-2-2-ISR" class="headerlink" title="1.2.2 ISR"></a>1.2.2 ISR</h4><p>不是所有的follower都有权力让我等待。应该把那些正常和leader保持同步的replica维护起来，放到一个动态set中，这个就叫做in-sync replica set （ISR）。现在只要ISR中的follower同步完数据之后，就给客户端发送ACK。对于经常性迟到，睡觉还关手机的太子，看来他不关心国事，也不能指望他了，把他从太子早会微信群移除了。如果一个follower长时间不同步数据，就要从ISR剔除。这个时间由参数replica.lag.time.max.ms决定（默认值30秒）。如果leader挂了，就会从ISR重新选举leader。</p>
+<h4 id="1-2-3-ACK应答机制"><a href="#1-2-3-ACK应答机制" class="headerlink" title="1.2.3 ACK应答机制"></a>1.2.3 ACK应答机制</h4><p>kafka为客户提供了三种可靠性级别，用户根据对可靠性和延迟的要求进行权衡，选择响应的配置。</p>
+<p>acks=0：producer不等待broker的ack，这一操作提供了一个最低的延迟，broker一接受到还没写入磁盘就已经返回，当broker故障时有可能丢失数据；</p>
+<p>acks=1（默认）：producer等待broker的ack，partition的leader落盘成功后返回ack，如果follower同步成功之前leader故障，那么将会丢失数据；</p>
+<p>acks=-1（all）：producer等待broker的ack，partition的leader和follower全部落盘成功后才返回ack。</p>
+<p>三种机制，性能依次递减（producer吞吐量降低），数据健壮性则依次递增。可以根据业务场景使用不同的参数。（类比：MySQL的binlog主从复制——同步，异步，半同步）</p>
+<h2 id="2-Broker存储原理"><a href="#2-Broker存储原理" class="headerlink" title="2 Broker存储原理"></a>2 Broker存储原理</h2><h3 id="2-1-文件的存储结构"><a href="#2-1-文件的存储结构" class="headerlink" title="2.1 文件的存储结构"></a>2.1 文件的存储结构</h3><p>配置文件：config/server.properties  -&gt;  logs.dir配置，默认/tmp/kafka-logs</p>
+<h4 id="2-1-1-partition分区"><a href="#2-1-1-partition分区" class="headerlink" title="2.1.1 partition分区"></a>2.1.1 partition分区</h4><p>为了实现横向扩展，把不同的数据存放在不同的Broker上，同时降低单台服务器的访问压力，把一个topic中的数据分隔成多个partition。一个partition中的消息是有序的，顺序写入，但是全局不一定有序。在服务器上，每个partiton都有一个物理目录，topic名字后面的数据标号即代表分区。</p>
+<h4 id="2-1-2-replica副本"><a href="#2-1-2-replica副本" class="headerlink" title="2.1.2 replica副本"></a>2.1.2 replica副本</h4><p>为了提高分区的可靠性，kafka又设计了副本机制。创建topic的时候，通过指定replication-factor确定topic的副本数。注意：副本数必须小于等于节点数，而不能大于Broker的数量，否则会报错。这样就可以保证，绝对不会有一个分区的两个副本分布在同一个节点上，不然副本机制也失去了备份的意义了。</p>
+<p>这些所有的副本分为两种角色，leader对外提供读写服务。follower唯一的任务就是从leader异步拉取数据。读写都发生在leader节点，就不存在读写分离带来的一致性问题了。这个叫做单调读一致性。</p>
+<h4 id="2-1-3-副本在Broker的分布"><a href="#2-1-3-副本在Broker的分布" class="headerlink" title="2.1.3 副本在Broker的分布"></a>2.1.3 副本在Broker的分布</h4><p>分配策略是由AdminUtils.scala的assignReplicasToBrokers函数决定的。规则如下：</p>
+<p>​    1）first of all，副本因子不能大于Broker的个数</p>
+<p>​    2）第一个分区（编号为0的分区）的第一个副本放置位置是随机从brokerList选择的（Brokers2的副本）</p>
+<p>​    3）其他分区的第一个副本放置位置相对于第0个分区依次往后移，也就是说：如果有5个Broker，5个分区，假设第一个分区的第一个副本放在第四个Broker上，那么第二个分区的第一个副本将会放在第五个Broker上；第三个分区的第一个副本将会放在第一个Broker上；第四个分区的第一个副本将会放在第二个Broker上，以此类推；</p>
+<p>​    4）每个分区剩余的副本相对于第一个副本放置位置其实是nextReplicaShift决定的，而这个数也是随机产生的。</p>
+<p>在每个分区的第一个副本错开之后，一般第一个分区的第一个副本（按Broker编号排序）都是leader。leader是错开的，不至于一挂影响太大。bin目录下的kafka-reassign-partitons.sh可以根据Broker数量变化情况重新分配分区。</p>
+<h4 id="2-1-4-segment"><a href="#2-1-4-segment" class="headerlink" title="2.1.4 segment"></a>2.1.4 segment</h4><p>为了防止log不断追加导致文件过大，导致检索消息效率变低，一个partition又被划分成多个segment来组织数据（MySQL也有segment的逻辑概念，叶子节点就是数据段，非叶子节点就是索引段）。在磁盘上，每个segment由一个log文件和两个index文件组成。</p>
+<p><img src="/image/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/Kafka/4.png" srcset="/img/loading.gif" lazyload></p>
+<p>leader-epoch-checkpoint中保存了每一任leader开始写入消息时的offset。</p>
+<p>（1）.log日志文件（日志就是数据）</p>
+<p>​    在一个segment文件里面，日志是追加写入的。如果满足一定条件，就会切分日志文件，产生要给新的segment。</p>
+<p>​    第一种是根据日志文件大小。当一个segment写满之后，会创建一个新的segment，用最新的offset作为名称。这个例子可以通过往一个Topic发送大量消息产生。segment的默认大小是1G，由这个参数控制：log.segment.bytes</p>
+<p>​    第二种是根据消息的最大时间戳，和当前系统时间戳的差值。有一个默认的参数，168小时（一周）：log.roll.hours=168。意味着：如果服务器上次写入消息是一周之前，旧的segment就不写了，现在要创建一个新的segment。还可以从更加精细的时间单位进行控制，如果配置毫秒级别的日志切分间隔，会优先使用这个单位。否则就用小时的。log.roll.ms</p>
+<p>​    第三种是offset索引文件或者timestamp索引文件达到了一定的大小，默认是10M。如果要减少日志文件的切分，可以把这个值调大一点。log.index.size.max.bytes</p>
+<p>​    以及：索引文件写满了，数据文件也要跟着拆分，不然这一套东西对不上。另外两个是索引文件，单独来看：</p>
+<p>​    （2）.index偏移量（offset）索引文件</p>
+<p>​    （3）.timeindex时间戳（timestamp）索引文件</p>
+<h4 id="2-1-5-索引"><a href="#2-1-5-索引" class="headerlink" title="2.1.5 索引"></a>2.1.5 索引</h4><p>由于一个segment的文件中可能存放很多消息，如果要根据offset获取消息，必须要有一个快速检索消息的机制。这个就是索引。在kafka中设计了两种索引。偏移量索引文件记录的是offset和消息物理地址（在log文件中的位置）的映射关系。时间戳索引文件记录的是时间戳和offset的关系。</p>
+<p>当然，内容是二进制地文件，不能以纯文本形式查看。bin目录下dumplog工具。</p>
+<p>kafka的索引并不是每一条消息都会建立索引，而是一种稀疏索引sparse index（DB2和MongoDB中都有稀疏索引）。</p>
+<p>消息的大小来控制索引的产生，默认是4KB：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-attr">log.index.interval.bytes</span>=<span class="hljs-string">4096</span><br></code></pre></td></tr></table></figure>
+
+<p>只要写入的消息超过了4KB，偏移量索引文件.index和时间戳索引文件.timeindex就会增加一条索引记录（索引项）。这个值设置越小，索引越密集/值设置的越大，索引越稀疏。相对来说，越稠密的索引检索数据更快，但是会消耗更多的存储空间。越稀疏索引占用存储空间越小，但是插入和删除时所需的维护开销也小。Kafka索引的时间复杂度为O(log2n) + O(m)，n是索引文件里索引的个数，m是稀疏程度。</p>
+<p>第二种索引类型是时间戳索引。首先消息是必须要记录时间戳的。客户端封装的ProducerRecord和ConsumerRecord都有一个long timestamp属性。</p>
+<p>1、如果要基于时间切分日志文件，必须要记录时间戳。</p>
+<p>2、如果要基于时间清理消息，必须要记录时间戳</p>
+<p>注意时间戳有两种，一种是消息创建的时间戳，一种是消费在Broker追加写入的时间。到底用哪个时间由一个参数来控制：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-attr">log.message.timestamp.type</span>=<span class="hljs-string">CreateTime</span><br></code></pre></td></tr></table></figure>
+
+<p>默认是创建时间。如果要改成日志追加时间，则修改LogAppendTime。</p>
+<p>kafka如何基于索引快速检索消息:</p>
+<ol>
+<li>消费的时候是能够确定分区的，所以第一步是找到在哪个segment中。segment文件是用base offset命名的，所以可以用二分法很快确定</li>
+<li>这个segment有对应的索引文件，它们是成套出现的。所以现在要在索引文件中根据offset找position</li>
+<li>得到position之后，到对应的log文件开始查找offset，和消息的offset进行比较，直到找到消息</li>
+</ol>
+<p>kafka是写多，查少。如果kafka用B+Tree，首先会出现大量的B+Tree，大量插入数据带来的B+tree的调整会非常消耗性能。</p>
+<h3 id="2-2-消息保留-清理-机制"><a href="#2-2-消息保留-清理-机制" class="headerlink" title="2.2 消息保留(清理)机制"></a>2.2 消息保留(清理)机制</h3><h4 id="2-2-1-开关与策略"><a href="#2-2-1-开关与策略" class="headerlink" title="2.2.1 开关与策略"></a>2.2.1 开关与策略</h4><p>Kafka中提供了两种方式，一种是直接删除delete，一种是对日志进行压缩compact。默认是直接删除。</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-attr">log.cleanup.policy</span>=<span class="hljs-string">delete</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="2-2-2-删除策略"><a href="#2-2-2-删除策略" class="headerlink" title="2.2.2 删除策略"></a>2.2.2 删除策略</h4><p>日志删除是通过定时任务实现的。默认5分钟执行一次，看看有没有需要删除的数据。</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-attr">log.retention.check.interval.ms</span>=<span class="hljs-string">300000</span><br></code></pre></td></tr></table></figure>
+
+<p>删除是从最老的数据开始删。关键是对老数据的定义。由一个参数控制：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-attr">log.retention.hours</span>=<span class="hljs-string">168</span><br></code></pre></td></tr></table></figure>
+
+<p>默认值是168小时（一周），也就是时间戳超过一周的数据才会删除。kafka另外提供了两个粒度更细的配置，分钟和毫秒。</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-comment"># 默认值是空。它的优先级比小时高，如果配置了则用这个。</span><br><span class="hljs-attr">log.retention.minutes</span><br><span class="hljs-comment"># 默认值是空。它的优先级比分钟高，如果配置了则用这个。</span><br><span class="hljs-attr">log.retention.ms</span><br></code></pre></td></tr></table></figure>
+
+<p>第二种删除策略是根据日志大小删除，先删除旧的消息，删到不超过这个大小为止。</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-attr">log.retention.bytes</span>=<span class="hljs-string">-1</span><br></code></pre></td></tr></table></figure>
+
+<p>默认值是-1，代表不限制大小，想写多少就写多少。log.retention.bytes指的是所有日志问价的总大小。也可以对单个segment文件大小进行限制。</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-comment"># 默认值1G。</span><br><span class="hljs-attr">log.segment.bytes</span>=<span class="hljs-string">1G</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="2-2-3-压缩策略"><a href="#2-2-3-压缩策略" class="headerlink" title="2.2.3 压缩策略"></a>2.2.3 压缩策略</h4><p>当有了这些key相同的value不同的消息的时候，存储空间旧被浪费了。压缩就是把相同的key合并为最后一个value。这个压缩跟Compression的含义不一样。所以，这里称为压紧更加合适。Log Compaction执行过后的偏移量不再是连续的，不过这并不影响日志的查询。</p>
+<h3 id="2-3-高可用架构"><a href="#2-3-高可用架构" class="headerlink" title="2.3 高可用架构"></a>2.3 高可用架构</h3><h4 id="2-3-1-Controller选举"><a href="#2-3-1-Controller选举" class="headerlink" title="2.3.1 Controller选举"></a>2.3.1 Controller选举</h4><p>不是所有的repalica都参与leader选举，而是由其中的一个Broker统一来指挥，这个Broker的角色就是Controller。就像Redis Sentinel的架构，执行故障转移的时候，必须要先从所有哨兵中选一个负责做故障转移的节点一样。kafka也要先从所有Broker中选出唯一的一个Controller。所有的Broker会尝试在zookeeper中创建临时节点/controller，只有要给能创建成功（先到先得）。</p>
+<p>​    如果Controller挂掉了或者网络出现了问题，ZK上的临时节点会消失。其他的Broker通过watch监听到Controller下线的消息后，开始竞选新的Controller。方法跟之前的还是一样的，谁现在ZK中写入一个Controller节点，谁就成为新的Controller。</p>
+<p>​    一个节点成为Controller之后，它肩上的责任也比别人重了几份，正所谓劳力越大，责任越大：监听Broker变化；监听Topic变化；监听Partition变化；获取和管理Broker、Topic、Partition的信息；管理Partition的主从信息。</p>
+<h4 id="2-3-2-分区副本Leader选举"><a href="#2-3-2-分区副本Leader选举" class="headerlink" title="2.3.2 分区副本Leader选举"></a>2.3.2 分区副本Leader选举</h4><p>一个分区所有的副本，叫做Assigned-Replicas（AR）。所有的皇太子。这些所有的副本中，跟leader数据保持一定程度同步的，叫做In-Sync Replicas（ISR）。天天过来参加早会，有希望继位的皇太子。跟leader不同步的副本，叫做Out-Sync-Replicas（OSR）。天天睡懒觉，不参加早会，没被皇帝放在眼里的皇太子。</p>
+<p>AR=ISR+OSR。正常情况下OSR是空的，大家都正常同步，AR=ISR</p>
+<p>默认情况下，当leader副本发生故障时，只有在ISR集合中的副本才有资格被选举为新的leader。</p>
+<p>​    如果ISR为空呢？皇帝突然驾崩，太子们都还小，但是群龙不能无首。在这种情况下，可以让ISR之外的副本参与选举。允许ISR之外的副本参与选举，叫做unclean leader election。</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-attr">unclean.leader.election.enable</span>=<span class="hljs-string">false</span><br></code></pre></td></tr></table></figure>
+
+<p>把这个参数改成true（一般情况不建议开启，会造成数据丢失）。</p>
+<p>kafka的选举实现，最相近的是微软的PacificA算法。在这种算法中，默认是让ISR中第一个replica变成leader。比如ISR是1、5、9，优先让1成为leader。这个跟中国古代皇帝传为是一样的，优先传给皇长子。</p>
+<h4 id="2-3-3-主从同步"><a href="#2-3-3-主从同步" class="headerlink" title="2.3.3 主从同步"></a>2.3.3 主从同步</h4><p>leader确定之后，客户端的读写只能操作leader节点。follower需要向leader同步数据。先说几个概念:</p>
+<ol>
+<li>LEO（Log End Offset）：下一条等待写入的消息的offset（最新的offset+1）</li>
+<li>HW（High Watermark）：ISR中最小的LEO。Leader会管理所有ISR中最小的LEO作为HW。consumer最多只能消费到HW之前的位置（消费到offset5的消息）。也就是说：其他的副本没有同步过去的消息，是不能被消费的。如果在同步成功之前就被消费了，consumer group的offset会偏大。如果leader奔溃，中间会缺失消息。</li>
+</ol>
+<p>同步过程：</p>
+<p>1、follower节点会向leader发送一个fetch请求，leader向follower发送数据后，即需要更新follower的LEO。</p>
+<p>2、follower接收到数据响应后，依次写入消息并且更新LEO。</p>
+<p>3、leader更新HW（ISR最小的LEO）</p>
+<p>kafka设计了独特的ISR复制，可以在保障数据一致性的情况下又可以提高吞吐量。</p>
+<h4 id="2-3-4-replica故障处理"><a href="#2-3-4-replica故障处理" class="headerlink" title="2.3.4 replica故障处理"></a>2.3.4 replica故障处理</h4><h5 id="2-3-4-1-follower故障处理"><a href="#2-3-4-1-follower故障处理" class="headerlink" title="2.3.4.1 follower故障处理"></a>2.3.4.1 follower故障处理</h5><p>首先follower发生故障，会被踢出ISR。恢复之后，首先根据之前记录的HW（6），把高于HW的消息截掉（6、7）.然后向leader同步消息。追上leader之后（30秒），重新加入ISR。</p>
+<h5 id="2-3-4-2-leader故障处理"><a href="#2-3-4-2-leader故障处理" class="headerlink" title="2.3.4.2 leader故障处理"></a>2.3.4.2 leader故障处理</h5><p>首先选一个leader。为了保证数据一致，其他的follower需要把高于HW的消息截取掉（这里没有消息需要截取）。然后同步数据。注意：这种机制只能保证副本之间的数据一致性，并不能保证数据不丢失或者不重复。</p>
+<h2 id="3-消费者原理"><a href="#3-消费者原理" class="headerlink" title="3 消费者原理"></a>3 消费者原理</h2><h3 id="3-1-offset维护"><a href="#3-1-offset维护" class="headerlink" title="3.1 offset维护"></a>3.1 offset维护</h3><h4 id="3-1-1-offset的存储"><a href="#3-1-1-offset的存储" class="headerlink" title="3.1.1 offset的存储"></a>3.1.1 offset的存储</h4><p>命令查看offset信息：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">./kafka-consumer-groups.sh --bootstrap-server &lt;ip&gt; --describe --group assign-group-1<br></code></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>PARTITION</th>
+<th>CURRENT-OFFSET</th>
+<th>LOG-END-OFFSET</th>
+<th>LAG</th>
+<th>CONSUMER-ID</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>5</td>
+<td>5</td>
+<td>0</td>
+<td>consumer-1</td>
+</tr>
+<tr>
+<td>1</td>
+<td>5</td>
+<td>5</td>
+<td>0</td>
+<td>consumer-1</td>
+</tr>
+<tr>
+<td>2</td>
+<td>5</td>
+<td>5</td>
+<td>0</td>
+<td>consumer-2</td>
+</tr>
+</tbody></table>
+<p>CURRENT-OFFSET指的是下一个未使用的offset。</p>
+<p>Log End Offset(LEO)：下一条等待写入的消息的offset（最新的offset+1）</p>
+<p>LAG是延迟量</p>
+<p>注意：不是一个消费者和Topic的关系。是一个consumer group和topic中的一个partiton的关系（offset在partition中连续编号而不是全局连续编号），这个对应关系是保存在服务端的。</p>
+<p>kafka早期的版本把消费者组和partition的offset直接维护在ZK中，但是读写的性能消耗太大了。后来就放在一个特护的Topic中，名字叫_consumer_offsets，默认由50分区（offsets.topic.num.partitions默认是50），每个分区默认一个replication。</p>
+<p>这个Topic中主要存储两种对象：</p>
+<ol>
+<li><p>GroupMetadata：保存了消费者组中各个消费者的信息（每个消费者有编号）。</p>
+</li>
+<li><p>OffsetAndMetadata：保存了消费者组和各个partition的offset位移信息元数据。</p>
+</li>
+</ol>
+<p>确定offset在哪个分区：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">Math.abs(<span class="hljs-string">&quot;assign-group-1&quot;</span>.hashCode()) % <span class="hljs-number">50</span><br></code></pre></td></tr></table></figure>
+
+<p>什么情况下找不到offset？就是没有消费过，没有把当前的offset上报给Broker。消费者的代码中有一个参数，用来控制如果找不到偏移量的时候从哪里开始消费。</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-attr">auto.fooset.reset</span>=<span class="hljs-string">latest</span><br></code></pre></td></tr></table></figure>
+
+<p>默认值是latest，也就是最新的消息（最后发送的）开始消费。历史消息是不能消费的。</p>
+<p>earliest代表从最早的（最先发送的）消息开始消费。可以消费到历史消息。</p>
+<p>none，如果consumer group在服务端找不到offset会报错。</p>
+<h4 id="3-1-2-offset的更新"><a href="#3-1-2-offset的更新" class="headerlink" title="3.1.2 offset的更新"></a>3.1.2 offset的更新</h4><p>消费者组的offset是保存在Broker的，但是是由消费者上报给Broker的，并不是消费者组消费了消息，offset就会更新，消费者必须要有一个commit的动作。就跟RabbitMQ中消费者的ACK一样。一样的，消费者可以手动提交或者自动提交，由参数控制：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-attr">enable.auto.commit</span>=<span class="hljs-string">true</span><br></code></pre></td></tr></table></figure>
+
+<p>默认是true，true代表消费者消费消息以后自动提交此时Broker会更新消费者组的offset。另外还可以使用一个参数来控制自动提交的频率：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-comment"># 默认是5秒</span><br><span class="hljs-attr">auto.commit.interval.ms</span>=<span class="hljs-string">5000</span><br></code></pre></td></tr></table></figure>
+
+<p>如果要在消费完消息做完业务逻辑处理之后才commit，就要把这个值改成false，如果是false，消费者就必须要调用一个方法让Broker更新offset。有两种方式：consumer.commitSync()的手动同步提交；consumer.commitAsync()的手动异步提交。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) &#123;<br>    ConsumerRecords&lt;String, String&gt; records = consumer.poll(Duration.ofMillis(<span class="hljs-number">100</span>));<br>    <span class="hljs-keyword">for</span>(ConsumerRecord&lt;String, String&gt; record : records) &#123;<br>        System.out.println(<span class="hljs-string">&quot;......&quot;</span>);<br>        buffer.add(record);<br>    &#125;<br>    <span class="hljs-keyword">if</span>(buffer.size() &gt;= minBatchSize)&#123;<br>        <span class="hljs-comment">//同步提交</span><br>        consumer.commitSync();<br>        buffer.clear();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>如果不提交或者提交失败，Broker的offset不会更新，消费者组下次消费的时候会消费到重复的消息。</p>
+<h3 id="3-2-消费者消费策略"><a href="#3-2-消费者消费策略" class="headerlink" title="3.2 消费者消费策略"></a>3.2 消费者消费策略</h3><p>通过partition.assignment.strategy设置消费策略：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">props.put(<span class="hljs-string">&quot;partition.assignment.strategy&quot;</span>, <span class="hljs-string">&quot;org.apache.kafka.clients.consumer.RoundRobinAssignor&quot;</span>);<br></code></pre></td></tr></table></figure>
+
+<h4 id="3-2-1-消费策略"><a href="#3-2-1-消费策略" class="headerlink" title="3.2.1 消费策略"></a>3.2.1 消费策略</h4><ol>
+<li>RangeAssignor，默认策略。按照范围连续分配的。</li>
+<li>RoundRobinAssignor，随机策略</li>
+<li>StickyAssignor：这种策略复杂一点，但是相对来说均匀一点（每次结果都可能不一样）。原则：1）分区的分配尽可能的均匀。2）分区的分配尽可能和上次分配保持相同。</li>
+</ol>
+<p>Consumer可以指定topic的某个分区消费，要用到assign而不是subscrible的接口。subscribe会自动分配消费者组的分区，而assign可以手动指定分区消费，相当于consumer group id失效了。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">TopicPartition</span> <span class="hljs-variable">tp</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">TopicPartition</span>(<span class="hljs-string">&quot;as5part&quot;</span>, <span class="hljs-number">0</span>);<br>consumer.assign(Arrays.asList(tp));<br></code></pre></td></tr></table></figure>
+
+<h4 id="3-2-2-rebalance分区重分配"><a href="#3-2-2-rebalance分区重分配" class="headerlink" title="3.2.2 rebalance分区重分配"></a>3.2.2 rebalance分区重分配</h4><p>有两种情况需要重新分配分区和消费者的关系：</p>
+<p>​    1、消费者组的消费者数量发生变化。比如增加了消费者，消费者关闭连接</p>
+<p>​    2、Topic的分区数发生变更，新增或者减少</p>
+<p>​    为了让分区分配尽量地均衡，这个时候会触发rebalance机制。重新分配分成这么几步：</p>
+<p>​    1、找一个话事人，它起到一个见度和保证公平地作用，每个Broker上都有要给用来管理offset，消费者组地实例，叫做GroupCoordinator。第一步就是要从所有地GroupCoordinator中找一个话事人出来。</p>
+<p>​    2、第二步，清点一下认数。所有的消费者连接到GroupCoordinator报数，这个叫join group请求</p>
+<p>​    3、第三步，选组长，GroupCoordinator从所有消费者中选一个leader。这个消费者会根据消费者地情况和设置地策略，确定一个方案。Leader把方案上报给GroupCoordinator，GroupCoordinator会通知给所有消费者。</p>
+<h2 id="4-kafka特性"><a href="#4-kafka特性" class="headerlink" title="4 kafka特性"></a>4 kafka特性</h2><p>顺序读写，批量读写和文件压缩，零拷贝</p>
+<h2 id="5-kafka消息不丢失的配置"><a href="#5-kafka消息不丢失的配置" class="headerlink" title="5 kafka消息不丢失的配置"></a>5 kafka消息不丢失的配置</h2><p>​    1、producer端使用producer.send(msg,callback)带有回调的send方法，而不是producer.send(msg)方法。根据回调，一旦出现消息提交失败的情况，就可以有针对性的进行处理。</p>
+<p>​    2、设置acks=all。acks是Producer的一个参数，代表“已提交”消息的定义。如果设置成all，则标名所有Broker都要接收到消息，该消息才算是“已提交”。</p>
+<p>​    3、设置retries为一个较大的值。同样是Producer的参数。当出现网络抖动时，消息发送可能会失败，此时配置了retries的Producer能够自动重试发送消息，尽量避免消息丢失。</p>
+<p>​    4、设置unclean.leader.election.enable = false。</p>
+<p>​    5、设置replication.factor&gt;=3。需要三个以上的副本。</p>
+<p>​    6、设置min.insync.replicas&gt;1/Broker端参数，控制消息至少要被写入到多少个副本才算是已提交。设置成大于1可以提升消息持久性。在生产环境中不要使用默认值1。确保replication.factor&gt;min.insync.replicas。如果两者相等，那么只要有一个副本离线，整个分区就无法正常工作了。推荐设置成replication.factor = min.insync.replicas + 1。</p>
+<p>​    7、确保消息消费完成再提交。Consumer端有个参数enable.auto.commit，最好设置成false，并自己来处理offset的提交更新。</p>
+<h2 id="6-与RabbitMQ的对比"><a href="#6-与RabbitMQ的对比" class="headerlink" title="6 与RabbitMQ的对比"></a>6 与RabbitMQ的对比</h2><p>主要区别：</p>
+<p>​    1、产品侧重——kafka：流式处理、消息引擎；RabbitMQ：消息代理</p>
+<p>​    2、性能：kafka有更高的吞吐量。RabbitMQ主要是push，kafka只有pull</p>
+<p>​    3、消息顺序：kafka分区中的消息是有序的，同一个consumer group中的一个消费者只能消费一个partition，能保证消息的顺序性。</p>
+<p>​    4、消息的路由和分发：RabbitMQ更加灵活</p>
+<p>​    5、延迟消息，死信队列：RabbitMQ支持</p>
+<p>​    6、消息的留存：kafka消费完之后消息会留存，RabbitMQ消费完就删除。kafka可以设置retention，清理消息。</p>
+<p>​    优先选择RabbitMQ的情况：高级灵活的路由规则；消息时序控制（控制消息过期或者消息延迟）；高级的容错处理能力，在消费者更有可能处理消息不成功的情景中（瞬时或者持久）；更简单的消费者实现。</p>
+<p>​    优先选择kafka的情况：严格的消息顺序；延长消息留存时间，包括过去消息重放的可能；传统解决方案无法满足的高伸缩能力。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" class="category-chain-item">消息队列</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/Kafka/" class="category-chain-item">Kafka</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/">#消息队列</a>
+      
+        <a href="/tags/Kafka/">#Kafka</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Kafka原理分析以及特性总结</div>
+      <div>http://www.zivjie.cn/2023/06/04/消息队列/Kafka/kafka原理分析以及特性总结/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Francis</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年6月4日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/06/10/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/RabbitMQ/%E9%9B%86%E7%BE%A4%E4%B8%8E%E9%AB%98%E5%8F%AF%E7%94%A8/" title="RabbitMQ集群与高可用">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">RabbitMQ集群与高可用</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/06/04/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/RabbitMQ/%E5%AE%89%E8%A3%85%E4%B8%8E%E9%85%8D%E7%BD%AE/" title="RabbitMQ基本介绍">
+                        <span class="hidden-mobile">RabbitMQ基本介绍</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

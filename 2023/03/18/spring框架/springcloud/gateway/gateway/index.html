@@ -1,0 +1,822 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Francis">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1 为什么需要网关（1）如果没有网关，各个微服务就需要对外暴露很多端口，访问不方便并且不安全  （2）如果没有网关，很多微服务都需要单独认证授权，比较麻烦  （3）有些微服务使用的是不同的通信协议，如果没有网关，则客户端访问变得很不方便 等等。。。 2 常见的网关产品https:&#x2F;&#x2F;landscape.cncf.io&#x2F;  3 Spring Cloud Gateway FeaturesBuilt o">
+<meta property="og:type" content="article">
+<meta property="og:title" content="gateway">
+<meta property="og:url" content="http://www.zivjie.cn/2023/03/18/spring%E6%A1%86%E6%9E%B6/springcloud/gateway/gateway/index.html">
+<meta property="og:site_name" content="Francis-Blog">
+<meta property="og:description" content="1 为什么需要网关（1）如果没有网关，各个微服务就需要对外暴露很多端口，访问不方便并且不安全  （2）如果没有网关，很多微服务都需要单独认证授权，比较麻烦  （3）有些微服务使用的是不同的通信协议，如果没有网关，则客户端访问变得很不方便 等等。。。 2 常见的网关产品https:&#x2F;&#x2F;landscape.cncf.io&#x2F;  3 Spring Cloud Gateway FeaturesBuilt o">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.zivjie.cn/img/Samurai%20Doge.png">
+<meta property="article:published_time" content="2023-03-18T12:46:21.000Z">
+<meta property="article:modified_time" content="2024-01-02T01:34:06.355Z">
+<meta property="article:author" content="Francis">
+<meta property="article:tag" content="java">
+<meta property="article:tag" content="springcloud">
+<meta property="article:tag" content="gateway">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://www.zivjie.cn/img/Samurai%20Doge.png">
+  
+  
+  
+  <title>gateway - Francis-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.zivjie.cn","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Francis</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="gateway"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-03-18 20:46" pubdate>
+          2023年3月18日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          12k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          99 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">gateway</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="1-为什么需要网关"><a href="#1-为什么需要网关" class="headerlink" title="1 为什么需要网关"></a>1 为什么需要网关</h2><p>（1）如果没有网关，各个微服务就需要对外暴露很多端口，访问不方便并且不安全 </p>
+<p>（2）如果没有网关，很多微服务都需要单独认证授权，比较麻烦 </p>
+<p>（3）有些微服务使用的是不同的通信协议，如果没有网关，则客户端访问变得很不方便</p>
+<p>等等。。。</p>
+<h2 id="2-常见的网关产品"><a href="#2-常见的网关产品" class="headerlink" title="2 常见的网关产品"></a>2 常见的网关产品</h2><p><a target="_blank" rel="noopener" href="https://landscape.cncf.io/">https://landscape.cncf.io/</a></p>
+<p><img src="/image/springcloud/gateway/1.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="3-Spring-Cloud-Gateway-Features"><a href="#3-Spring-Cloud-Gateway-Features" class="headerlink" title="3 Spring Cloud Gateway Features"></a>3 Spring Cloud Gateway Features</h2><p>Built on Spring Framework 5, Project Reactor and Spring Boot 2.0 </p>
+<p>Able to match routes on any request attribute. </p>
+<p>Predicates and filters are specific to routes. </p>
+<p>Circuit Breaker integration. </p>
+<p>Spring Cloud DiscoveryClient integration </p>
+<p>Easy to write Predicates and Filters </p>
+<p>Request Rate Limiting </p>
+<p>Path Rewriting</p>
+<p><img src="/image/springcloud/gateway/2.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="4-工作流程"><a href="#4-工作流程" class="headerlink" title="4 工作流程"></a>4 工作流程</h2><p><a target="_blank" rel="noopener" href="https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#gateway-how-it-works">https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#gateway-how-it-works</a></p>
+<p><img src="/image/springcloud/gateway/3.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="5-Glossary-术语"><a href="#5-Glossary-术语" class="headerlink" title="5 Glossary[术语]"></a>5 Glossary[术语]</h2><p><a target="_blank" rel="noopener" href="https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#glossary">https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#glossary</a></p>
+<h3 id="5-1-Route"><a href="#5-1-Route" class="headerlink" title="5.1 Route"></a>5.1 Route</h3><p>The basic building block of the gateway. It is defined by an ID, a destination URI, a collection of predicates, and a collection of filters. A route is matched if the aggregate predicate is true.</p>
+<h3 id="5-2-Predicate"><a href="#5-2-Predicate" class="headerlink" title="5.2 Predicate"></a>5.2 Predicate</h3><p>This is a Java 8 Function Predicate. The input type is a Spring Framework ServerWebExchange. This lets you match on anything from the HTTP request, such as headers or parameters.</p>
+<h3 id="5-3-Filter"><a href="#5-3-Filter" class="headerlink" title="5.3 Filter"></a>5.3 Filter</h3><p>These are instances of GatewayFilter that have been constructed with a specific factory. Here, you can modify requests and responses before or after sending the downstream request.</p>
+<h3 id="5-4-图解"><a href="#5-4-图解" class="headerlink" title="5.4 图解"></a>5.4 图解</h3><p><img src="/image/springcloud/gateway/4.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="6-Gateway初体验"><a href="#6-Gateway初体验" class="headerlink" title="6 Gateway初体验"></a>6 Gateway初体验</h2><h3 id="6-1-基本搭建流程"><a href="#6-1-基本搭建流程" class="headerlink" title="6.1 基本搭建流程"></a>6.1 基本搭建流程</h3><p>（1）创建Spring Boot项目，名称为gateway，选择gateway的依赖，并修改端口号为8090 </p>
+<p>（2）修改Spring Boot和Spring Cloud版本</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">Spring</span> Boot: <span class="hljs-number">2</span>.<span class="hljs-number">7</span>.<span class="hljs-number">6</span><br><span class="hljs-attribute">Spring</span> Cloud: <span class="hljs-number">2021</span>.<span class="hljs-number">0</span>.<span class="hljs-number">4</span><br></code></pre></td></tr></table></figure>
+
+<p>（3）添加SCA Dependencies管理和Nacos Discovery</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-comment">&lt;!--引入spring cloud alibaba 版本管理--&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>com.alibaba.cloud<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-cloud-alibaba-dependencies<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>2021.0.4.0<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">type</span>&gt;</span>pom<span class="hljs-tag">&lt;/<span class="hljs-name">type</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">scope</span>&gt;</span>import<span class="hljs-tag">&lt;/<span class="hljs-name">scope</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br>---<br><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>com.alibaba.cloud<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-cloud-starter-alibaba-nacos-discovery<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>（4）自定义路由规则和服务发现路由</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">server:</span><br>  <span class="hljs-attr">port:</span> <span class="hljs-number">8090</span><br><span class="hljs-attr">spring:</span><br>  <span class="hljs-attr">cloud:</span><br>    <span class="hljs-attr">nacos:</span><br>      <span class="hljs-attr">discovery:</span><br>        <span class="hljs-comment"># nacos注册中心地址</span><br>        <span class="hljs-attr">server-addr:</span> <span class="hljs-string">localhost:8848</span><br>        <span class="hljs-attr">service:</span> <span class="hljs-string">gateway</span><br>    <span class="hljs-attr">gateway:</span><br>      <span class="hljs-comment"># 自定义路由规则</span><br>      <span class="hljs-attr">routes:</span><br>      <span class="hljs-comment"># 路由的匹配条件 localhost:8090/jack/user/hello ---&gt;</span><br>      <span class="hljs-comment"># localhost:8081/jack/user/hello [没有 -StripPrefix过滤器的情况]</span><br>      <span class="hljs-comment"># 路由的匹配条件 localhost:8090/jack/user/hello ---&gt;</span><br>      <span class="hljs-comment"># localhost:8081/user/hello [有 -StripPrefix过滤器的情况]</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">id:</span> <span class="hljs-string">jack_path_route</span><br>          <span class="hljs-attr">uri:</span> <span class="hljs-string">http://localhost:8081</span><br>          <span class="hljs-attr">predicates:</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-string">Path=/jack/**</span><br>          <span class="hljs-attr">filters:</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-string">StripPrefix=1</span><br>      <span class="hljs-attr">discovery:</span><br>        <span class="hljs-attr">locator:</span><br>          <span class="hljs-comment"># 开启网关服务发现的能力</span><br>          <span class="hljs-comment"># localhost:8090/user --[loadbalancer]-&gt; localhost:8081</span><br>          <span class="hljs-comment"># localhost:8090/user/user/hello ---&gt; localhost:8081/user/hello</span><br>          <span class="hljs-attr">enabled:</span> <span class="hljs-literal">true</span><br></code></pre></td></tr></table></figure>
+
+<p>（5）启动gateway</p>
+<p>（6）访问测试 </p>
+<p>自定义路由规则：<a target="_blank" rel="noopener" href="http://localhost:8090/jack/user/hello">http://localhost:8090/jack/user/hello</a> </p>
+<p>基于服务发现的路由规则：<a target="_blank" rel="noopener" href="http://localhost:8090/user/user/hello">http://localhost:8090/user/user/hello</a>  </p>
+<p>发现基于服务发现的路由规则访问失败，因为没有引入loadbalancer依赖</p>
+<h3 id="6-2-引入loadbalancer依赖解决负载均衡问题"><a href="#6-2-引入loadbalancer依赖解决负载均衡问题" class="headerlink" title="6.2 引入loadbalancer依赖解决负载均衡问题"></a>6.2 引入loadbalancer依赖解决负载均衡问题</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.springframework.cloud<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-cloud-starter-loadbalancer<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="6-3-设置日志级别"><a href="#6-3-设置日志级别" class="headerlink" title="6.3 设置日志级别"></a>6.3 设置日志级别</h3><p><a target="_blank" rel="noopener" href="https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#troubleshooting">https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#troubleshooting</a></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">logging:</span><br>  <span class="hljs-attr">level:</span><br>    <span class="hljs-attr">reactor.netty:</span> <span class="hljs-string">debug</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="7-Actuator-API"><a href="#7-Actuator-API" class="headerlink" title="7 Actuator API"></a>7 Actuator API</h2><h3 id="7-1-整合actuator"><a href="#7-1-整合actuator" class="headerlink" title="7.1 整合actuator"></a>7.1 整合actuator</h3><p>（1）引入spring-boot-starter-actuator依赖</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.springframework.boot<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-boot-starter-actuator<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>（2）写配置</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">management:</span><br>  <span class="hljs-attr">endpoints:</span><br>    <span class="hljs-attr">web:</span><br>      <span class="hljs-attr">exposure:</span><br>        <span class="hljs-attr">include:</span> <span class="hljs-string">&#x27;*&#x27;</span> <span class="hljs-comment"># 或者指定为gateway</span><br>  <span class="hljs-attr">endpoint:</span><br>    <span class="hljs-attr">health:</span><br>      <span class="hljs-attr">show-details:</span> <span class="hljs-string">always</span><br></code></pre></td></tr></table></figure>
+
+<p>（3）常见api操作</p>
+<p><a target="_blank" rel="noopener" href="https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#recap-the-list-of-all-endpoints">https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#recap-the-list-of-all-endpoints</a></p>
+<p><img src="/image/springcloud/gateway/5.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="7-2-动态添加路由信息"><a href="#7-2-动态添加路由信息" class="headerlink" title="7.2 动态添加路由信息"></a>7.2 动态添加路由信息</h3><p>（1）创建路由信息：使用<a target="_blank" rel="noopener" href="http://localhost:8090/actuator/gateway/routes/jack_dynamic_route%EF%BC%8C%E5%8F%91">http://localhost:8090/actuator/gateway/routes/jack_dynamic_route，发</a> 送POST请求</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><br>	<span class="hljs-attr">&quot;id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;jack_dynamic_route&quot;</span><span class="hljs-punctuation">,</span><br>	<span class="hljs-attr">&quot;predicates&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-punctuation">&#123;</span><br>		<span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Path&quot;</span><span class="hljs-punctuation">,</span><br>		<span class="hljs-attr">&quot;args&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><span class="hljs-attr">&quot;_genkey_0&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;/dynamic&quot;</span><span class="hljs-punctuation">&#125;</span><br>	<span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span><br>	<span class="hljs-attr">&quot;filters&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><br>		<span class="hljs-punctuation">&#123;</span><br>			<span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;StripPrefix&quot;</span><span class="hljs-punctuation">,</span><br>			<span class="hljs-attr">&quot;args&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-punctuation">&#123;</span><br>				<span class="hljs-attr">&quot;parts&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;1&quot;</span><br>			<span class="hljs-punctuation">&#125;</span><br>		<span class="hljs-punctuation">&#125;</span><br>	<span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span><br>	<span class="hljs-attr">&quot;uri&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;https://www.gupaoedu.com&quot;</span><span class="hljs-punctuation">,</span><br>	<span class="hljs-attr">&quot;order&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<p>（2）刷新并查看路由信息</p>
+<p><a target="_blank" rel="noopener" href="http://localhost:8090/actuator/gateway/refresh">http://localhost:8090/actuator/gateway/refresh</a></p>
+<p><a target="_blank" rel="noopener" href="http://localhost:8090/actuator/gateway/routes">http://localhost:8090/actuator/gateway/routes</a></p>
+<p>（3）访问 <a target="_blank" rel="noopener" href="http://localhost:8090/dynamic">http://localhost:8090/dynamic</a></p>
+<h2 id="8-Gateway整合Nacos实现动态路由"><a href="#8-Gateway整合Nacos实现动态路由" class="headerlink" title="8 Gateway整合Nacos实现动态路由"></a>8 Gateway整合Nacos实现动态路由</h2><h3 id="8-1-环境搭建"><a href="#8-1-环境搭建" class="headerlink" title="8.1 环境搭建"></a>8.1 环境搭建</h3><p>（1）在nacos server上创建gateway.yaml文件，用于保存gateway的路由配置信息</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">spring:</span><br>  <span class="hljs-attr">cloud:</span><br>    <span class="hljs-attr">gateway:</span><br>      <span class="hljs-attr">routes:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">id:</span> <span class="hljs-string">nacos_route</span><br>          <span class="hljs-attr">uri:</span> <span class="hljs-string">https://www.baidu.com</span><br>          <span class="hljs-attr">predicates:</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-string">Path=/nacos/**</span><br>          <span class="hljs-attr">filters:</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-string">StripPrefix=1</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="/image/springcloud/gateway/6.png" srcset="/img/loading.gif" lazyload></p>
+<p>（2）在gateway工程中引入nacos相关依赖</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>com.alibaba.cloud<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-cloud-starter-alibaba-nacos-config<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.springframework.cloud<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-cloud-starter-bootstrap<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>（3）创建bootstrap.yaml文件并配置相关值</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">spring:</span><br>  <span class="hljs-attr">cloud:</span><br>    <span class="hljs-attr">nacos:</span><br>      <span class="hljs-attr">config:</span><br>        <span class="hljs-attr">server-addr:</span> <span class="hljs-string">localhost:8848</span><br>        <span class="hljs-attr">file-extension:</span> <span class="hljs-string">yaml</span><br>        <span class="hljs-string">shard-config[0]:</span><br>          <span class="hljs-attr">dataId:</span> <span class="hljs-string">gateway.yaml</span><br>          <span class="hljs-attr">refresh:</span> <span class="hljs-literal">true</span><br></code></pre></td></tr></table></figure>
+
+<p>（4）重启gateway工程，通过actuator查看路由信息</p>
+<p><a target="_blank" rel="noopener" href="http://localhost:8090/actuator/gateway/routes">http://localhost:8090/actuator/gateway/routes</a></p>
+<p>（5）访问：<a target="_blank" rel="noopener" href="http://localhost:8090/nacos">http://localhost:8090/nacos</a> </p>
+<p>（6）在nacos server上动态修改uri：比如将<a target="_blank" rel="noopener" href="https://www.baidu.com/">https://www.baidu.com</a> -&gt; <a target="_blank" rel="noopener" href="https://www.alibaba.com/">https://www.alibaba.com</a> </p>
+<p>（7）重启gateway，再次访问：<a target="_blank" rel="noopener" href="http://localhost:8090/nacos">http://localhost:8090/nacos</a></p>
+<h3 id="8-2-Nacos-Gateway动态刷新原理"><a href="#8-2-Nacos-Gateway动态刷新原理" class="headerlink" title="8.2 Nacos Gateway动态刷新原理"></a>8.2 Nacos Gateway动态刷新原理</h3><p>（1）根据之前Nacos配置中心源码，可以知道在Nacos配置修改之后，会push数据给client 端 </p>
+<p>（2）然后在nacos客户端会调用NacosContextRefresher#registerNacosListener </p>
+<p>（3）在这段代码中发布了RefreshEvent事件，该事件由RefreshEventListener监听器监听到了 </p>
+<p>（4）调用this#refresh#refresh()方法 </p>
+<p>（5）调用this#scope#refreshAll()方法 </p>
+<p>（6）发布RefreshScopeRefreshEvent事件：this#context#publishEvent(new RefreshScopeRefreshedEvent()) </p>
+<p>（7）由RouteRefreshListener监听器监听到了，判断事件类型 </p>
+<p>（8）调用reset方法，发布RefreshRoutesEvent事件 </p>
+<p>（9）最终调用CachingRouteLocator#onApplicationEvent完成路由规则的更新</p>
+<h2 id="9-Predicate与Filter的两种配置方式"><a href="#9-Predicate与Filter的两种配置方式" class="headerlink" title="9 Predicate与Filter的两种配置方式"></a>9 Predicate与Filter的两种配置方式</h2><p><a target="_blank" rel="noopener" href="https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#configuring-route-predicate-factories-and-gateway-filter-factories">https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#configuring-route-predicate-factories-and-gateway-filter-factories</a></p>
+<h3 id="9-1-Short-Configuration"><a href="#9-1-Short-Configuration" class="headerlink" title="9.1 Short Configuration"></a>9.1 Short Configuration</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">spring:</span><br>  <span class="hljs-attr">cloud:</span><br>    <span class="hljs-attr">gateway:</span><br>      <span class="hljs-attr">routes:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">id:</span> <span class="hljs-string">after_route</span><br>        <span class="hljs-attr">uri:</span> <span class="hljs-string">https://example.org</span><br>        <span class="hljs-attr">predicates:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-string">Cookie=mycookie,mycookievalue</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="9-2-Fully-Expaned-Arguments"><a href="#9-2-Fully-Expaned-Arguments" class="headerlink" title="9.2 Fully Expaned Arguments"></a>9.2 Fully Expaned Arguments</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">spring:</span><br>  <span class="hljs-attr">cloud:</span><br>    <span class="hljs-attr">gateway:</span><br>      <span class="hljs-attr">routes:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">id:</span> <span class="hljs-string">after_route</span><br>        <span class="hljs-attr">uri:</span> <span class="hljs-string">https://example.org</span><br>        <span class="hljs-attr">predicates:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Cookie</span><br>          <span class="hljs-attr">args:</span><br>            <span class="hljs-attr">name:</span> <span class="hljs-string">mycookie</span><br>            <span class="hljs-attr">regexp:</span> <span class="hljs-string">mycookievalue</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="10-理解Route-Predicate-Factories"><a href="#10-理解Route-Predicate-Factories" class="headerlink" title="10 理解Route Predicate Factories"></a>10 理解Route Predicate Factories</h2><p><a target="_blank" rel="noopener" href="https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#gateway-request-predicates-factories">https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#gateway-request-predicates-factories</a></p>
+<h3 id="10-1-常见的Predicate"><a href="#10-1-常见的Predicate" class="headerlink" title="10.1 常见的Predicate"></a>10.1 常见的Predicate</h3><p><img src="/image/springcloud/gateway/7.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="10-2-Predicate简介"><a href="#10-2-Predicate简介" class="headerlink" title="10.2 Predicate简介"></a>10.2 Predicate简介</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">PredicateTest</span> &#123;<br>	<span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>		Predicate&lt;String&gt; lenPredicate = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Predicate</span>&lt;String&gt;() &#123;<br>			<span class="hljs-meta">@Override</span><br>			<span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">test</span><span class="hljs-params">(String str)</span> &#123;<br>				<span class="hljs-keyword">return</span> str.length() &gt; <span class="hljs-number">8</span> ? <span class="hljs-literal">true</span> : <span class="hljs-literal">false</span>;<br>			&#125;<br>		&#125;;<br>		List&lt;String&gt; sc = Arrays.asList(<span class="hljs-string">&quot;Nacos&quot;</span>, <span class="hljs-string">&quot;LoadBalancer&quot;</span>, <span class="hljs-string">&quot;OpenFeign&quot;</span>, <span class="hljs-string">&quot;Gateway&quot;</span>, <span class="hljs-string">&quot;Sentinel&quot;</span>, <span class="hljs-string">&quot;Seata&quot;</span>);<br>		sc.stream().filter(lenPredicate).forEach(System.out::println);<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="10-3-分析PathRoutePredicateFactory"><a href="#10-3-分析PathRoutePredicateFactory" class="headerlink" title="10.3 分析PathRoutePredicateFactory"></a>10.3 分析PathRoutePredicateFactory</h3><p>（1）Predicate配置</p>
+<p><img src="/image/springcloud/gateway/8.png" srcset="/img/loading.gif" lazyload></p>
+<p>（2）debug查看</p>
+<p><img src="/image/springcloud/gateway/9.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="10-4-分析AfterRoutePredicateFactory"><a href="#10-4-分析AfterRoutePredicateFactory" class="headerlink" title="10.4 分析AfterRoutePredicateFactory"></a>10.4 分析AfterRoutePredicateFactory</h3><p><a target="_blank" rel="noopener" href="https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#the-after-route-predicate-factory">https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#the-after-route-predicate-factory</a></p>
+<p>（1）配置</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">gateway:</span><br>  <span class="hljs-attr">routes:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">id:</span> <span class="hljs-string">path_route</span><br>      <span class="hljs-attr">uri:</span> <span class="hljs-string">http://localhost:8081</span><br>      <span class="hljs-attr">predicates:</span><br>       <span class="hljs-bullet">-</span> <span class="hljs-string">Path=/test/**</span><br>       <span class="hljs-bullet">-</span> <span class="hljs-string">After=2023-01-20T17:42:47.789-07:00[America/Denver]</span><br>      <span class="hljs-attr">filters:</span><br>       <span class="hljs-bullet">-</span> <span class="hljs-string">StripPrefix=1</span><br></code></pre></td></tr></table></figure>
+
+<p>（2）访问：<a target="_blank" rel="noopener" href="http://localhost:8090/jack/user/hello">http://localhost:8090/jack/user/hello</a> </p>
+<p>（3）debug：AfterRoutePredicateFactory#apply</p>
+<h3 id="10-5-体验HeaderRoutePredicateFactory"><a href="#10-5-体验HeaderRoutePredicateFactory" class="headerlink" title="10.5 体验HeaderRoutePredicateFactory"></a>10.5 体验HeaderRoutePredicateFactory</h3><p><a target="_blank" rel="noopener" href="https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#the-header-route-predicate-factory">https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#the-header-route-predicate-factory</a></p>
+<p>（1）添加Header的Predicate</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">gateway:</span><br>  <span class="hljs-attr">routes:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">id:</span> <span class="hljs-string">path_route</span><br>      <span class="hljs-attr">uri:</span> <span class="hljs-string">http://localhost:8081</span><br>      <span class="hljs-attr">predicates:</span><br>       <span class="hljs-bullet">-</span> <span class="hljs-string">Path=/test/**</span><br>       <span class="hljs-bullet">-</span> <span class="hljs-string">After=2023-01-20T17:42:47.789-07:00[America/Denver]</span><br>      <span class="hljs-attr">filters:</span><br>       <span class="hljs-bullet">-</span> <span class="hljs-string">StripPrefix=1</span><br>       <br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">id:</span> <span class="hljs-string">header_route</span><br>      <span class="hljs-attr">uri:</span> <span class="hljs-string">lb://order</span><br>      <span class="hljs-attr">predicates:</span><br>       <span class="hljs-bullet">-</span> <span class="hljs-string">Path=/test2/**</span><br>       <span class="hljs-bullet">-</span> <span class="hljs-string">Header=X-Request-Id,</span> <span class="hljs-string">\d+</span><br>      <span class="hljs-attr">filters:</span><br>       <span class="hljs-bullet">-</span> <span class="hljs-string">StripPrefix=1</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="10-6-自定义Predicate"><a href="#10-6-自定义Predicate" class="headerlink" title="10.6 自定义Predicate"></a>10.6 自定义Predicate</h3><p>需求：定义一个断言工厂，实现时间区间的访问功能</p>
+<p>（1）引入lombok依赖</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.projectlombok<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>lombok<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">scope</span>&gt;</span>provided<span class="hljs-tag">&lt;/<span class="hljs-name">scope</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>（2）创建配置类JackTimeBetweenConfig</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Data</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">JackTimeBetweenConfig</span> &#123;<br>	<span class="hljs-keyword">private</span> LocalTime begin;<br>	<span class="hljs-keyword">private</span> LocalTime end;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>（3）创建断言工厂类JackTimeBetweenRoutePredicateFactory</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Component</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">JackTimeBetweenRoutePredicateFactory</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">AbstractRoutePredicateFactory</span>&lt;JackTimeBetweenConfig&gt; &#123;<br>	<span class="hljs-keyword">public</span> <span class="hljs-title function_">JackTimeBetweenRoutePredicateFactory</span><span class="hljs-params">()</span> &#123;<br>		<span class="hljs-built_in">super</span>(JackTimeBetweenConfig.class);<br>	&#125;<br>	<span class="hljs-comment">// 定义配置类与配置文件的映射关系</span><br>	<span class="hljs-meta">@Override</span><br>	<span class="hljs-keyword">public</span> List&lt;String&gt; <span class="hljs-title function_">shortcutFieldOrder</span><span class="hljs-params">()</span> &#123;<br>		<span class="hljs-keyword">return</span> Arrays.asList(<span class="hljs-string">&quot;begin&quot;</span>,<span class="hljs-string">&quot;end&quot;</span>);<br>	&#125;<br>	<span class="hljs-meta">@Override</span><br>	<span class="hljs-keyword">public</span> Predicate&lt;ServerWebExchange&gt; <span class="hljs-title function_">apply</span><span class="hljs-params">(JackTimeBetweenConfig config)</span> &#123;<br>		<span class="hljs-comment">// 获取配置文件中的值</span><br>		<span class="hljs-type">LocalTime</span> <span class="hljs-variable">begin</span> <span class="hljs-operator">=</span> config.getBegin();<br>		<span class="hljs-type">LocalTime</span> <span class="hljs-variable">end</span> <span class="hljs-operator">=</span> config.getEnd();<br>		<span class="hljs-comment">// Predicate完整语法</span><br>		<span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Predicate</span>&lt;ServerWebExchange&gt;() &#123;<br>			<span class="hljs-meta">@Override</span><br>			<span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">test</span><span class="hljs-params">(ServerWebExchange serverWebExchange)</span> &#123;<br>				<span class="hljs-type">LocalTime</span> <span class="hljs-variable">now</span> <span class="hljs-operator">=</span> LocalTime.now();<br>				<span class="hljs-keyword">return</span> now.isAfter(begin) &amp;&amp; now.isBefore(end);<br>			&#125;<br>		&#125;;<br>	<span class="hljs-comment">// lambda表达式写法</span><br>	<span class="hljs-comment">/*</span><br><span class="hljs-comment">		return serverWebExchange -&gt; &#123;</span><br><span class="hljs-comment">			LocalTime now = LocalTime.now();</span><br><span class="hljs-comment">			return now.isAfter(begin) &amp;&amp; now.isBefore(end);</span><br><span class="hljs-comment">		&#125;;</span><br><span class="hljs-comment">	*/</span><br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>（4）查看时间格式</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>	<span class="hljs-comment">// DateTimeFormatterRegistrar#getFallbackFormatter#TIME</span><br>	System.out.println(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).format(LocalTime.now())); <br>    <span class="hljs-comment">// 上午9:00</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>（5）配置</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">gateway:</span><br>  <span class="hljs-attr">routes:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">id:</span> <span class="hljs-string">path_route</span><br>      <span class="hljs-attr">uri:</span> <span class="hljs-string">http://localhost:8081</span><br>      <span class="hljs-attr">predicates:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-string">Path=/test/**</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-string">JackTimeBetween=上午1:00,下午2:00</span><br>      <span class="hljs-attr">filters:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-string">StripPrefix=1</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="11-GatewayFilter-Factories-局部"><a href="#11-GatewayFilter-Factories-局部" class="headerlink" title="11 GatewayFilter Factories[局部]"></a>11 GatewayFilter Factories[局部]</h2><p><a target="_blank" rel="noopener" href="https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#gatewayfilter-factories">https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#gatewayfilter-factories</a></p>
+<h3 id="11-1-常见的GatewayFilter"><a href="#11-1-常见的GatewayFilter" class="headerlink" title="11.1 常见的GatewayFilter"></a>11.1 常见的GatewayFilter</h3><p>AddRequestHeaderGatewayFilterFactory：为请求添加请求头 </p>
+<p>AddRequestParameterGatewayFilterFactory：为请求添加请求参数 </p>
+<p>AddResponseHeaderGatewayFilterFactory：为响应添加响应头 </p>
+<p>RequestRateLimiterGatewayFilterFactory：请求限流 </p>
+<p>StripPrefixGatewayFilterFactory：表示要从前截取的路径个数</p>
+<h3 id="11-2-分析StripPrefixGatewayFilterFactory"><a href="#11-2-分析StripPrefixGatewayFilterFactory" class="headerlink" title="11.2 分析StripPrefixGatewayFilterFactory"></a>11.2 分析StripPrefixGatewayFilterFactory</h3><p>（1）类关系图</p>
+<p><img src="/image/springcloud/gateway/10.png" srcset="/img/loading.gif" lazyload></p>
+<p>（2）配置</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">gateway:</span><br>  <span class="hljs-attr">routes:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">id:</span> <span class="hljs-string">path_route</span><br>      <span class="hljs-attr">uri:</span> <span class="hljs-string">http://localhost:8081</span><br>      <span class="hljs-attr">predicates:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-string">Path=/test/**</span><br>      <span class="hljs-attr">filters:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-string">StripPrefix=1</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="11-3-体验AddRequestHeaderGatewayFilterFactory"><a href="#11-3-体验AddRequestHeaderGatewayFilterFactory" class="headerlink" title="11.3 体验AddRequestHeaderGatewayFilterFactory"></a>11.3 体验AddRequestHeaderGatewayFilterFactory</h3><p><a target="_blank" rel="noopener" href="https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#the-addrequestheader-gatewayfilter-factory">https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#the-addrequestheader-gatewayfilter-factory</a></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">gateway:</span><br>  <span class="hljs-attr">routes:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">id:</span> <span class="hljs-string">path_route</span><br>      <span class="hljs-attr">uri:</span> <span class="hljs-string">http://localhost:8081</span><br>      <span class="hljs-attr">predicates:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-string">Path=/test/**</span><br>      <span class="hljs-attr">filters:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-string">StripPrefix=1</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-string">AddRequestHeader=X-Request-red,</span> <span class="hljs-string">blue</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="11-4-体验RequestRateLimiterGatewayFilterFactory"><a href="#11-4-体验RequestRateLimiterGatewayFilterFactory" class="headerlink" title="11.4 体验RequestRateLimiterGatewayFilterFactory"></a>11.4 体验RequestRateLimiterGatewayFilterFactory</h3><p><a target="_blank" rel="noopener" href="https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#the-requestratelimiter-gatewayfilter-factory">https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#the-requestratelimiter-gatewayfilter-factory</a></p>
+<h3 id="11-5-自定义GatewayFilter"><a href="#11-5-自定义GatewayFilter" class="headerlink" title="11.5 自定义GatewayFilter"></a>11.5 自定义GatewayFilter</h3><p>需求：自定义一个局部过滤器，实现日志打印功能 </p>
+<p>（1）创建自定义内置过滤器类LogGatewayFilterFactory</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Slf4j</span><br><span class="hljs-meta">@Component</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">LogPrintGatewayFilterFactory</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">AbstractNameValueGatewayFilterFactory</span> &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> GatewayFilter <span class="hljs-title function_">apply</span><span class="hljs-params">(NameValueConfig config)</span>&#123;<br>        <span class="hljs-keyword">return</span> ((exchange, chain) -&gt; &#123;<br>           log.info(<span class="hljs-string">&quot;打印日志...&#123;&#125;, &#123;&#125;&quot;</span>, config.getName(), config.getValue());<br>            <span class="hljs-type">ServerHttpRequest</span> <span class="hljs-variable">request</span> <span class="hljs-operator">=</span> exchange.getRequest().mutate().build();<br>            <span class="hljs-keyword">return</span> chain.filter(exchange.mutate().request(request).build());<br>        &#125;);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>（2）配置</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">gateway:</span><br>  <span class="hljs-attr">routes:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">id:</span> <span class="hljs-string">path_route</span><br>      <span class="hljs-attr">uri:</span> <span class="hljs-string">http://localhost:8081</span><br>      <span class="hljs-attr">predicates:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-string">Path=/test/**</span><br>      <span class="hljs-attr">filters:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-string">StripPrefix=1</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">ReqeustRateLimiter</span><br>          <span class="hljs-attr">args:</span><br>            <span class="hljs-attr">redis-rate-limiter.replenishRate:</span> <span class="hljs-number">1</span><br>            <span class="hljs-attr">redis-rate-limiter.burstCapacity:</span> <span class="hljs-number">2</span><br>            <span class="hljs-attr">redis-rate-limiter.requestedTokens:</span> <span class="hljs-number">1</span><br>            <span class="hljs-attr">key-resolver:</span> <span class="hljs-string">&quot;#&#123;@pathKeyResolver&#125;&quot;</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-string">LogPrint=test,17</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="12-Global-Filter-全局"><a href="#12-Global-Filter-全局" class="headerlink" title="12 Global Filter[全局]"></a>12 Global Filter[全局]</h2><p><a target="_blank" rel="noopener" href="https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#global-filters">https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#global-filters</a></p>
+<h3 id="12-1-常见的全局过滤器"><a href="#12-1-常见的全局过滤器" class="headerlink" title="12.1 常见的全局过滤器"></a>12.1 常见的全局过滤器</h3><p><img src="/image/springcloud/gateway/11.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="12-2-分析ReactiveLoadBalancerClientFilter"><a href="#12-2-分析ReactiveLoadBalancerClientFilter" class="headerlink" title="12.2 分析ReactiveLoadBalancerClientFilter"></a>12.2 分析ReactiveLoadBalancerClientFilter</h3><p>类关系图</p>
+<p><img src="/image/springcloud/gateway/12.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="12-3-分析NettyRoutingFilter"><a href="#12-3-分析NettyRoutingFilter" class="headerlink" title="12.3 分析NettyRoutingFilter"></a>12.3 分析NettyRoutingFilter</h3><p>类关系图</p>
+<p><img src="/image/springcloud/gateway/13.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="12-4-自定义GlobalFilter"><a href="#12-4-自定义GlobalFilter" class="headerlink" title="12.4 自定义GlobalFilter"></a>12.4 自定义GlobalFilter</h3><p>需求：校验请求头中是否携带指定的token值</p>
+<p>创建自定义全局过滤器CheckHeaderTokenGlobalFilter</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Component</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">CheckHeaderTokenGlobalFilter</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">GlobalFilter</span>, Ordered &#123;<br>	<span class="hljs-meta">@Override</span><br>	<span class="hljs-keyword">public</span> Mono&lt;Void&gt; <span class="hljs-title function_">filter</span><span class="hljs-params">(ServerWebExchange exchange, GatewayFilterChain chain)</span> &#123;<br>		<span class="hljs-type">String</span> <span class="hljs-variable">value</span> <span class="hljs-operator">=</span> exchange.getRequest().getHeaders().getFirst(<span class="hljs-string">&quot;token&quot;</span>);<br>		<span class="hljs-keyword">if</span>(<span class="hljs-string">&quot;jack&quot;</span>.equals(value))&#123;<br>			<span class="hljs-keyword">return</span> chain.filter(exchange);<br>		&#125;<br>		exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);<br>		<span class="hljs-keyword">return</span> exchange.getResponse().setComplete();<br>	&#125;<br>	<span class="hljs-meta">@Override</span><br>	<span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">getOrder</span><span class="hljs-params">()</span> &#123; <span class="hljs-comment">// Order值越小，执行的优先级越高</span><br>		<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="13-Gateway整合Sentinel实现容错"><a href="#13-Gateway整合Sentinel实现容错" class="headerlink" title="13 Gateway整合Sentinel实现容错"></a>13 Gateway整合Sentinel实现容错</h2><p>请查看Sentinel适配开源框架部分</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/spring%E6%A1%86%E6%9E%B6/" class="category-chain-item">spring框架</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/spring%E6%A1%86%E6%9E%B6/springcloud/" class="category-chain-item">springcloud</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/spring%E6%A1%86%E6%9E%B6/springcloud/gateway/" class="category-chain-item">gateway</a>
+  
+  
+
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/java/">#java</a>
+      
+        <a href="/tags/springcloud/">#springcloud</a>
+      
+        <a href="/tags/gateway/">#gateway</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>gateway</div>
+      <div>http://www.zivjie.cn/2023/03/18/spring框架/springcloud/gateway/gateway/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Francis</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年3月18日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/03/19/spring%E6%A1%86%E6%9E%B6/springcloud/sentinel/sentinel%E8%A7%84%E5%88%99%E8%AF%A6%E8%A7%A3/" title="sentinel规则详解">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">sentinel规则详解</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/03/18/spring%E6%A1%86%E6%9E%B6/springcloud/sentinel/sentinel%E5%85%A5%E9%97%A8/" title="sentinel入门">
+                        <span class="hidden-mobile">sentinel入门</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

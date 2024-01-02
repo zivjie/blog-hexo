@@ -1,0 +1,805 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Francis">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1  原理怎么实现高可用？第一个对于服务器来说，能够实现主从自动切换；第二个，对于客户端来说，如果发生了主从切换，它需要获取最新的master节点。这个怎么实现呢？这里面应该要有一个管理redis节点状态的角色，而且具备路由功能。比如RocketMQ是通过nameserver来实现的。思路：创建一台监控服务器来监控所有redis服务节点的状态，比如，master节点超过一定时间没有给监控服务器发送">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis哨兵(Sentinel)">
+<meta property="og:url" content="http://www.zivjie.cn/2023/03/04/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E5%93%A8%E5%85%B5(Sentinel)/index.html">
+<meta property="og:site_name" content="Francis-Blog">
+<meta property="og:description" content="1  原理怎么实现高可用？第一个对于服务器来说，能够实现主从自动切换；第二个，对于客户端来说，如果发生了主从切换，它需要获取最新的master节点。这个怎么实现呢？这里面应该要有一个管理redis节点状态的角色，而且具备路由功能。比如RocketMQ是通过nameserver来实现的。思路：创建一台监控服务器来监控所有redis服务节点的状态，比如，master节点超过一定时间没有给监控服务器发送">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.zivjie.cn/img/fallen%20dreams.png">
+<meta property="article:published_time" content="2023-03-04T02:35:00.000Z">
+<meta property="article:modified_time" content="2024-01-02T01:56:18.806Z">
+<meta property="article:author" content="Francis">
+<meta property="article:tag" content="redis">
+<meta property="article:tag" content="缓存">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://www.zivjie.cn/img/fallen%20dreams.png">
+  
+  
+  
+  <title>Redis哨兵(Sentinel) - Francis-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.zivjie.cn","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Francis</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Redis哨兵(Sentinel)"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-03-04 10:35" pubdate>
+          2023年3月4日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          48 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Redis哨兵(Sentinel)</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="1-原理"><a href="#1-原理" class="headerlink" title="1  原理"></a>1  原理</h2><p>怎么实现高可用？第一个对于服务器来说，能够实现主从自动切换；第二个，对于客户端来说，如果发生了主从切换，它需要获取最新的master节点。这个怎么实现呢？这里面应该要有一个管理redis节点状态的角色，而且具备路由功能。比如RocketMQ是通过nameserver来实现的。思路：创建一台监控服务器来监控所有redis服务节点的状态，比如，master节点超过一定时间没有给监控服务器发送心跳报文，就把master标记为下线，之后把某一个slave变成master，应用每一次都是从这个监控服务器拿到master的地址。</p>
+<p>Redis的高可用是通过哨兵Sentinel来保证的。它的思路就是通过运行监控服务器来保证服务的可用性。从redis2.8版本起，提供了一个稳定版本的哨兵，用来解决高可用的问题。我们会启动奇数个的哨兵服务（通过src/redis-sentinel）。可以同sentinel的脚本启动，也可以用redis-server的脚本加sentinel参数启动。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs C">./redis-sentinel ../sentinel.conf<br># 或者<br>./redis-server ../sentinel.conf --sentinel<br></code></pre></td></tr></table></figure>
+
+<p>它的本质上只是一个运行在特殊模式之下的redis。Sentinel通过info命令得到被监听redis机器的master，slave信息。</p>
+<p><img src="/image/redis/redis%E5%93%A8%E5%85%B5/1.png" srcset="/img/loading.gif" lazyload></p>
+<p>为保证监控服务器的可用性，会对Sentinel做集群的部署。Sentinel既监控所有的redis服务，Sentinel相互之间也监控。注意：Sentinel本身没有主从之分，地位是平等的，只有redis服务节点有主从之分。sentinel唯一的联系，就是监控相同的master，sentinel节点是怎么知道其他的Sentinel节点的存在的？因为Sentinel是一个特殊状态的redis节点，它也有发布订阅的功能。哨兵上线时，给所有的redis节点的名字为_sentinel_:hello的channle发送消息。每个哨兵都订阅了所有redis节点为_sentinel_:helo的channle，所以能相互感知对方的存在，而进行监控。</p>
+<h3 id="1-1-服务下线"><a href="#1-1-服务下线" class="headerlink" title="1.1 服务下线"></a>1.1 服务下线</h3><p>sentinel默认以每秒钟1次的频率向redis服务节点发送ping命令。如果在指定时间内没有收到有效回复，sentinel会将该服务器标记为下线（主观下线）。由这个参数控制：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-comment"># sentiel.conf</span><br><span class="hljs-attr">sentiel</span> <span class="hljs-string">down-after-milliseconds &lt;master-name&gt; &lt;milliseconds&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>默认是30秒。但是，只有发现master下线，并不代表master真的下线了。也有可能是网络出问题了。所以，这个时候第一个发现master下线的sentinel节点会继续询问其他的sentinel节点，确认这个节点是否下线，如果多数sentinel节点都认为master下线，master才真正被确认下线（客观下线）。确定master下线后，就需要重新选举master。Kafka有会在Broke里面选一个Controller出来。RocketMQ用Dledger技术选举（基于Raft协议）。</p>
+<h3 id="1-2-故障转移"><a href="#1-2-故障转移" class="headerlink" title="1.2 故障转移"></a>1.2 故障转移</h3><p>Redis的选举和故障转移都是由sentinel完成的，故障转移流程的第一步就是在sentinel集群选择一个leader，由leader完成故障转移流程。Sentinel通过Raft算法，实现sentinel选举。</p>
+<p><strong>Raft算法</strong></p>
+<p>只要有了多个副本，就必然要面对副本一致性的问题。如果要所有的节点达成一致，必然要通过复制的方式实现。所以数据保持一致需要两个步骤：领导选举，数据复制。数据复制在redis主从复制中说过了，这里关注一下选举的实现。</p>
+<p>Raft算法是一个共识算法(consensus algorith)。Spring cloud的注册中心解决方案Consul也用到了Raft协议。Raft的核心思想：先到先得，少数服从多数。sentinel的raft实现跟原生的算法有所区别，但是大体思想一致。</p>
+<ol>
+<li><p>分布式环境中的节点有三个状态: Follower,Candidate,Leader.</p>
+</li>
+<li><p>一开始所有的节点都是Follower状态.如果follower连接不到leader(leader挂了),它就会成为candidate。candidate请求其他节点的投票，其他的节点会投给它，如果它得到了大多数节点的投票，它就成为了主节点.这个过程就叫做leader election。</p>
+</li>
+<li><p>现在所有的写操作需要在leader节点上发生。leader会记录操作日志，没有同步到其他follower节点的日志，状态是uncommitted。等到超过半数的follower同步了这条记录，日志状态就会变成committed。leader会通知所有的follower日志已经committed，这个时候所有的节点就达成了一致，这个过程叫log replication。</p>
+</li>
+<li><p>在raft协议中，选举的时候有两个超时时间。第一个叫election timeout，也就是说，为了防止同一时间大量节点参与选举，每个节点在变成candidate之前需要随机等待一段时间，时间范围是150ms and 300ms之间。第一个变成candidate的节点会先发起投票，它会先投给自己，然后请求其他节点投票(request vote)。</p>
+</li>
+<li><p>如果还没有收到投票结果，又到了超时时间，需要重置超时时间，只要有大部分节点投给了一个节点，他就会变成leader。</p>
+</li>
+<li><p>成为leader之后，它会发消息来同步数据(append entries)，发消息的间隔是由heartbeat timeout的计时。</p>
+</li>
+<li><p>只要follower收到了同步数据的信息，代表leader没挂，他们就会清除heartbeat timeout的计时。</p>
+</li>
+<li><p>但是一旦followers在heartbeat timeout时间之内没有收到append entries消息，它就会认为leader挂了，开始让其他节点投票，成为新的leader。</p>
+</li>
+<li><p>必须超过半数以上节点投票，保证只有一个leader被选出来。</p>
+</li>
+<li><p>如果两个follower同时变成了candidate，就会出现分割投票，比如有两个节点同时变成candidate，而且各自有一个投票请求先达到了其他的节点。加上他们给自己的投票，每个candidate手上有两票。但是，因为他们的election timeout不同，在发起新的一轮选举的时候，有一个节点收到了更多的投票，所以它变成了leader。</p>
+</li>
+</ol>
+<p>总结:sentinel的raft算法和raft论文略有不同.</p>
+<ol>
+<li><p>master客观下线触发选举，而不是过了election timeout时间开始选举。</p>
+</li>
+<li><p>leader并不会把自己成为leader的消息发送给其他sentinel。其他sentinel等待leader从slave选出master后，检测到新的master正常工作后，就会去掉客观下线的标识，从而不需要进入故障转移流程。</p>
+</li>
+</ol>
+<p>到达这里，从所有的sentinel节点里面选出来一个leader，也就是所谓选举委员会主席，下面才是真正的选举。</p>
+<p><strong>故障转移</strong></p>
+<p>对于所有的slave节点，一共有四个因素影响选举的结果，分别是断开连接时长、优先级排序、复制数量、进程id。</p>
+<ol>
+<li><p>如果与哨兵连接断开的比较久，超过了某个阈值，就直接失去了选举权。</p>
+</li>
+<li><p>如果拥有选举权，那就看谁的优先级高，这个在配置文件里可以设置(replica-priority 100)，数值越小优先级越高。</p>
+</li>
+<li><p>如果优先级相同，那就看谁从master中复制的数据最多(复制偏移量最大)，选最多的那个。</p>
+</li>
+<li><p>如果复制量也相同，就选进程id最小的那个。</p>
+</li>
+</ol>
+<p>Master节点确定之后，让其他的节点变成它的从节点：</p>
+<ol>
+<li><p>选出sentinel leader之后，由sentinel leader向某个节点发送slaveof no one命令，让他成为独立节点。</p>
+</li>
+<li><p>然后向其他节点发送slaveof x.x.x.x xxxx(本机ip端口)，让它们成为这个节点的从节点，故障转移完成。</p>
+</li>
+</ol>
+<h2 id="2-功能总结"><a href="#2-功能总结" class="headerlink" title="2  功能总结"></a>2  功能总结</h2><p>监控：sentinel会不断检查主服务器和从服务器是否正常运行。</p>
+<p>通知：如果某一个被监控的实例出现问题，sentinel可以通过命令发出通知。</p>
+<p>自动故障转移(failover)：如果主服务器发生故障，sentinel可以启动故障转移过程，把某台服务器升级为主服务器，并发出通知。</p>
+<p>配置管理：客户端连接到sentinel，获取当前的redis主服务器的地址。</p>
+<h2 id="3-实战"><a href="#3-实战" class="headerlink" title="3  实战"></a>3  实战</h2><h3 id="3-1-Sentinel配置"><a href="#3-1-Sentinel配置" class="headerlink" title="3.1 Sentinel配置"></a>3.1 Sentinel配置</h3><p>为了保证sentinel的高可用,sentinel也需要做集群部署,集群中至少需要三个sentinel实例(推荐奇数个,防止脑裂).</p>
+<table>
+<thead>
+<tr>
+<th>hostname</th>
+<th>ip地址</th>
+<th>节点角色&amp;端口</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>master</td>
+<td>192.168.44.186</td>
+<td>Master: 6379 / Sentinel: 26379</td>
+</tr>
+<tr>
+<td>slave1</td>
+<td>192.168.44.187</td>
+<td>Slave: 6379 / Sentinel: 26379</td>
+</tr>
+<tr>
+<td>slave2</td>
+<td>192.168.44.188</td>
+<td>Slave: 6379 / Sentinel: 26379</td>
+</tr>
+</tbody></table>
+<p>以redis的安装路径/user/local/soft/redis-6.0.9/为例，在187和188的src/redis.conf配置文件中添加</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs C">replicaof <span class="hljs-number">192.168</span><span class="hljs-number">.44</span><span class="hljs-number">.186</span> <span class="hljs-number">6379</span><br></code></pre></td></tr></table></figure>
+
+<p>在186,187,188创建sentinel配置文件(安装后根目录下默认有sentinel.conf)，三台服务器内容相同：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-attr">daemonize</span> <span class="hljs-string">yes</span><br><span class="hljs-attr">port</span> <span class="hljs-string">26739</span><br><span class="hljs-attr">protected-mode</span> <span class="hljs-string">no</span><br><span class="hljs-attr">dir</span> <span class="hljs-string">&quot;/usr/local/soft/redis-6.0.9/sentinel-tmp&quot;</span><br><span class="hljs-attr">sentinel</span> <span class="hljs-string">monitor redis-master 192.168.44.186 6379 2</span><br><span class="hljs-attr">sentinel</span> <span class="hljs-string">down-after-milliseconds redis-master 30000</span><br><span class="hljs-attr">sentinel</span> <span class="hljs-string">failover-timeout redis-master 180000</span><br><span class="hljs-attr">sentinel</span> <span class="hljs-string">parallel-syncs redis-master 1</span><br></code></pre></td></tr></table></figure>
+
+<p>上面出现了4个’redis-master’,这个名称要统一,并且使用客户端(比如jedis)连接的时候要使用这个名字。</p>
+<table>
+<thead>
+<tr>
+<th>配置</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>protected-mode</td>
+<td>是否允许外部网络访问，yes不允许</td>
+</tr>
+<tr>
+<td>dir</td>
+<td>sentinel的工作目录</td>
+</tr>
+<tr>
+<td>sentinel monitor</td>
+<td>sentinel监控的redis主节点</td>
+</tr>
+<tr>
+<td>sentinel down-after-milliseconds（毫秒）</td>
+<td>master宕机多久，才会被sentinel主观认为下线</td>
+</tr>
+<tr>
+<td>sentinel failover-timeout（毫秒）</td>
+<td>1.同一个sentinel对同一个master两次failover之间的间隔时间<br />2.当一个slave从一个错误的master那里同步数据开始计算时间，知道slave被纠正为向正确的master那里同步的数据时间。<br />3.当想要取消一个正进行的failover所需要的时间。<br />4.当进行failover时，配置所有slaves指向新的master所需的最大时间</td>
+</tr>
+<tr>
+<td>sentinel parallel-syncs</td>
+<td>这个配置项指定了在发生failover主备切换时最多可以有多少个slave同时对新的master进行同步，这个数字越小，完成failover所需的时间就越长，但是这个数字越大，就意味着越多的slave因为replication而不可用，可以通过将这个值设为1来保证每次只有一个slave处于不能处理命令请求的状态</td>
+</tr>
+</tbody></table>
+<h3 id="3-2-Sentinel验证"><a href="#3-2-Sentinel验证" class="headerlink" title="3.2 Sentinel验证"></a>3.2 Sentinel验证</h3><p>启动redis服务和sentinel，查看集群状态</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs C">redis&gt; info replication<br></code></pre></td></tr></table></figure>
+
+<p>模拟宕机,在主节点执行</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs C">redis&gt; shutdown<br></code></pre></td></tr></table></figure>
+
+<p>某个节点会被选为新的master，只有一个slave节点。注意看sentinel.conf里面的redis-master被修改了！模拟原master恢复，启动redis-server。master又有两个slave了。</p>
+<h3 id="3-3-Sentinel连接使用"><a href="#3-3-Sentinel连接使用" class="headerlink" title="3.3 Sentinel连接使用"></a>3.3 Sentinel连接使用</h3><p>Jedis连接sentinel，master name来自于sentinel.conf的配置</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> JedisSentinelPool <span class="hljs-title function_">createJedisPool</span><span class="hljs-params">()</span>&#123;<br>    <span class="hljs-type">String</span> <span class="hljs-variable">masterName</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;redis-master&quot;</span>;<br>    Set&lt;String&gt; sentinels = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashSet</span>&lt;&gt;();<br>    sentinels.add(<span class="hljs-string">&quot;192.168.44.186:26379&quot;</span>);<br>    sentinels.add(<span class="hljs-string">&quot;192.168.44.187:26379&quot;</span>);<br>    sentinels.add(<span class="hljs-string">&quot;192.168.44.188:26379&quot;</span>);<br>    pool = <span class="hljs-keyword">new</span> <span class="hljs-title class_">JedisSentinelPool</span>(masterName, sentinels);<br>    <span class="hljs-keyword">return</span> pool;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>Springboot连接sentinel:</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-attr">spring.redis.sentinel.master</span>=<span class="hljs-string">redis-master</span><br><span class="hljs-attr">spring.redis.sentinel.nodes</span>=<span class="hljs-string">192.168.44.186:26379,192.168.44.187:26379,192.168.44.188:26379</span><br></code></pre></td></tr></table></figure>
+
+<p>无论是jedis还是springbot(2.x版本默认是Lettuce)，都只需要配置全部哨兵的地址，由哨兵返回当前的master节点地址。</p>
+<h2 id="4-不足"><a href="#4-不足" class="headerlink" title="4 不足"></a>4 不足</h2><p>主从切换的过程中会丢失数据，因为只有一个master。只能单点写，没有解决水平扩容的问题。如果数据量非常大，这个时候就要对redis的数据进行分片了。这个时候需要多个master-slave的group，把数据分布到不同的group中。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/" class="category-chain-item">中间件</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/Redis/" class="category-chain-item">Redis</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/redis/">#redis</a>
+      
+        <a href="/tags/%E7%BC%93%E5%AD%98/">#缓存</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Redis哨兵(Sentinel)</div>
+      <div>http://www.zivjie.cn/2023/03/04/中间件/redis/Redis哨兵(Sentinel)/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Francis</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年3月4日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/03/04/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/" title="Redis主从复制">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Redis主从复制</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/03/04/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E6%8C%81%E4%B9%85%E5%8C%96%E6%9C%BA%E5%88%B6/" title="Redis持久化机制">
+                        <span class="hidden-mobile">Redis持久化机制</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,711 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Francis">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1 图解一块是非堆区，一块是堆区。堆分为两大区，old区和young区。young区分为两大快，一个是Survivor区（s0+s1），一块是Eden区。 Eden:s0:s1&#x3D;8:1:1。s0和s1一样大，也可以叫做From和To。  2 对象创建所在区域一般情况下，新创建的对象都会被分配到Eden区，一些特殊大的对象会直接分配到Old区。  比如有对象A，B，C等创建在Eden区，但是Eden">
+<meta property="og:type" content="article">
+<meta property="og:title" content="内存模型">
+<meta property="og:url" content="http://www.zivjie.cn/2023/03/11/java%E5%9F%BA%E7%A1%80/jvm/%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/index.html">
+<meta property="og:site_name" content="Francis-Blog">
+<meta property="og:description" content="1 图解一块是非堆区，一块是堆区。堆分为两大区，old区和young区。young区分为两大快，一个是Survivor区（s0+s1），一块是Eden区。 Eden:s0:s1&#x3D;8:1:1。s0和s1一样大，也可以叫做From和To。  2 对象创建所在区域一般情况下，新创建的对象都会被分配到Eden区，一些特殊大的对象会直接分配到Old区。  比如有对象A，B，C等创建在Eden区，但是Eden">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.zivjie.cn/img/Remote%20Bay%20Milky.png">
+<meta property="article:published_time" content="2023-03-11T02:02:00.000Z">
+<meta property="article:modified_time" content="2024-01-02T01:30:12.216Z">
+<meta property="article:author" content="Francis">
+<meta property="article:tag" content="jvm">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://www.zivjie.cn/img/Remote%20Bay%20Milky.png">
+  
+  
+  
+  <title>内存模型 - Francis-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.zivjie.cn","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Francis</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="内存模型"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-03-11 10:02" pubdate>
+          2023年3月11日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          39 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">内存模型</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="1-图解"><a href="#1-图解" class="headerlink" title="1 图解"></a>1 图解</h2><p>一块是非堆区，一块是堆区。堆分为两大区，old区和young区。young区分为两大快，一个是Survivor区（s0+s1），一块是Eden区。 Eden:s0:s1=8:1:1。s0和s1一样大，也可以叫做From和To。</p>
+<p><img src="/image/jvm/%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/1.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="2-对象创建所在区域"><a href="#2-对象创建所在区域" class="headerlink" title="2 对象创建所在区域"></a>2 对象创建所在区域</h2><p>一般情况下，新创建的对象都会被分配到Eden区，一些特殊大的对象会直接分配到Old区。</p>
+<p><img src="/image/jvm/%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/2.png" srcset="/img/loading.gif" lazyload></p>
+<p>比如有对象A，B，C等创建在Eden区，但是Eden区的内存空间肯定有限，比如有100M，假如已经用了100M或者达到一个设定的阈值，这时就需要对Eden区内存空间进行清理，即垃圾回收（Garbage Collect），这样的GC称为Minor GC，Minor GC指的是Young区的GC。经过GC后，有些对象就会被清理掉，有些对象可能还活着，对于存活着的对象需要将其复制到Survivor区，然后再清空Eden区中的这些对象。</p>
+<h2 id="3-Survivor区详解"><a href="#3-Survivor区详解" class="headerlink" title="3 Survivor区详解"></a>3 Survivor区详解</h2><p>由图解可知，Survivor区分为两块s0和s1，也可以叫做From和To。在同一时间点上，s0和s1只能有一个存有数据，另外一个是空的。</p>
+<p>接着上面的GC来说，比如一开始只有Eden区和From中有对象，To中是空的。此时进行一次GC操作，From区中对象的年龄就会+1，Eden区中所有存活的对象会被复制到To区，From区中还能存活的对象会有两个去处。若对象达到之前设置好的年龄阈值，此时对象会被移动到Old区，如果Eden区和From区没有达到阈值的对象会被复制到To区。此时Eden区和From区已经被清空（被GC的对象肯定没了，没有被GC的对象都有了各自的去处）。这时候From和to交换角色，之前的from变成了to，之前的to变成了from。也就是说无论如何都要保证名为to的survivor区域是空的。Minor GC会一直重复这样的过程，直到to区被填满，然后将所有对象复制到老年代中。</p>
+<h2 id="4-old区详解"><a href="#4-old区详解" class="headerlink" title="4 old区详解"></a>4 old区详解</h2><p>从上面的分析可以看出，一般old区都是年龄比较大的对象，或者相对超过了某个阈值的对象。在old区也会有GC的操作。</p>
+<h2 id="5-对象的一辈子理解"><a href="#5-对象的一辈子理解" class="headerlink" title="5 对象的一辈子理解"></a>5 对象的一辈子理解</h2><p>我是一个普通的java对象，我出生在Eden区，在Eden区我还看到和我长得很像的小兄弟，我们在Eden区中玩了挺长时间。有一天Eden区的人实在是太多了，我被迫去了survivor区的from区，自动去了survivor区，我就开始漂了，有时候在from区，有时候在to区，居无定所，直到我18岁的时候，我成人了，于是我去了old区，old区人很多，并且年龄都比较大，我在这里认识了很多人。在old区中，我生活了20年（每次GC加一岁），然后被回收。</p>
+<h2 id="6-常见问题"><a href="#6-常见问题" class="headerlink" title="6 常见问题"></a>6 常见问题</h2><ol>
+<li>为什么需要survivor区？只有Eden区不行吗？</li>
+</ol>
+<p>​    如果没有survivor，eden区每进行一次Minor GC，并且没有年龄限制的话，存活的对象就会被送到老年代。这样依赖，老年代很快被填满，触发full GC。老年代的内存空间远大于新生代，进行一次GC消耗的时间比新生代长的多。频发的full gc消耗的时间很长，会影响大型程序的执行和响应速度。</p>
+<p>​    那就对老年代的空间进行增加或者减少咯。假如增加老年代的空间，更多存活对象才能填满老年代。虽然减少full gc的频率，但是随着老年代的空间变大，一旦发生full gc，执行所需时间会更长。假如减少老年代的空间，虽然full gc所需要的时间减少，但是老年代很快被存活对象填满，Full gc频率增减。</p>
+<p>​    所以survivor的存在意义，就是减少被送到老年代的对象，进而减少full gc的发生，survivor的预筛选保证，只有经历16次minor gc还能再新生代中存活的对象，才会被送到老年代中。</p>
+<ol start="2">
+<li>为什么要有两个survivor区？</li>
+</ol>
+<p>​    最大的好处是解决了碎片化，也就是说为什么一个survivor区不行？第一问题中，知道了必须设置survivor区。假设现在只有一个survivor区，模拟一下流程：刚刚新建的对象再eden中。一旦eden满了，触发一次minor gc，eden中的存活对象就会被移动到survivor区。这样继续循环下去，下一次eden满了的时候，问题来了，此时进行minor gc，eden和survivor各有一些存活对象，如果此时把eden区的存活对象硬放到survivor，很明显这两部分对象所占有的内存是不连续的，也就导致了内存碎片化。</p>
+<ol start="3">
+<li>新生代eden:s1:s2为什么是8:1:1?</li>
+</ol>
+<p>​    新生代中的可用内存：复制算法用来担保的内存是9:1，可用内存中eden:s1为8:1，即新生代中eden:s1:s2是8:1:1。</p>
+<ol start="4">
+<li>如何理解各种GC</li>
+</ol>
+<p>​    Partial GC：其实也就是部分的意思。那么翻译过来也就是回收部分GC堆的模式，他并不会回收整个堆。而young GC以及Old GC都属于这种模式，young GC 只回收young区，old GC只回收Old区。</p>
+<p>​    full GC：实际上就是对于整体回收。</p>
+<ol start="5">
+<li>堆内存中都是线程共享的区域吗？</li>
+</ol>
+<p>JVM默认为每个线程在Eden上开辟一个buffer区域，用来加速对象的分配，称之为<strong>TLAB</strong>，全称:Thread Local Allocation Buffer。对象优先会在TLAB上分配，但是TLAB空间通常会比较小，如果对象比较大，那么还是在共享区域分配。</p>
+<p><img src="/image/jvm/%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/3.png" srcset="/img/loading.gif" lazyload></p>
+<ol start="6">
+<li>各种GC的触发条件</li>
+</ol>
+<p>Young GC：空间不够，fullGC会先触发young gc，在某些垃圾收集器在进行oldGC前会触发young GC。</p>
+<p>Full GC：（1）悲观策略：a.之前每次晋升对象的平均大小比Old区的剩余空间大；b.minor GC后存活的对象比Old区的剩余空间大（2）常规策略：metaspace空间不足(一般是内存泄漏)；System.gc();</p>
+<h2 id="7-体验与验证"><a href="#7-体验与验证" class="headerlink" title="7 体验与验证"></a>7 体验与验证</h2><p>使用visualvm，其中下载插件：visualgc插件下载链接：<a target="_blank" rel="noopener" href="https://visualvm.github.io/pluginscenters.html">https://visualvm.github.io/pluginscenters.html</a></p>
+<p>选择对应JDK版本链接—&gt;Tools—&gt;Visual GC。</p>
+<h3 id="7-1-堆内存溢出"><a href="#7-1-堆内存溢出" class="headerlink" title="7.1 堆内存溢出"></a>7.1 堆内存溢出</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">HeapController</span>&#123;<br>    List&lt;Person&gt; list = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br>    <span class="hljs-meta">@GetMapping(&quot;/heap&quot;)</span><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">heap</span><span class="hljs-params">()</span>&#123;<br>        <span class="hljs-keyword">while</span>(<span class="hljs-literal">true</span>)&#123;<br>            list.add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Person</span>());<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>记得设置参数比如：-Xmx20M -Xms20M</p>
+<p><img src="/image/jvm/%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/4.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="7-2-方法区内存溢出"><a href="#7-2-方法区内存溢出" class="headerlink" title="7.2 方法区内存溢出"></a>7.2 方法区内存溢出</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>asm<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>asm<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>3.3.1<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//向方法区中添加Class信息</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyMetaspace</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">ClassLoader</span>&#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> List&lt;Class&lt;?&gt;&gt; createClasses() &#123;<br>        List&lt;Class&lt;?&gt;&gt; classes = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br>        <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span> ; i &lt; <span class="hljs-number">10000000</span> ; ++i)&#123;<br>            <span class="hljs-type">CLassWriter</span> <span class="hljs-variable">cw</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ClassWriter</span>(<span class="hljs-number">0</span>);<br>            cw.visit(Opcodes.v1_1, Opcodes.ACC_PUBLIC, <span class="hljs-string">&quot;CLass&quot;</span> + i, <span class="hljs-literal">null</span>, <span class="hljs-string">&quot;java/lang/Object&quot;</span>, <span class="hljs-literal">null</span>);<br>            <span class="hljs-type">MethodVisitor</span> <span class="hljs-variable">mw</span> <span class="hljs-operator">=</span> cw.visitMethod(Opcodes.ACC_PUBLIC, <span class="hljs-string">&quot;&lt;init&gt;&quot;</span>, <span class="hljs-string">&quot;()V&quot;</span>, <span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>);<br>            mw.visitVarInsn(Opcodes.ALOAD, <span class="hljs-number">0</span>);<br>            mw.visitMethodInsn(Opcodes.INVOKESPECIAL, <span class="hljs-string">&quot;java/lang/Object&quot;</span>, <span class="hljs-string">&quot;&lt;init&gt;&quot;</span>, <span class="hljs-string">&quot;()V&quot;</span>);<br>            mw.visitInsn(Opcodes.RETURN);<br>            mw.visitMaxs(<span class="hljs-number">1</span>, <span class="hljs-number">1</span>);<br>            mw.visitEnd();<br>            <span class="hljs-type">Metaspace</span> <span class="hljs-variable">test</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Metaspace</span>();<br>            <span class="hljs-type">byte</span>[] code = cw.toByteArray();<br>            Class&lt;?&gt; exampleClass = test.defineClass(<span class="hljs-string">&quot;Class&quot;</span> + i, code, <span class="hljs-number">0</span>, code.length);<br>            classes.add(exampleClass);<br>        &#125;<br>    &#125;<br>&#125;<br><br><span class="hljs-meta">@RestController</span><br><span class="hljs-keyword">public</span> classs NonHeapController&#123;<br>    List&lt;Class&lt;?&gt;&gt; list - <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br>    <span class="hljs-meta">@GetMapping(&quot;/nonheap&quot;)</span><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">nonheap</span><span class="hljs-params">()</span>&#123;<br>        <span class="hljs-keyword">while</span>(<span class="hljs-literal">true</span>)&#123;<br>            list.addAll(MyMetaspace.createClasses());<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>设置Metaspace的大小，比如-XX:MetaspaceSize=50M -XX:MaxMetaspaceSize=50M</p>
+<p><img src="/image/jvm/%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/5.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="7-3-虚拟机栈"><a href="#7-3-虚拟机栈" class="headerlink" title="7.3 虚拟机栈"></a>7.3 虚拟机栈</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">stackDemo</span>&#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-type">long</span> <span class="hljs-variable">count</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">method</span><span class="hljs-params">(<span class="hljs-type">long</span> i)</span>&#123;<br>        System.out.printLn(count++);<br>        method(i);<br>    &#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span>&#123;<br>        method(i);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="/image/jvm/%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/6.png" srcset="/img/loading.gif" lazyload></p>
+<p>Stack Space用来做方法的递归调用时压入Stack Frame(栈帧)。所以当递归调用太深的时候，就有可能耗尽Stack Space，爆出StackOverflow的错误。</p>
+<p>-Xss128k：设置每个线程的堆栈大小。JDK 5以后每个线程堆栈大小为1M，以前每个线程堆栈大小为256K。 根据应用的线程所需内存大小进行调整。在相同物理内存下，减小这个值能生成更多的线程。但是操作系统对 一个进程内的线程数还是有限制的，不能无限生成，经验值在3000~5000左右。</p>
+<p>线程栈的大小是个双刃剑，如果设置过小，可能会出现栈溢出，特别是在该线程内有递归、大的循环时出现溢 出的可能性更大，如果该值设置过大，就有影响到创建栈的数量，如果是多线程的应用，就会出现内存溢出的 错误。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/java%E5%9F%BA%E7%A1%80/" class="category-chain-item">java基础</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/java%E5%9F%BA%E7%A1%80/jvm/" class="category-chain-item">jvm</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/jvm/">#jvm</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>内存模型</div>
+      <div>http://www.zivjie.cn/2023/03/11/java基础/jvm/内存模型/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Francis</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年3月11日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/03/11/java%E5%9F%BA%E7%A1%80/jvm/jvm%E5%88%9D%E8%AF%86/" title="jvm初识">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">jvm初识</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/03/05/spring%E6%A1%86%E6%9E%B6/springcloud/openfegin/openfegin/" title="OpenFeign">
+                        <span class="hidden-mobile">OpenFeign</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
