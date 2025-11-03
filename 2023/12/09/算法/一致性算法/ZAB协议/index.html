@@ -16,14 +16,16 @@
   <meta name="author" content="Francis">
   <meta name="keywords" content="">
   
-    <meta property="og:type" content="article">
+    <meta name="description" content="服务的状态  Leader：处理所有客户端的线性写操作，日志复制。同时只能有一个Leader Follower：被动处理Leader请求和客户端读请求 Looking：用来重新选举Leader Observer：特殊节点状态，不参与Leader选举，负责接收客户端读请求  正常情况下，1个Leader，n-1个Follower Leader选举 Epoch &gt; Counter &gt; SI">
+<meta property="og:type" content="article">
 <meta property="og:title" content="ZAB协议">
 <meta property="og:url" content="http://www.zivjie.cn/2023/12/09/%E7%AE%97%E6%B3%95/%E4%B8%80%E8%87%B4%E6%80%A7%E7%AE%97%E6%B3%95/ZAB%E5%8D%8F%E8%AE%AE/index.html">
 <meta property="og:site_name" content="Francis-Blog">
+<meta property="og:description" content="服务的状态  Leader：处理所有客户端的线性写操作，日志复制。同时只能有一个Leader Follower：被动处理Leader请求和客户端读请求 Looking：用来重新选举Leader Observer：特殊节点状态，不参与Leader选举，负责接收客户端读请求  正常情况下，1个Leader，n-1个Follower Leader选举 Epoch &gt; Counter &gt; SI">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://www.zivjie.cn/img/4K%E9%BB%84%E6%98%8F.png">
 <meta property="article:published_time" content="2023-12-09T00:13:00.000Z">
-<meta property="article:modified_time" content="2023-12-19T08:27:33.036Z">
+<meta property="article:modified_time" content="2024-02-22T07:16:29.973Z">
 <meta property="article:author" content="Francis">
 <meta property="article:tag" content="算法">
 <meta property="article:tag" content="一致性算法">
@@ -221,7 +223,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          0 字
+          188 字
         
       </span>
     
@@ -232,7 +234,7 @@
         
         
         
-          1 分钟
+          2 分钟
         
       </span>
     
@@ -275,7 +277,17 @@
             
               <div class="markdown-body">
                 
-                
+                <p><strong>服务的状态</strong></p>
+<ol>
+<li>Leader：处理所有客户端的线性写操作，日志复制。同时只能有一个Leader</li>
+<li>Follower：被动处理Leader请求和客户端读请求</li>
+<li>Looking：用来重新选举Leader</li>
+<li>Observer：特殊节点状态，不参与Leader选举，负责接收客户端读请求</li>
+</ol>
+<p>正常情况下，1个Leader，n-1个Follower</p>
+<p><strong>Leader选举</strong></p>
+<p>Epoch &gt; Counter &gt; SID</p>
+
                 
               </div>
             
@@ -295,6 +307,13 @@
         
   <a href="/categories/%E7%AE%97%E6%B3%95/" class="category-chain-item">算法</a>
   
+  
+    <span>></span>
+    
+  <a href="/categories/%E7%AE%97%E6%B3%95/%E4%B8%80%E8%87%B4%E6%80%A7%E7%AE%97%E6%B3%95/" class="category-chain-item">一致性算法</a>
+  
+  
+
   
 
       </span>
