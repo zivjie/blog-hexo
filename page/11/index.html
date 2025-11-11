@@ -222,6 +222,82 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2023/03/12/java%E5%9F%BA%E7%A1%80/%E5%A4%9A%E7%BA%BF%E7%A8%8B/%E9%94%81-synchronized/" target="_self">
+          <img src="/img/golden.png" srcset="/img/loading.gif" lazyload alt="锁-synchronized">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/03/12/java%E5%9F%BA%E7%A1%80/%E5%A4%9A%E7%BA%BF%E7%A8%8B/%E9%94%81-synchronized/" target="_self">
+          锁-synchronized
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt " href="/2023/03/12/java%E5%9F%BA%E7%A1%80/%E5%A4%9A%E7%BA%BF%E7%A8%8B/%E9%94%81-synchronized/" target="_self">
+        <div>
+          互斥锁的本质是共享资源。 1 锁的使用可以修饰在方法层面和代码块层面 synchronized有三种方式来加锁，不同的修饰类型，代表锁的控制粒度：  修饰实例方法，作用于当前实例加锁，进入同步代码前要获得当前实例的锁  静态方法，作用于当前类对象加锁，进入同步代码前要获得当前类对象的锁  修饰代码块，指定加锁对象，对给定对象加锁，进入同步代码库前要获得给定对象的锁。   锁是在对象头中存储。 2
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-03-12 10:51" pubdate>
+              2023-03-12
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/java%E5%9F%BA%E7%A1%80/" class="category-chain-item">java基础</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/java%E5%9F%BA%E7%A1%80/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" class="category-chain-item">多线程</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/">#多线程</a>
+            
+              <a href="/tags/synchronized/">#synchronized</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
         <a href="/2023/03/12/java%E5%9F%BA%E7%A1%80/%E5%A4%9A%E7%BA%BF%E7%A8%8B/ConcurrentHashMap/" target="_self">
           <img src="/img/LUNA.png" srcset="/img/loading.gif" lazyload alt="ConcurrentHashMap">
         </a>
@@ -854,80 +930,6 @@
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
             <time datetime="2023-03-11 10:30" pubdate>
-              2023-03-11
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/java%E5%9F%BA%E7%A1%80/" class="category-chain-item">java基础</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/java%E5%9F%BA%E7%A1%80/jvm/" class="category-chain-item">jvm</a>
-  
-  
-
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/jvm/">#jvm</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/03/11/java%E5%9F%BA%E7%A1%80/jvm/%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/" target="_self">
-          <img src="/img/Remote%20Bay%20Milky.png" srcset="/img/loading.gif" lazyload alt="内存模型">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/03/11/java%E5%9F%BA%E7%A1%80/jvm/%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/" target="_self">
-          内存模型
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt " href="/2023/03/11/java%E5%9F%BA%E7%A1%80/jvm/%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/" target="_self">
-        <div>
-          1 图解一块是非堆区，一块是堆区。堆分为两大区，old区和young区。young区分为两大快，一个是Survivor区（s0+s1），一块是Eden区。 Eden:s0:s1=8:1:1。s0和s1一样大，也可以叫做From和To。  2 对象创建所在区域一般情况下，新创建的对象都会被分配到Eden区，一些特殊大的对象会直接分配到Old区。  比如有对象A，B，C等创建在Eden区，但是Eden
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-03-11 10:02" pubdate>
               2023-03-11
             </time>
           </div>

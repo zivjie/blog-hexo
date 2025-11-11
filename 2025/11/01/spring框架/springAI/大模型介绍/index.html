@@ -1,0 +1,1063 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Francis">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1 大模型介绍1.1 什么是大模型​        大模型，全称「大语言模型」，英文「Large Language Model」，缩写 「LLM」。是一种基于机器学习和自然语言处理技术的模型，它通过对大量的文本 数据进行训练，来学习服务人类语言理解和生成的能力。eg: 一个人从小学到高中毕 业这整个的学习阶段 — 大模型的训练 。 ​        介绍常见的大模型产品：    国家 对话产品 大">
+<meta property="og:type" content="article">
+<meta property="og:title" content="大模型介绍">
+<meta property="og:url" content="http://www.zivjie.cn/2025/11/01/spring%E6%A1%86%E6%9E%B6/springAI/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E4%BB%8B%E7%BB%8D/index.html">
+<meta property="og:site_name" content="Francis-Blog">
+<meta property="og:description" content="1 大模型介绍1.1 什么是大模型​        大模型，全称「大语言模型」，英文「Large Language Model」，缩写 「LLM」。是一种基于机器学习和自然语言处理技术的模型，它通过对大量的文本 数据进行训练，来学习服务人类语言理解和生成的能力。eg: 一个人从小学到高中毕 业这整个的学习阶段 — 大模型的训练 。 ​        介绍常见的大模型产品：    国家 对话产品 大">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.zivjie.cn/img/wyy6.png">
+<meta property="article:published_time" content="2025-11-01T05:55:21.000Z">
+<meta property="article:modified_time" content="2025-11-03T09:44:16.152Z">
+<meta property="article:author" content="Francis">
+<meta property="article:tag" content="AI">
+<meta property="article:tag" content="LLM">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://www.zivjie.cn/img/wyy6.png">
+  
+  
+  
+  <title>大模型介绍 - Francis-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.zivjie.cn","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Francis</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="大模型介绍"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-11-01 13:55" pubdate>
+          2025年11月1日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          8.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          72 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">大模型介绍</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="1-大模型介绍"><a href="#1-大模型介绍" class="headerlink" title="1 大模型介绍"></a>1 大模型介绍</h1><h2 id="1-1-什么是大模型"><a href="#1-1-什么是大模型" class="headerlink" title="1.1 什么是大模型"></a>1.1 什么是大模型</h2><p>​        大模型，全称「大语言模型」，英文「Large Language Model」，缩写 「LLM」。是一种基于机器学习和自然语言处理技术的模型，它通过对大量的文本 数据进行训练，来学习服务人类语言理解和生成的能力。eg: 一个人从小学到高中毕 业这整个的学习阶段 — 大模型的训练 。</p>
+<p>​        介绍常见的大模型产品：</p>
+<table>
+<thead>
+<tr>
+<th>国家</th>
+<th>对话产品</th>
+<th>大模型</th>
+<th>地址</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>美国</td>
+<td>OpenAI</td>
+<td>GPT-4 Tuibo、GTP-4o</td>
+<td><a target="_blank" rel="noopener" href="https://chat.openai.com/">https://chat.openai.com/</a></td>
+</tr>
+<tr>
+<td></td>
+<td>Microsoft Copilot</td>
+<td>GPT-4、Phi-3(部分功能)</td>
+<td><a target="_blank" rel="noopener" href="https://copilot.microsoft.com/">https://copilot.microsoft.com/</a></td>
+</tr>
+<tr>
+<td></td>
+<td>Google Gemini</td>
+<td>Gemini Ultra、Gemini Pro</td>
+<td><a target="_blank" rel="noopener" href="https://gemini.google.com/">https://gemini.google.com/</a></td>
+</tr>
+<tr>
+<td></td>
+<td>Anthropic Clade</td>
+<td>Claude3(Opus/Sonnet/Haiku)</td>
+<td><a target="_blank" rel="noopener" href="https://claude.ai/">https://claude.ai/</a></td>
+</tr>
+<tr>
+<td></td>
+<td>Inflection Pi</td>
+<td>Inflection-2</td>
+<td><a target="_blank" rel="noopener" href="https://pi.ai/">https://pi.ai/</a></td>
+</tr>
+<tr>
+<td></td>
+<td>xAI Grok</td>
+<td>Grok-1.5</td>
+<td><a target="_blank" rel="noopener" href="https://grok.x.ai/">https://grok.x.ai/</a></td>
+</tr>
+<tr>
+<td>中国</td>
+<td>百度文心一言</td>
+<td>文心大模型4.0</td>
+<td><a target="_blank" rel="noopener" href="https://yiyan.baidu.com/">https://yiyan.baidu.com/</a></td>
+</tr>
+<tr>
+<td></td>
+<td>讯飞星火</td>
+<td>星火大模型V3.5</td>
+<td><a target="_blank" rel="noopener" href="https://xinghuo.xfyun.cn/">https://xinghuo.xfyun.cn/</a></td>
+</tr>
+<tr>
+<td></td>
+<td>智谱清言</td>
+<td>ChatGLM-4</td>
+<td><a target="_blank" rel="noopener" href="https://chatglm.cn/">https://chatglm.cn/</a></td>
+</tr>
+<tr>
+<td></td>
+<td>月之暗面 Kimi Chat</td>
+<td>Moonshot V2（长文本支持 400万token）</td>
+<td><a target="_blank" rel="noopener" href="https://kimi.moonshot.cn/">https://kimi.moonshot.cn/</a></td>
+</tr>
+<tr>
+<td></td>
+<td>MiniMax星野</td>
+<td>abab6.5</td>
+<td><a target="_blank" rel="noopener" href="https://www.xingyai.com/">https://www.xingyai.com/</a></td>
+</tr>
+<tr>
+<td></td>
+<td>零一万物万知</td>
+<td>Yi-Large</td>
+<td><a target="_blank" rel="noopener" href="https://www.01.ai/cn">https://www.01.ai/cn</a></td>
+</tr>
+<tr>
+<td></td>
+<td>抖音豆包</td>
+<td>云雀大模型</td>
+<td><a target="_blank" rel="noopener" href="https://www.doubao.com/">https://www.doubao.com/</a></td>
+</tr>
+<tr>
+<td></td>
+<td>阿里巴巴 通义千问</td>
+<td>通义千问2.0,3.0</td>
+<td><a target="_blank" rel="noopener" href="https://tongyi.aliyun.com/">https://tongyi.aliyun.com/</a></td>
+</tr>
+</tbody></table>
+<p>上面表格中大模型也称为基座大模型。下面是现在主流的两个大模型和对应的公司和相关的核心版本的发布时间的介绍对快速理解大模型的常识性的内容很有帮助。</p>
+<p><img src="/image/spring/springAI/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E4%BB%8B%E7%BB%8D/1.png" srcset="/img/loading.gif" lazyload></p>
+<p>2025年国内外热门大模型分类表</p>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>模型/产品</th>
+<th>研发公司</th>
+<th>核心亮点</th>
+<th>典型应用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>通用大模型</td>
+<td>GPT-4o</td>
+<td>OpenAI</td>
+<td>全模态交互（文本/图像/ 视频），支持128k上下文窗口，动态参数分配降低30%推理成本</td>
+<td>科研实验、创意产 业、跨模态生成</td>
+</tr>
+<tr>
+<td></td>
+<td>Gemini 2.0 Pro</td>
+<td>Google</td>
+<td>集成实时搜索数据，支持20种语言无缝切换，响 应延迟&lt;500ms</td>
+<td>教育个性化学 习、企业服务</td>
+</tr>
+<tr>
+<td></td>
+<td>DeepSeek- R1</td>
+<td>深度求索</td>
+<td>开源可商用，训练成本仅为国际模型1/10，推理效率提升3倍</td>
+<td>工业供应链优 化、全球化部署</td>
+</tr>
+<tr>
+<td></td>
+<td>通义千问 2.5-Max</td>
+<td>阿里云</td>
+<td>多模态生成+数学编程能力，低成本推理，支持视频理解与生成</td>
+<td>智能制造、电商营销</td>
+</tr>
+<tr>
+<td>垂直领域模型</td>
+<td>Claude3- Opus</td>
+<td>Anthropic</td>
+<td>200k超长上下文处理， 伦理审查模块误判率 &lt;0.1%</td>
+<td>法律合同审查、医疗合规报告</td>
+</tr>
+<tr>
+<td></td>
+<td>星火X1</td>
+<td>科大讯飞</td>
+<td>基于国产算力平台，中文数学能力国内第一，支持深度推理</td>
+<td>医疗诊断、教育解题</td>
+</tr>
+<tr>
+<td></td>
+<td>华为云盘古</td>
+<td>华为</td>
+<td>中英文理解与多轮对话能力突出，适配复杂工程场景</td>
+<td>工业质检、能源管理</td>
+</tr>
+<tr>
+<td>多模态模型</td>
+<td>Sora 2.0</td>
+<td>OpenAI</td>
+<td>扩散模型+Transformer架构，支持物理规律模拟与长视频生成</td>
+<td>影视制作、广告创意</td>
+</tr>
+<tr>
+<td></td>
+<td>Runway Gen-4</td>
+<td>Runway</td>
+<td>角色与场景一致性增强， 支持专业镜头语言控制 （如“子弹时间”）</td>
+<td>短视频创作、 动态分镜设计</td>
+</tr>
+<tr>
+<td></td>
+<td>Vidu 2.0</td>
+<td>数生科技 &amp;清华大 学</td>
+<td>支持立体画面生成，成本低、速度快，风格一致性领先</td>
+<td>虚拟现实、数字孪生</td>
+</tr>
+<tr>
+<td>对话应用</td>
+<td>腾讯元宝</td>
+<td>腾讯</td>
+<td>双模型架构（混元 T1+DeepSeek V3），编 程与长文本处理能力提升，集成微信生态</td>
+<td>企业办公、跨平台任务自动化</td>
+</tr>
+<tr>
+<td></td>
+<td>豆包</td>
+<td>字节跳动</td>
+<td>用户量突破1亿，支持短视频脚本生成与育儿场景交互</td>
+<td>娱乐内容创作、家庭教育</td>
+</tr>
+<tr>
+<td></td>
+<td>Kimi Chat</td>
+<td>月之暗面</td>
+<td>支持400万token长文本输入，适配学术研究与复杂文档解析</td>
+<td>论文研读、法律条文分析</td>
+</tr>
+</tbody></table>
+<p><strong>关键技术与趋势解析</strong></p>
+<ol>
+<li><strong>开源生态崛起</strong> DeepSeek-R1等国产开源模型打破技术垄断，支持MIT协议商用，推动中小企业低成本部署。 Meta Llama3、阿里Qwen2-VL等开源框架降低多模态开发门槛，加速行业创新。 </li>
+<li><strong>端侧应用普及</strong> 腾讯元宝、豆包等产品通过轻量化模型实现手机端实时交互，日均使用时长超120分钟。 高通骁龙8 Gen4芯片支持千亿参数模型端侧推理，时延&lt;10ms。 </li>
+<li><strong>多模态深度融合</strong> GPT-4o、Gemini 2.0 Pro实现文本/图像/视频跨模态生成，影视行业制作效率提升50%。 华为盘古大模型与优必选合作探索人形机器人交互，推动具身智能落地。 </li>
+<li><strong>垂直场景深耕</strong> 医疗领域：星火X1通过FDA认证辅助生成临床试验报告，准确率92%。 工业领域：通义千问2.5-Max优化供应链管理，部署效率提升3倍。</li>
+</ol>
+<p><strong>市场格局与用户表现</strong></p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>领先产品</th>
+<th>数据表现</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>用户活跃度</td>
+<td>DeepSeek</td>
+<td>月活1.8亿（国内第一）</td>
+</tr>
+<tr>
+<td></td>
+<td>豆包</td>
+<td>日活突破1.01亿，抖音生态协同效应显著</td>
+</tr>
+<tr>
+<td>商业化能力</td>
+<td>腾讯元宝</td>
+<td>企业订阅收入超30亿元，覆盖金融/教育领域</td>
+</tr>
+<tr>
+<td></td>
+<td>Claude3-Opus</td>
+<td>服务摩根大通、高盛等企业，合同审查效率+40%</td>
+</tr>
+<tr>
+<td>技术评测排名</td>
+<td>Gtp-4o</td>
+<td>SuperCLUE总分89.7（全球第一）</td>
+</tr>
+<tr>
+<td></td>
+<td>DeepSeek-R1</td>
+<td>中文大模型排名第一，推理效率国际领先</td>
+</tr>
+</tbody></table>
+<p><strong>总结</strong>：2025年大模型竞争已从参数规模转向<strong>场景渗透力</strong>与<strong>用户体验</strong>。腾讯元宝凭借双模型架构和微信生态整合，成为C端与B端市场的“超级入口”；DeepSeek-R1以开源模式推动技术平权；GPT-4o和Gemini 2.0 Pro则在多模态领域持续领跑。未来竞争将聚焦于<strong>行业知识库建设</strong>与<strong>端云协同算力优化</strong>。</p>
+<h2 id="1-2-技术储备"><a href="#1-2-技术储备" class="headerlink" title="1.2 技术储备"></a>1.2 技术储备</h2><p>学习大模型应该提前要储备哪些知识吗？比如python、机器学习、NLP等？ 之前如果有这些基础肯定是更好的。如果没有也没有关系</p>
+<p><img src="/image/spring/springAI/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E4%BB%8B%E7%BB%8D/2.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="1-3-大模型分类"><a href="#1-3-大模型分类" class="headerlink" title="1.3 大模型分类"></a>1.3 大模型分类</h2><p>以下是OpenAI主要模型按功能分类的整理表格，综合技术参数、应用场景及发布时间信息：</p>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>名称</th>
+<th>参数规模/架构</th>
+<th>核心功能</th>
+<th>发布时间</th>
+<th>典型应用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>语言模型</td>
+<td>GPT-4o</td>
+<td>1.8万亿参数/MoE 架构</td>
+<td>多模态交互，支持 文本、图像输入，推理速度提升8倍</td>
+<td>2025.3</td>
+<td>复杂问题解决、实时交互</td>
+</tr>
+<tr>
+<td></td>
+<td>GPT-4o-min</td>
+<td>2360亿参数</td>
+<td>轻量级推理，成本降低至GPT-4o的 1/30，支持本地部署</td>
+<td>2025.3</td>
+<td>客服机器人、 批量文本处理</td>
+</tr>
+<tr>
+<td></td>
+<td>GPT-3.5 Turbo</td>
+<td>1750亿参数</td>
+<td>长上下文支持（16K tokens），优化对话流畅度</td>
+<td>2023</td>
+<td>日常对话、基 础编程辅助</td>
+</tr>
+<tr>
+<td>嵌入模型</td>
+<td>text-embedding-3-large</td>
+<td>3072维向量</td>
+<td>支持语义搜索、文本聚类，支持降维至256维</td>
+<td>2024.1</td>
+<td>大规模文档检 索、跨语言匹 配</td>
+</tr>
+<tr>
+<td></td>
+<td>text-embedding-3-small</td>
+<td>1536维向量</td>
+<td>性价比高，性能优于前代ada-002</td>
+<td>2024.1</td>
+<td>短文本分类、 轻量级推荐系 统</td>
+</tr>
+<tr>
+<td></td>
+<td>text-embedding-ada-002</td>
+<td>1536维向量</td>
+<td>统一文本与代码嵌入，支持8192 tokens长文本</td>
+<td>2022.12</td>
+<td>代码搜索、多任务语义理解</td>
+</tr>
+<tr>
+<td>图像模型</td>
+<td>DALL·E 3</td>
+<td>120亿参数/扩散模型</td>
+<td>根据文本生成4K图像，支持图像编辑与扩展</td>
+<td>2023.9</td>
+<td>广告设计、艺术创作</td>
+</tr>
+<tr>
+<td></td>
+<td>DALL·E 2</td>
+<td>35亿参数</td>
+<td>基础图像生成，分辨率较一代提升4倍</td>
+<td>2022.4</td>
+<td>快速原型设 计、社交媒体配图</td>
+</tr>
+<tr>
+<td>语言模型</td>
+<td>GPT-4o-transcribe</td>
+<td>基于GPT-4o架构优化</td>
+<td>语音转文本，错误率较Whisper降低40%，支持100+语 言</td>
+<td>2025.3</td>
+<td>会议记录、多语种客服转录</td>
+</tr>
+<tr>
+<td></td>
+<td>GPT-4o-mini-transcribe</td>
+<td>GPT04o蒸馏版</td>
+<td>实时转录延迟&lt;200ms，成本降低50%</td>
+<td>2025.3</td>
+<td>实时字幕生 成、移动端语 音输入</td>
+</tr>
+<tr>
+<td></td>
+<td>GPT-4o-mini-tts</td>
+<td>可控语音合成模型</td>
+<td>支持情感参数调节（如兴奋/平静），音色定制</td>
+<td>2025.3</td>
+<td>有声书制作、 个性化语音助 手</td>
+</tr>
+<tr>
+<td></td>
+<td>Whisper v3</td>
+<td>15亿参数（多任务架构）</td>
+<td>多语种语音识别与翻译，支持音频片段分类</td>
+<td>2024</td>
+<td>跨境会议翻 译、播客内容分析</td>
+</tr>
+</tbody></table>
+<p><strong>补充说明</strong></p>
+<ol>
+<li><p>语言模型：GPT-4o系列新增多模态输入能力（如支持图像分析），而GPT-4o-mini专为低成本推理优化。 </p>
+</li>
+<li><p>嵌入模型：text-embedding-3-large通过API支持动态降维，在保持精度的同时减少存储成本。 </p>
+</li>
+<li><p>语音模型：最新发布的GPT-4o系列语音模型集成强化学习，显著降低复杂场景下的转录错误率。</p>
+<p><img src="/image/spring/springAI/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E4%BB%8B%E7%BB%8D/3.png" srcset="/img/loading.gif" lazyload></p>
+</li>
+</ol>
+<p><strong>HuggingFace：</strong> <a target="_blank" rel="noopener" href="https://huggingface.co/models">https://huggingface.co/models</a> </p>
+<p><strong>魔塔社区：</strong> <a target="_blank" rel="noopener" href="https://modelscope.cn/models">https://modelscope.cn/models</a></p>
+<h1 id="2-入门案例"><a href="#2-入门案例" class="headerlink" title="2 入门案例"></a>2 入门案例</h1><p>可以通过Java代码的方式来实现和大模型的交互，创建一个普通的Maven项目，添加下对应的依赖</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>com.squareup.okhttp3<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>okhttp<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>3.14.9<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>可以先以DeepSeek为例，进入DeepSeek官网，查看对应的API文档：<a target="_blank" rel="noopener" href="https://api-docs.deepseek.com/zh-cn/api/create-chat-completion">https://api-docs.deepseek.com/zh-cn/api/create-chat-completion</a></p>
+<p><img src="/image/spring/springAI/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E4%BB%8B%E7%BB%8D/4.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Main</span>&#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> Exception&#123;<br>        <span class="hljs-type">OkHttpClient</span> <span class="hljs-variable">client</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">OkHttpClient</span>().newBuilder()<br>            .connectTimeout(<span class="hljs-number">20</span>, TimeUnit.SECONDS)<br>            .readTimeout(<span class="hljs-number">20</span>, TimeUnit.SECONDS)<br>            .build();<br>        <span class="hljs-type">MediaType</span> <span class="hljs-variable">mediaType</span> <span class="hljs-operator">=</span> MediaType.parse(<span class="hljs-string">&quot;application/json&quot;</span>);<br>        <span class="hljs-type">RequestBody</span> <span class="hljs-variable">body</span> <span class="hljs-operator">=</span> RequestBody.create(mediaType, <span class="hljs-string">&quot;&#123;\n  \&quot;messages\&quot;: [\n    &#123;\n      \&quot;content\&quot;: \&quot;You are a helpful assistant\&quot;,\n      \&quot;role\&quot;: \&quot;system\&quot;\n    &#125;,\n    &#123;\n      \&quot;content\&quot;: \&quot;Hi\&quot;,\n      \&quot;role\&quot;: \&quot;user\&quot;\n    &#125;\n  ],\n  \&quot;model\&quot;: \&quot;deepseek-chat\&quot;,\n  \&quot;frequency_penalty\&quot;: 0,\n  \&quot;max_tokens\&quot;: 4096,\n  \&quot;presence_penalty\&quot;: 0,\n  \&quot;response_format\&quot;: &#123;\n    \&quot;type\&quot;: \&quot;text\&quot;\n  &#125;,\n  \&quot;stop\&quot;: null,\n  \&quot;stream\&quot;: false,\n  \&quot;stream_options\&quot;: null,\n  \&quot;temperature\&quot;: 1,\n  \&quot;top_p\&quot;: 1,\n  \&quot;tools\&quot;: null,\n  \&quot;tool_choice\&quot;: \&quot;none\&quot;,\n  \&quot;logprobs\&quot;: false,\n  \&quot;top_logprobs\&quot;: null\n&#125;&quot;</span>);<br>        <span class="hljs-type">Request</span> <span class="hljs-variable">request</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Request</span>.Builder()<br>            .url(<span class="hljs-string">&quot;https://api.deepseek.com/chat/completions&quot;</span>)<br>            .method(<span class="hljs-string">&quot;POST&quot;</span>, body)<br>            .addHeader(<span class="hljs-string">&quot;Content-Type&quot;</span>, <span class="hljs-string">&quot;application/json&quot;</span>)<br>            .addHeader(<span class="hljs-string">&quot;Accept&quot;</span>, <span class="hljs-string">&quot;application/json&quot;</span>)<br>            .addHeader(<span class="hljs-string">&quot;Authorization&quot;</span>, <span class="hljs-string">&quot;Bearer sk0a40f9289beb4017af7bf990f9646d24&quot;</span>)<br>            .build();<br>        <span class="hljs-type">Response</span> <span class="hljs-variable">response</span> <span class="hljs-operator">=</span> client.newCall(request).execute();<br>        System.out.println(response.body().string());<br>   &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>输出成功：</p>
+<figure class="highlight wren"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs wren">&#123;<span class="hljs-string">&quot;id&quot;</span>:<span class="hljs-string">&quot;fc72fd01-511c-4a64-b5d8ec6b4d0306a7&quot;</span>,<span class="hljs-string">&quot;object&quot;</span>:<span class="hljs-string">&quot;chat.completion&quot;</span>,<span class="hljs-string">&quot;created&quot;</span>:<span class="hljs-number">1746334387</span>,<span class="hljs-string">&quot;model&quot;</span>:<span class="hljs-string">&quot;deepseek-chat&quot;</span>,<span class="hljs-string">&quot;choices&quot;</span>:[&#123;<span class="hljs-string">&quot;index&quot;</span>:<span class="hljs-number">0</span>,<span class="hljs-string">&quot;message&quot;</span>: &#123;<span class="hljs-string">&quot;role&quot;</span>:<span class="hljs-string">&quot;assistant&quot;</span>,<span class="hljs-string">&quot;content&quot;</span>:<span class="hljs-string">&quot;你好呀！当然可以～我是 **DeepSeek Chat**，由深度求索（DeepSeek）公司打造的智能AI助手。我的最新版本是 **DeepSeek-V3**，知识截止到 **2024年7月**，可以帮你解答各种问题，包括学习、工作、编程、生活百科等。  <span class="hljs-char escape_">\n</span><span class="hljs-char escape_">\n</span>### ✨ **我的特点**：<span class="hljs-char escape_">\n</span>- **免费使用**：目前无需付费，随时为你提供帮助！  <span class="hljs-char escape_">\n</span>- **超长上下文**：支持 **128K** 上下文，能记住更长的对话内容。  <span class="hljs-char escape_">\n</span>- **文件阅读**：可以上传 **PDF、Word、Excel、PPT、TXT** 等文件，帮你提取和分析信息。  <span class="hljs-char escape_">\n</span>- **知识丰富**：覆盖科技、历史、文学、娱乐等多个领域，还能解答专业问题。  <span class="hljs-char escape_">\n</span>- **逻辑清晰**：擅长数学、编程、写作、翻译等任务。  <span class="hljs-char escape_">\n</span><span class="hljs-char escape_">\n</span>### 🚀 **我能帮你做什么？**<span class="hljs-char escape_">\n</span>- **学习辅导**：解题思路、论文润色、语言学习等。  <span class="hljs-char escape_">\n</span>- **工作助理**：写邮件、做PPT、整理数据、生成报告。  <span class="hljs-char escape_">\n</span>- **编程帮手**：代码调试、算法讲解、项目思路分析。  <span class="hljs-char escape_">\n</span>- **生活娱乐**：推荐</span><br><span class="hljs-string">电影、书籍、旅行攻略、美食做法。  <span class="hljs-char escape_">\n</span><span class="hljs-char escape_">\n</span>你可以随时向我提问，我会尽力提供**准确、</span><br><span class="hljs-string">有用、友好**的答案！😊 你今天有什么想聊的吗？&quot;</span>&#125;,<span class="hljs-string">&quot;logprobs&quot;</span>:<span class="hljs-literal">null</span>,<span class="hljs-string">&quot;finish_reason&quot;</span>:<span class="hljs-string">&quot;stop&quot;</span>&#125;],<span class="hljs-string">&quot;usage&quot;</span>: &#123;<span class="hljs-string">&quot;prompt_tokens&quot;</span>:<span class="hljs-number">17</span>,<span class="hljs-string">&quot;completion_tokens&quot;</span>:<span class="hljs-number">297</span>,<span class="hljs-string">&quot;total_tokens&quot;</span>:<span class="hljs-number">314</span>,<span class="hljs-string">&quot;prompt_tokens_details&quot;</span>:&#123;<span class="hljs-string">&quot;cached_tokens&quot;</span>:<span class="hljs-number">0</span>&#125;,<span class="hljs-string">&quot;prompt_cache_hit_tokens&quot;</span>:<span class="hljs-number">0</span>,<span class="hljs-string">&quot;prompt_cache_miss_tokens&quot;</span>:<span class="hljs-number">17</span>&#125;,<span class="hljs-string">&quot;system_fingerprint&quot;</span>:<span class="hljs-string">&quot;fp_8802369eaa_prod0425fp8&quot;</span>&#125;<br></code></pre></td></tr></table></figure>
+
+<h1 id="3-ChatGPT案例"><a href="#3-ChatGPT案例" class="headerlink" title="3 ChatGPT案例"></a>3 ChatGPT案例</h1><p>如果想和ChatGPT来交互，这块的实现方式比较多，比如直接去OpenAi的官网申请账号并充值，但是这种方式需要科学上网，也可以通过国内的代理来实现，比如：</p>
+<p><a target="_blank" rel="noopener" href="https://www.openai-hk.com/docs/getting-started.html">https://www.openai-hk.com/docs/getting-started.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://ai-yyds.com/about">https://ai-yyds.com/about</a></p>
+<p>这两个站点的代理都可以，比如通过ddys来测试下：</p>
+<p><img src="/image/spring/springAI/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E4%BB%8B%E7%BB%8D/5.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ChatGPTDemo</span> &#123;<br>	<span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        <span class="hljs-type">OkHttpClient</span> <span class="hljs-variable">client</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">OkHttpClient</span>().newBuilder()<br> 			.connectTimeout(<span class="hljs-number">20</span>, TimeUnit.SECONDS)<br> 			.readTimeout(<span class="hljs-number">20</span>, TimeUnit.SECONDS)<br> 			.build();<br> 		<span class="hljs-type">MediaType</span> <span class="hljs-variable">mediaType</span> <span class="hljs-operator">=</span> MediaType.parse(<span class="hljs-string">&quot;application/json&quot;</span>);<br> 		<span class="hljs-type">RequestBody</span> <span class="hljs-variable">body</span> <span class="hljs-operator">=</span> RequestBody.create(mediaType, <span class="hljs-string">&quot;&#123;\n  \&quot;messages\&quot;: [\n    &#123;\n      assistant\&quot;,\n      		\&quot;role\&quot;: \&quot;system\&quot;\n    \&quot;content\&quot;: \&quot;你好啊，你能介绍下中国吗?&gt;\&quot;,\n      \&quot;user\&quot;\n 						\&quot;content\&quot;: \&quot;You are a helpful &#125;,\n    &#123;\n      \&quot;role\&quot;: &#125;\n  ],\n  \&quot;model\&quot;: \&quot;gpt-4o\&quot;&#125;&quot;</span>);<br> 		<span class="hljs-type">Request</span> <span class="hljs-variable">request</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Request</span>.Builder()<br> 			.url(<span class="hljs-string">&quot;https://ai-yyds.com/v1/chat/completions&quot;</span>)<br> 			.method(<span class="hljs-string">&quot;POST&quot;</span>, body)<br> 			.addHeader(<span class="hljs-string">&quot;Content-Type&quot;</span>, <span class="hljs-string">&quot;application/json&quot;</span>)<br> 			.addHeader(<span class="hljs-string">&quot;Accept&quot;</span>, <span class="hljs-string">&quot;application/json&quot;</span>)<br>			.addHeader(<span class="hljs-string">&quot;Authorization&quot;</span>, <span class="hljs-string">&quot;Bearer sk-UrwV你自己的keycB71dF8E5579a4a09&quot;</span>)<br> 			.build();<br> 		<span class="hljs-type">Response</span> <span class="hljs-variable">response</span> <span class="hljs-operator">=</span> client.newCall(request).execute();<br> 		System.out.println(response.body().string());<br> 	&#125;<br> &#125;<br></code></pre></td></tr></table></figure>
+
+<p>执行后可以看到对应的效果</p>
+<p><img src="/image/spring/springAI/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E4%BB%8B%E7%BB%8D/6.png" srcset="/img/loading.gif" lazyload></p>
+<h1 id="4-Token的介绍"><a href="#4-Token的介绍" class="headerlink" title="4 Token的介绍"></a>4 Token的介绍</h1><p>Token是什么？Token⼀定表示⼀个汉字么？可以在: <a target="_blank" rel="noopener" href="https://platform.openai.com/tokenizer">https://platform.openai.com/tokenizer</a> 这个网站中具体的测试下，比如:”我喜欢⾹蕉”的Token数量。</p>
+<p><img src="/image/spring/springAI/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E4%BB%8B%E7%BB%8D/7.png" srcset="/img/loading.gif" lazyload></p>
+<p>Token的定义:在大语言模型中，Token是模型进行语言处理的基本信息单元，它可以是⼀个字，⼀个词甚至是⼀个短语句子。Token并不是⼀成不变的，在不同的上下文中，他会有不同的划分粒度。</p>
+<p>Token对我们有哪些影响: <a target="_blank" rel="noopener" href="https://openai.com/api/pricing/">https://openai.com/api/pricing/</a></p>
+<p><img src="/image/spring/springAI/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E4%BB%8B%E7%BB%8D/8.png" srcset="/img/loading.gif" lazyload></p>
+<p>从官方文档中可以看到每个模型都有⼀个MAX TOKENS的参数，这个参数的意思就是在⼀次会话中，模型能基于整个上下文记忆的最大的Token数量，这个上下文既包含了输入，也包含了输出。</p>
+<p>在上面这个解释中会有两个概念：</p>
+<ol>
+<li>⼀次会话：所谓的⼀次会话是指打开了⼀个和ChatGPT的聊天窗口，只要⼀直在这个窗口内和ChatGPT聊天，那么这个窗口就是你和ChatGPT的⼀次会话， 无论你们已经聊了多久 </li>
+<li>上下文：所谓的上下文就是指在最新的⼀个提问之前所有的聊天记录</li>
+</ol>
+<blockquote>
+<p>值得注意的是，这里的上下文记忆的最大Token数量，不仅仅是指你单次提问的语句的最大Token数量，而是整个会话中之前所有的输入和输出的Token数量.</p>
+</blockquote>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/spring%E6%A1%86%E6%9E%B6/" class="category-chain-item">spring框架</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/spring%E6%A1%86%E6%9E%B6/SpringAI/" class="category-chain-item">SpringAI</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/AI/">#AI</a>
+      
+        <a href="/tags/LLM/">#LLM</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>大模型介绍</div>
+      <div>http://www.zivjie.cn/2025/11/01/spring框架/springAI/大模型介绍/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Francis</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年11月1日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/11/09/spring%E6%A1%86%E6%9E%B6/springAI/%E6%8F%90%E7%A4%BA%E8%AF%8D%E5%B7%A5%E7%A8%8B/" title="提示词工程">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">提示词工程</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/12/09/%E7%AE%97%E6%B3%95/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%AE%97%E6%B3%95/%E8%BD%AE%E8%AF%A2%E5%92%8C%E5%8A%A0%E6%9D%83%E8%BD%AE%E8%AF%A2%E7%AE%97%E6%B3%95/" title="轮询和加权轮询算法">
+                        <span class="hidden-mobile">轮询和加权轮询算法</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
