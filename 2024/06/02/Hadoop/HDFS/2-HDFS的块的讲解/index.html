@@ -1,0 +1,686 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Francis">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1 传统型分布式文件系统的缺点现在想象一下这种情况：有四个文件 0.5TB的file1，1.2TB的file2，50GB的file3，100GB的file4；有7个服务器，每个服务器上有10个1TB的硬盘。  在存储方式上，可以将这四个文件存储在同一个服务器上（当然大于1TB的文件需要切分），需要使用一个文件来记录这种存储的映射关系。用户是可以通过这种映射关系来找到节点硬盘相应的文件的。那么缺点也">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2-HDFS块的讲解">
+<meta property="og:url" content="http://www.zivjie.cn/2024/06/02/Hadoop/HDFS/2-HDFS%E7%9A%84%E5%9D%97%E7%9A%84%E8%AE%B2%E8%A7%A3/index.html">
+<meta property="og:site_name" content="Francis-Blog">
+<meta property="og:description" content="1 传统型分布式文件系统的缺点现在想象一下这种情况：有四个文件 0.5TB的file1，1.2TB的file2，50GB的file3，100GB的file4；有7个服务器，每个服务器上有10个1TB的硬盘。  在存储方式上，可以将这四个文件存储在同一个服务器上（当然大于1TB的文件需要切分），需要使用一个文件来记录这种存储的映射关系。用户是可以通过这种映射关系来找到节点硬盘相应的文件的。那么缺点也">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.zivjie.cn/img/wyy8.png">
+<meta property="article:published_time" content="2024-06-02T02:13:00.000Z">
+<meta property="article:modified_time" content="2025-11-14T07:38:14.525Z">
+<meta property="article:author" content="Francis">
+<meta property="article:tag" content="Hadoop">
+<meta property="article:tag" content="HDFS">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://www.zivjie.cn/img/wyy8.png">
+  
+  
+  
+  <title>2-HDFS块的讲解 - Francis-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.zivjie.cn","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Francis</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="2-HDFS块的讲解"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-06-02 10:13" pubdate>
+          2024年6月2日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          27 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">2-HDFS块的讲解</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="1-传统型分布式文件系统的缺点"><a href="#1-传统型分布式文件系统的缺点" class="headerlink" title="1 传统型分布式文件系统的缺点"></a>1 传统型分布式文件系统的缺点</h2><p>现在想象一下这种情况：有四个文件 0.5TB的file1，1.2TB的file2，50GB的file3，100GB的file4；有7个服务器，每个服务器上有10个1TB的硬盘。</p>
+<p><img src="/image/Hadoop/HDFS/1.png" srcset="/img/loading.gif" lazyload></p>
+<p>在存储方式上，可以将这四个文件存储在同一个服务器上（当然大于1TB的文件需要切分），需要使用一个文件来记录这种存储的映射关系。用户是可以通过这种映射关系来找到节点硬盘相应的文件的。那么缺点也就暴露了出来：</p>
+<p>第一、负载不均衡</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">因为文件大小不一致，势必会导致有的节点磁盘的利用率高，有的节点磁盘利用率低。<br></code></pre></td></tr></table></figure>
+
+<p>第二、网络瓶颈问题。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">一个过大的文件存储在一个节点磁盘上，当有并行处理时，每个线程都需要从这个节点磁盘上读取这个文件的内容，那么就会出现网络瓶颈，不利于分布式的数据处理。<br></code></pre></td></tr></table></figure>
+
+<h2 id="2-HDFS的块"><a href="#2-HDFS的块" class="headerlink" title="2 HDFS的块"></a>2 HDFS的块</h2><p>HDFS与其他普通文件系统一样，同样引入了块(Block)的概念，并且<strong>块的大小是固定的</strong>。但是不像普通文件系统那样小，而是根据实际需求可以自定义的。块是HDFS系统当中的最小存储单位，在hadoop2.0中默认大小为128MB（hadoop1.x中的块大小为64M）。在HDFS上的文件会被拆分成多个块，每个块作为独立的单元进行存储。多个块存放在不同的DataNode上，<strong>整个过程中 HDFS系统会保证一个块存储在一个数据节点上</strong> 。但值得注意的是，如果某文件大小或者文件的最后一个块没有到达128M，<strong>则不会占据整个块空间</strong> 。</p>
+<p>我们来看看HDFS的设计思想：以下图为例，来进行解释。</p>
+<p><img src="/image/Hadoop/HDFS/2.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="3-HDFS块的大小"><a href="#3-HDFS块的大小" class="headerlink" title="3 HDFS块的大小"></a>3 HDFS块的大小</h2><p>HDFS上的块大小为什么会远远大于传统文件?  </p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs markdown"><span class="hljs-bullet">1.</span> 目的是为了最小化寻址开销时间。<br><span class="hljs-code">	 在I/O开销中，机械硬盘的寻址时间是最耗时的部分，一旦找到第一条记录，剩下的顺序读取效率是非常高的，因此以块为单位读写数据，可以尽量减少总的磁盘寻道时间。  </span><br><span class="hljs-code">	 HDFS寻址开销不仅包括磁盘寻道开销，还包括数据块的定位开销，当客户端需要访问一个文件时，首先从名称节点获取组成这个文件的数据块的位置列表，然后根据位置列表获取实际存储各个数据块的数据节点的位置，最后，数据节点根据数据块信息在本地Linux文件系统中找到对应的文件，并把数据返回给客户端，设计成一个比较大的块，可以减少每个块儿中数据的总的寻址开销，相对降低了单位数据的寻址开销</span><br><span class="hljs-code">	 磁盘的寻址时间为大约在5~15ms之间，平均值为10ms,而最小化寻址开销时间普遍认为占1秒的百分之一是最优的，那么块大小的选择就参考1秒钟的传输速度，比如2010年硬盘的传输速率是100M/s，那么就选择块大小为128M。</span><br><span class="hljs-code"></span><br><span class="hljs-bullet">2.</span> 为了节省内存的使用率<br><span class="hljs-code">	 一个块的元数据大约150个字节。1亿个块，不论大小，都会占用20G左右的内存。因此块越大，集群相对存储的数据就越多。所以暴漏了HDFS的一个缺点，不适合存储小文件。</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs gradle">不适合存储小文件解释:<br><span class="hljs-number">1</span>. 从存储能力出发（固定内存）<br>   因为HDFS的文件是以块为单位存储的，且如果文件大小不到<span class="hljs-number">128</span>M的时候，是不会占用整个块的空间的。但是，这个块依然会在内存中占用<span class="hljs-number">150</span>个字节的元数据。因此，同样的内存占用的情况下，大量的小文件会导致集群的存储能力不足。<br>   例如: 同样是<span class="hljs-number">128</span>G的内存，最多可存储<span class="hljs-number">9.2</span>亿个块。如果都是小文件，例如<span class="hljs-number">1</span>M，则集群存储的数据大小为<span class="hljs-number">9.2</span>亿*<span class="hljs-number">1</span>M = <span class="hljs-number">877</span>TB的数据。但是如果存储的都是<span class="hljs-number">128</span>M的文件，则集群存储的数据大小为<span class="hljs-number">109.6</span>PB的数据。存储能力大不相同。<br>   <br><span class="hljs-number">2</span>. 从内存占用出发（固定存储能力）<br>   同样假设存储<span class="hljs-number">1</span>M和<span class="hljs-number">128</span>M的文件对比，同样存储<span class="hljs-number">1</span>PB的数据，如果是<span class="hljs-number">1</span>M的小文件存储，占用的内存空间为<span class="hljs-number">1</span>PB<span class="hljs-regexp">/1Mb*150Byte = 150G的内存。如果存储的是128M的文件存储，占用的内存空间为1PB/</span><span class="hljs-number">128</span>M*<span class="hljs-number">150</span><span class="hljs-keyword">Byte</span> = <span class="hljs-number">1.17</span>G的内存占用。可以看到，同样存储<span class="hljs-number">1</span>PB的数据，小文件的存储比起大文件占用更多的内存。<br></code></pre></td></tr></table></figure>
+
+<h2 id="4-块的相关参数设置"><a href="#4-块的相关参数设置" class="headerlink" title="4 块的相关参数设置"></a>4 块的相关参数设置</h2><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs xml">当然块大小在默认配置文件hdfs-default.xml中有相关配置，我们可以在hdfs-site.xml中进行重置<br><span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>dfs.blocksize<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>134217728<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">description</span>&gt;</span>默认块大小，以字节为单位。可以使用以下后缀(不区分大小写):k，m，g，t，p，e以重新指定大小(例如128k, 512m, 1g等)<span class="hljs-tag">&lt;/<span class="hljs-name">description</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br><br><span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>dfs.namenode.fs-limits.min-block-size<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>1048576<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">description</span>&gt;</span>以字节为单位的最小块大小，由Namenode在创建时强制执行时间。这可以防止意外创建带有小块的文件降低性能。<span class="hljs-tag">&lt;/<span class="hljs-name">description</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br><br><span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>dfs.namenode.fs-limits.max-blocks-per-file<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>1048576<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">description</span>&gt;</span>每个文件的最大块数，由写入时的Namenode执行。这可以防止创建降低性能的超大文件<span class="hljs-tag">&lt;/<span class="hljs-name">description</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="5-块的存储位置"><a href="#5-块的存储位置" class="headerlink" title="5 块的存储位置"></a>5 块的存储位置</h2><p>在<code>hdfs-site.xml</code>中我们配置过下面这个属性，这个属性的值就是块在linux系统上的存储位置</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-comment">&lt;!-- 确定DFS数据节点应该将其块存储在本地文件系统的何处--&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>dfs.datanode.data.dir<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>file://$&#123;hadoop.tmp.dir&#125;/dfs/data<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="/image/Hadoop/HDFS/3.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="6-HDFS的优点"><a href="#6-HDFS的优点" class="headerlink" title="6 HDFS的优点"></a>6 HDFS的优点</h2><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs markdown"><span class="hljs-bullet">1.</span> 高容错性（硬件故障是常态）：数据自动保存多个副本，副本丢失后，会自动恢复<br><span class="hljs-bullet">2.</span> 适合大数据集：GB、TB、甚至PB级数据、千万规模以上的文件数量，1000以上节点规模。<br><span class="hljs-bullet">3.</span> 数据访问： 一次性写入，多次读取；保证数据一致性,安全性<br><span class="hljs-bullet">4.</span> 构建成本低：可以构建在廉价机器上。<br><span class="hljs-bullet">5.</span> 多种软硬件平台中的可移植性 <br><span class="hljs-bullet">6.</span> 高效性：Hadoop能够在节点之间动态地移动数据，并保证各个节点的动态平衡，因此处理速度非常快。<br><span class="hljs-bullet">7.</span> 高可靠性：Hadoop的存储和处理数据的能力值得人们信赖.<br></code></pre></td></tr></table></figure>
+
+<h2 id="7-HDFS的缺点"><a href="#7-HDFS的缺点" class="headerlink" title="7 HDFS的缺点"></a>7 HDFS的缺点</h2><figure class="highlight maxima"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs maxima"><span class="hljs-number">1</span>. 不适合做低延迟数据访问：<br>	 HDFS的设计目标有一点是：处理大型数据集，高吞吐率。这一点势必要以高延迟为代价的。因此HDFS不适合处理用户要求的毫秒级的低延迟应用请求<br><span class="hljs-number">2</span>. 不适合小文件存取：<br>	 一个是大量小文件需要消耗大量的寻址时间，违反了HDFS的尽可能减少寻址时间比例的设计目标。第二个是内存有限，一个<span class="hljs-built_in">block</span>元数据大内存消耗大约为<span class="hljs-number">150</span>个字节，存储一亿个<span class="hljs-built_in">block</span>和存储一亿个小文件都会消耗20G内存。因此相对来说，大文件更省内存。<br><span class="hljs-number">3</span>. 不适合并发写入，文件随机修改：<br>	 HDFS上的文件只能拥有一个写者，仅仅支持<span class="hljs-built_in">append</span>操作。不支持多用户对同一个文件的写操作，以及在文件任意位置进行修改<br></code></pre></td></tr></table></figure>
+
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Hadoop/" class="category-chain-item">Hadoop</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Hadoop/HDFS/" class="category-chain-item">HDFS</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Hadoop/">#Hadoop</a>
+      
+        <a href="/tags/HDFS/">#HDFS</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>2-HDFS块的讲解</div>
+      <div>http://www.zivjie.cn/2024/06/02/Hadoop/HDFS/2-HDFS的块的讲解/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Francis</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年6月2日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/06/02/Hadoop/HDFS/3-HDFS%E7%9A%84%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84/" title="3-Hadoop体系结构">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">3-Hadoop体系结构</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/06/02/Hadoop/HDFS/1-HDFS%E7%9A%84shell%E6%93%8D%E4%BD%9C/" title="1-HDFS的shell操作">
+                        <span class="hidden-mobile">1-HDFS的shell操作</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

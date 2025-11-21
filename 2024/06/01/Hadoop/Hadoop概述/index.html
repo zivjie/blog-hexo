@@ -1,0 +1,694 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Francis">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1  为什么要用Hadoop现在是数据大爆炸的年代。在2020年，全球的数据总量达到44ZB，经过单位换算后，至少在440亿TB以上，也就是说，全球每人一块1TB的硬盘都存储不下。 1扩展：数据大小单位：Byte,KB,MB,GB,TB,PB,EB,ZB,YB,DB,NB  一些数据集的大小更远远超过了1TB，也就是说，数据的存储是一个要解决的问题。同时，硬盘技术也面临一个技术瓶颈，就是硬盘的传输">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hadoop概述">
+<meta property="og:url" content="http://www.zivjie.cn/2024/06/01/Hadoop/Hadoop%E6%A6%82%E8%BF%B0/index.html">
+<meta property="og:site_name" content="Francis-Blog">
+<meta property="og:description" content="1  为什么要用Hadoop现在是数据大爆炸的年代。在2020年，全球的数据总量达到44ZB，经过单位换算后，至少在440亿TB以上，也就是说，全球每人一块1TB的硬盘都存储不下。 1扩展：数据大小单位：Byte,KB,MB,GB,TB,PB,EB,ZB,YB,DB,NB  一些数据集的大小更远远超过了1TB，也就是说，数据的存储是一个要解决的问题。同时，硬盘技术也面临一个技术瓶颈，就是硬盘的传输">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.zivjie.cn/img/wyy5.png">
+<meta property="article:published_time" content="2024-06-01T08:13:00.000Z">
+<meta property="article:modified_time" content="2025-11-14T02:40:57.052Z">
+<meta property="article:author" content="Francis">
+<meta property="article:tag" content="Hadoop">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://www.zivjie.cn/img/wyy5.png">
+  
+  
+  
+  <title>Hadoop概述 - Francis-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.zivjie.cn","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Francis</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Hadoop概述"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-06-01 16:13" pubdate>
+          2024年6月1日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          40 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Hadoop概述</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="1-为什么要用Hadoop"><a href="#1-为什么要用Hadoop" class="headerlink" title="1  为什么要用Hadoop"></a>1  为什么要用Hadoop</h1><p>现在是数据大爆炸的年代。在2020年，全球的数据总量达到44ZB，经过单位换算后，至少在440亿TB以上，也就是说，全球每人一块1TB的硬盘都存储不下。</p>
+<figure class="highlight tp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs tp">扩展：数据大小单位：Byte,KB,MB,GB,<span class="hljs-keyword">TB</span>,PB,EB,ZB,YB,<span class="hljs-keyword">DB</span>,NB<br></code></pre></td></tr></table></figure>
+
+<p>一些数据集的大小更远远超过了1TB，也就是说，数据的存储是一个要解决的问题。同时，硬盘技术也面临一个技术瓶颈，就是硬盘的传输速度(读数据的速度)的提升远远低于硬盘容量的提升。</p>
+<table>
+<thead>
+<tr>
+<th>年份</th>
+<th>硬盘大小</th>
+<th>传输速率</th>
+<th>所需时间</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1990</td>
+<td>1370MB</td>
+<td>4.4MB/s</td>
+<td>5分钟</td>
+</tr>
+<tr>
+<td>2010</td>
+<td>1TB主流</td>
+<td>100MB/s</td>
+<td>3小时</td>
+</tr>
+</tbody></table>
+<p>可以看到，容量提升了将近1000倍，而传输速度才提升了20倍，读完一个硬盘的所需要的时间相对来说，更长更久了(已经违反了数据价值的即时性)。读数据都花了这么长时间，更不用说写数据了。 </p>
+<p>对于如何提高读取数据的效率，我们已经想到解决的方法了，那就是将一个数据集存储到多个硬盘里，然后并行读取。比如1T的数据，我们平均100份存储到100个1TB硬盘上，同时读取，那么读取完整个数据集的时间用不上两分钟。至于硬盘剩下的99%的容量，我们可以用来存储其他的数据集，这样就不会产生浪费。解决读取效率问题的同时，我们也解决了大数据的存储问题。但是，我们同时对多个硬盘进行读/写操作时，又有了新的问题需要解决：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">1</span>、硬件故障问题。一旦使用多个硬件，相对来说，个别硬件产生故障的几率就高，为了避免数据丢失，最常见的做法就是复制(replication):文件系统保存数据的多个复本，一旦发生故障，就可以使用另外的复本。<br><br><span class="hljs-attribute">2</span>、读取数据的正确性问题。大数据时代的一个分析任务，就需要结合大部分数据来共同完成分析，因此从一个硬盘上读取的数据要与从其他<span class="hljs-number">99</span>个硬盘上读取的数据结合起来使用。那么，在读取过程中，如何保证数据的正确性，就是一个很大的挑战。<br></code></pre></td></tr></table></figure>
+
+<p>针对于上述几个问题，Hadoop为我们提供了一个可靠的且可扩展的存储和分析平台，此外，由于Hadoop运行在商用硬件上且是开源的，因此Hadoop的使用成本是比较低了，在用户的承受范围内。 </p>
+<h1 id="2-Hadoop简要介绍"><a href="#2-Hadoop简要介绍" class="headerlink" title="2 Hadoop简要介绍"></a>2 Hadoop简要介绍</h1><p>Hadoop是Apache基金会旗下一个开源的分布式存储和分析计算平台，使用java语言开发，具有很好的跨平台性，可以运行在商用(廉价)硬件上，用户无需了解分布式底层细节，就可以开发分布式程序，充分使用集群的高速计算和存储。</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">Apache</span> lucene是一个应用广泛的文本搜索系统库。该项目的创始人道格·卡丁在<span class="hljs-number">2002</span>年带领团队开发该项目中的子项目Apache Nutch，想要从头打造一个网络搜索引擎系统，在开发的过程中，发现了两个问题，一个是硬件的高额资金投入，另一个是存储问题。<br><br><span class="hljs-attribute">2003</span>年和<span class="hljs-number">2004</span>年Google先后发表的《GFS》和《MapReduce》论文，给这个团队提供了灵感，并进行了实现，于是NDFS(Nutch分布式文件系统)和MapReduce相继问世。<span class="hljs-number">2006</span>年<span class="hljs-number">2</span>月份，开发人员将NDFS和MapReduce移出Nutch形成一个独立的子项目，命名为Hadoop(该名字据Doug Cutting所说，是借用了他的孩子给毛绒玩具取得名字)。<br></code></pre></td></tr></table></figure>
+
+<h1 id="3-谷歌的三篇论文"><a href="#3-谷歌的三篇论文" class="headerlink" title="3 谷歌的三篇论文"></a>3 谷歌的三篇论文</h1><figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc"><span class="hljs-bullet">- </span>2003年发表的《GFS》<br><span class="hljs-code">  基于硬盘不够大、数据存储单份的安全隐患问题，提出的分布式文件系统用于存储的理论思想。</span><br><span class="hljs-code">  · 解决了如何存储大数据集的问题</span><br><br><span class="hljs-bullet">- </span>2004年发表的《MapReduce》<br><span class="hljs-code">  基于分布式文件系统的计算分析的编程框架模型。移动计算而非移动数据，分而治之。</span><br><span class="hljs-code">  · 解决了如何快速分析大数据集的问题</span><br><br><span class="hljs-bullet">- </span>2006年发表的《BigTable》<br><span class="hljs-code">  针对于传统型关系数据库不适合存储非结构化数据的缺点，提出了另一种适合存储大数据集的解决方案</span><br></code></pre></td></tr></table></figure>
+
+<h1 id="4-Hadoop发展历史"><a href="#4-Hadoop发展历史" class="headerlink" title="4 Hadoop发展历史"></a>4 Hadoop发展历史</h1><figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc"><span class="hljs-bullet">- </span>起源于Apache Nutch项目（一个网页爬取工具和搜索引擎系统，后来遇到大数据量的网页存储问题）<br><span class="hljs-bullet">- </span>2003年，谷歌发表的一篇论文（描述的是“谷歌分布式文件系统”，简称GFS），给了Apache Nutch项目的开发者灵感<br><span class="hljs-bullet">- </span>2004年，Nutch的开发者开始着手NDFS（Nutch的分布式文件系统）<br><span class="hljs-bullet">- </span>2004年，谷歌又发表了一篇介绍MapReduce系统的论文<br><span class="hljs-bullet">- </span>2005年，Nutch项目实现了一个MapReduce系统<br><span class="hljs-bullet">- </span>2006年，开发人员将NDFS和MapReduce移出Nutch项目，形成一个子项目，命名Hadoop<br><span class="hljs-bullet">- </span>2008年，Hadoop已成为Apache的顶级项目<br><span class="hljs-bullet">- </span>2008年4月，Hadoop打破世界纪录，成为最快排序1TB数据的系统，排序时间为209秒<br><span class="hljs-bullet">- </span>2009年，Hadoop把1TB数据的排序时间缩短到62秒，从此名声大噪<br><br><span class="hljs-bullet">- </span>现在很多公司都在使用，如雅虎、last.fm、Facebook、纽约时报等<br></code></pre></td></tr></table></figure>
+
+<h1 id="5-Hadoop版本介绍"><a href="#5-Hadoop版本介绍" class="headerlink" title="5 Hadoop版本介绍"></a>5 Hadoop版本介绍</h1><p>Hadoop是Apache的一个开源项目，所以很多公司在这个基础上都进行了商业化，加入了自己的特色。Hadoop的发行版中除了有Apache社区提供的hadoop之外，比较出名的公司如cloudera，hortonworks，mapR,华为,DKhadoop等都提供了自己的商业版本，主要是大型公司提供更为专业的技术支持，多数都收费。</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs scss">- Apache <span class="hljs-built_in">Hadoop</span>(社区版): 原生的Hadoop、开源、免费、社区活跃，更新速度快，适合学习阶段<br>- Cloudera <span class="hljs-built_in">Hadoop</span>(CDH版):最成型的商业发行版本。有免费版和收费版本。版本划分清晰，版本更新速度快，对生态圈的其他软件做了很好的兼容性，安全性、稳定性都有增强。支持多种安装方式（Cloudera Manager、YUM、RPM、Tarball）<br>- Hortonworks <span class="hljs-built_in">Hadoop</span>(HDP):完全开源，安装方便,提供了直观的用户安装界面和配置工具<br></code></pre></td></tr></table></figure>
+
+<p>Hadoop是Apache的顶级项目，但凡是Apache的顶级项目，官网的地址始终是: 项目名.apache.org。因此，Hadoop的官网是: <a target="_blank" rel="noopener" href="http://hadoop.apache.org/">hadoop.apache.org</a></p>
+<h1 id="6-Hadoop组成部分"><a href="#6-Hadoop组成部分" class="headerlink" title="6 Hadoop组成部分"></a>6 Hadoop组成部分</h1><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs markdown">hadoop2.0以后的四个模块：<br><span class="hljs-bullet">    -</span> Hadoop Common:Hadoop模块的通用组件<br><span class="hljs-bullet">    -</span> Hadoop Distributed File System：分布式文件系统<br><span class="hljs-bullet">    -</span> Hadoop YARN：作业调度和资源管理框架<br><span class="hljs-bullet">    -</span> Hadoop MapReduce：基于YARN的大型数据集并行计算处理框架<br><br>hadoop3.0新扩展的两个模块：<br><span class="hljs-bullet">    -</span> Hadoop Ozone:Hadoop的对象存储机制<br><span class="hljs-bullet">    -</span> Hadoop Submarine:Hadoop的机器学习引擎<br></code></pre></td></tr></table></figure>
+
+<h1 id="7-Hadoop生态系统"><a href="#7-Hadoop生态系统" class="headerlink" title="7 Hadoop生态系统"></a>7 Hadoop生态系统</h1><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><code class="hljs markdown"><span class="hljs-bullet">*</span> Hbase<br>  是一个可扩展的分布式数据库，支持大型表格的结构化数据存储。 HBase是Apache的Hadoop项目的子项目。HBase不同于一般的关系数据库，它是一个适合于非结构化数据存储的数据库。另一个不同的是HBase基于列的，而不是基于行的模式。<br><br><span class="hljs-bullet">*</span> Hive<br>  数据仓库基础架构，提供数据汇总和临时查询，可以将结构化的数据文件映射为一张数据库表，并提供简单的sql查询功能，可以将sql语句转换为MapReduce任务进行运行。Hive提供的是一种结构化数据的机制，定义了类似于传统关系数据库中的类SQL语言：Hive QL，通过该查询语言，数据分析人员可以很方便地运行数据分析<br>业务。<br><span class="hljs-bullet">*</span> Spark<br>  Hadoop数据的快速和通用计算引擎。 Spark提供了一个简单而富有表现力的编程模型，支持广泛的应用程序，包括ETL，机器学习，流处理和图计算。<br>  <br><span class="hljs-bullet">*</span> ZooKeeper<br>  一个面向分布式应用程序的高性能协调服务，是Hadoop和Hbase的重要组件。它是一个为分布式应用提供一致性服务的软件，提供的功能包括：配置维护、域名服务、分布式同步、组服务等。<br>  <br><span class="hljs-bullet">*</span> Sqoop(数据ETL/同步工具）<br>  Sqoop是SQL-to-Hadoop的缩写，主要用于传统数据库和Hadoop之前传输数据。数据的导入和导出本质上是Mapreduce程序，充分利用了MR的并行化和容错性。<br><br><span class="hljs-bullet">*</span> Flume（日志收集工具）<br>  Cloudera开源的日志收集系统，具有分布式、高可靠、高容错、易于定制和扩展的特点。它将数据从产生、传输、处理并最终写入目标的路径的过程抽象为数据流，在具体的数据流中，数据源支持在Flume中定制数据发送方，从而支持收集各种不同协议数据。同时，Flume数据流提供对日志数据进行简单处理的能力，如过滤、格式转换等。<br>  <br><span class="hljs-bullet">*</span> Kafka（分布式消息队列）<br>  Kafka是Linkedin于2010年12月份开源的消息系统，它主要用于处理活跃的流式数据。这些数据包括网站的pv、用户访问了什么内容，搜索了什么内容等。这些数据通常以日志的形式记录下来，然后每隔一段时间进行一次统计处理。<br><span class="hljs-code">    </span><br><span class="hljs-code">* Ambari</span><br><span class="hljs-code">  用于供应，管理和监控Apache Hadoop集群的基于Web的工具。Ambari目前已支持大多数Hadoop组件，包括HDFS、MapReduce、Hive、Pig、 Hbase、Zookeper、Sqoop和Hcatalog等。Ambari还提供了一个用于查</span><br><span class="hljs-code">看集群健康状况的仪表板，例如热图以及可视化查看MapReduce，Pig和Hive应用程序的功能以及用于诊断其性能特征的功能，以方便用户使用。</span><br><span class="hljs-code"></span><br><span class="hljs-bullet">*</span> Avro<br><span class="hljs-code">    数据序列化系统。可以将数据结构或者对象转换成便于存储和传输的格式，其设计目标是用于支持数据密集型应用，适合大规模数据的存储与交换。Avro提供了丰富的数据结构类型、快速可压缩的二进制数据格式、存储持久性数据的文件集、远程调用RPC和简单动态语言集成等功能。</span><br><span class="hljs-code"></span><br><span class="hljs-bullet">*</span> Cassandra<br>  可扩展的多主数据库，没有单点故障。是一套开源分布式NoSQL数据库系统。<br><br><span class="hljs-bullet">*</span> Chukwa<br>  于管理大型分布式系统的数据收集系统（2000+以上的节点, 系统每天产生的监控数据量在T级别）。它构建在Hadoop的HDFS和MapReduce基础之上，继承了Hadoop的可伸缩性和鲁棒性。Chukwa包含一个强大和灵活的工具集，提供了数据的生成、收集、排序、去重、分析和展示等一系列功能，是Hadoop使用者、集群运营人员和管理人员的必备工具。<br><br><span class="hljs-bullet">*</span> Mahout<br>  Apache旗下的一个开源项目，可扩展的机器学习和数据挖掘库<br><br><span class="hljs-bullet">*</span> Pig<br>  用于并行计算的高级数据流语言和执行框架。它简化了使用Hadoop进行数据分析的要求，提供了一个高层次的、面向领域的抽象语言：Pig Latin。<br><br><span class="hljs-bullet">*</span> Tez<br>  一个基于Hadoop YARN的通用数据流编程框架，它提供了一个强大而灵活的引擎，可执行任意DAG任务来处理批处理和交互式用例的数据Hado™生态系统中的Hive™，Pig™和其他框架以及其他商业软件（例如ETL工具）正在采用Tez，以替代Hadoop™MapReduce作为底层执行引擎。 <br><br><span class="hljs-bullet">*</span> Oozie(工作流调度器)<br>  一个可扩展的工作体系，集成于Hadoop的堆栈，用于协调多个MapReduce作业的执行。它能够管理一个复杂的系统，基于外部事件来执行，外部事件包括数据的定时和数据的出现。<br><br><span class="hljs-bullet">*</span> Pig(ad-hoc脚本）<br>  由yahoo!开源，设计动机是提供一种基于MapReduce的ad-hoc(计算在query时发生)数据分析工具,通常用于进行离线分析。它定义了一种数据流语言—Pig Latin，它是MapReduce编程的复杂性的抽象,Pig平台包括运行环境和用于分析Hadoop数据集的脚本语言(Pig Latin)。<br></code></pre></td></tr></table></figure>
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Hadoop/" class="category-chain-item">Hadoop</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Hadoop/">#Hadoop</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Hadoop概述</div>
+      <div>http://www.zivjie.cn/2024/06/01/Hadoop/Hadoop概述/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Francis</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年6月1日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/06/01/Hadoop/Hadoop%E5%AE%89%E8%A3%85/" title="Hadoop安装">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Hadoop安装</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/06/01/Hadoop/MapReduce/1-MapReduce%E5%85%A5%E9%97%A8/" title="Hadoop概述">
+                        <span class="hidden-mobile">Hadoop概述</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

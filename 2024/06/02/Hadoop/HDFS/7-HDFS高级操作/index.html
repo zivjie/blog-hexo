@@ -1,0 +1,1094 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Francis">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1  磁盘监测在 HDFS 上所有的文件都是以 Block 的形式存在的，如果在 HDFS 上存储了海量的数据文件，就会对应有海量的 Block 的存在，而这些 Block 难免会因为种种原因而存在损坏的情况。有什么办法可以去发现哪些块出现了问题呢？可以使用 fsck 命令。 1.1 fsck的选项   选项 描述    -move 移动损坏的文件到 &#x2F;lost+found 目录下   -dele">
+<meta property="og:type" content="article">
+<meta property="og:title" content="7-高级操作">
+<meta property="og:url" content="http://www.zivjie.cn/2024/06/02/Hadoop/HDFS/7-HDFS%E9%AB%98%E7%BA%A7%E6%93%8D%E4%BD%9C/index.html">
+<meta property="og:site_name" content="Francis-Blog">
+<meta property="og:description" content="1  磁盘监测在 HDFS 上所有的文件都是以 Block 的形式存在的，如果在 HDFS 上存储了海量的数据文件，就会对应有海量的 Block 的存在，而这些 Block 难免会因为种种原因而存在损坏的情况。有什么办法可以去发现哪些块出现了问题呢？可以使用 fsck 命令。 1.1 fsck的选项   选项 描述    -move 移动损坏的文件到 &#x2F;lost+found 目录下   -dele">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.zivjie.cn/img/%E5%9B%BE%E9%9B%85%E9%BB%91%E6%B4%9E.png">
+<meta property="article:published_time" content="2024-06-02T09:13:00.000Z">
+<meta property="article:modified_time" content="2025-11-21T09:52:13.591Z">
+<meta property="article:author" content="Francis">
+<meta property="article:tag" content="Hadoop">
+<meta property="article:tag" content="HDFS">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://www.zivjie.cn/img/%E5%9B%BE%E9%9B%85%E9%BB%91%E6%B4%9E.png">
+  
+  
+  
+  <title>7-高级操作 - Francis-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.zivjie.cn","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Francis</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="7-高级操作"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-06-02 17:13" pubdate>
+          2024年6月2日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          14k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          119 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">7-高级操作</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="1-磁盘监测"><a href="#1-磁盘监测" class="headerlink" title="1  磁盘监测"></a>1  磁盘监测</h2><p>在 HDFS 上所有的文件都是以 Block 的形式存在的，如果在 HDFS 上存储了海量的数据文件，就会对应有海量的 Block 的存在，而这些 Block 难免会因为种种原因而存在损坏的情况。有什么办法可以去发现哪些块出现了问题呢？可以使用 <strong>fsck</strong> 命令。</p>
+<h3 id="1-1-fsck的选项"><a href="#1-1-fsck的选项" class="headerlink" title="1.1 fsck的选项"></a>1.1 fsck的选项</h3><table>
+<thead>
+<tr>
+<th>选项</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>-move</td>
+<td>移动损坏的文件到 /lost+found 目录下</td>
+</tr>
+<tr>
+<td>-delete</td>
+<td>删除损坏的文件</td>
+</tr>
+<tr>
+<td>-files</td>
+<td>输出正在被检测的文件</td>
+</tr>
+<tr>
+<td>-openforwrite</td>
+<td>输出检测中的正在被写入的文件</td>
+</tr>
+<tr>
+<td>-includeSnapshots</td>
+<td>检测的文件包括系统snapShot快照目录下的</td>
+</tr>
+<tr>
+<td>-list-corruptfileblocks</td>
+<td>输出损坏的块及所属的文件</td>
+</tr>
+<tr>
+<td>-blocks</td>
+<td>输出block的详细报告</td>
+</tr>
+<tr>
+<td>-locations</td>
+<td>输出block的位置信息</td>
+</tr>
+<tr>
+<td>-racks</td>
+<td>输出block的网络拓扑结构</td>
+</tr>
+<tr>
+<td>-storagepolicies</td>
+<td>输出block的存储策略</td>
+</tr>
+<tr>
+<td>-blockId</td>
+<td>输出指定blockId所属块的信息</td>
+</tr>
+</tbody></table>
+<h3 id="1-2-常见用法"><a href="#1-2-常见用法" class="headerlink" title="1.2 常见用法"></a>1.2 常见用法</h3><blockquote>
+<p>在 HDFS 上创建一个 /test 文件夹，其中上传一个 Hadoop 的安装包文件 hadoop-3.3.1.tar.gz 作为测试数据。</p>
+</blockquote>
+<h4 id="1-2-1-检查文件系统健康状态"><a href="#1-2-1-检查文件系统健康状态" class="headerlink" title="1.2.1 检查文件系统健康状态"></a>1.2.1 检查文件系统健康状态</h4><p><strong>hdfs fsck /</strong></p>
+<p>这个命令会检查整个文件系统的所有文件的健康状态，正常情况下，最后你会看到 <code>The filesystem under path &#39;/&#39; is HEALTHY</code></p>
+<h4 id="1-2-2-files"><a href="#1-2-2-files" class="headerlink" title="1.2.2 -files"></a>1.2.2 -files</h4><p>-files 选项可以列举出来被检查的文件都有谁，以及健康状态信息，例如:</p>
+<p><strong>hdfs fsck /test -files</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">/test &lt;<span class="hljs-built_in">dir</span>&gt;<br>/test/hadoop-3.3.1.tar.gz 605187279 bytes, replicated: replication=3, 5 block(s):  OK<br></code></pre></td></tr></table></figure>
+
+<h4 id="1-2-3-blocks"><a href="#1-2-3-blocks" class="headerlink" title="1.2.3 -blocks"></a>1.2.3 -blocks</h4><p>-blocks 选项可以列举出来被检查的每一个文件的 Block 信息，例如:</p>
+<p><strong>hdfs fsck /test -files -blocks</strong></p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs dns">/test &lt;dir&gt;<br>/test/hadoop-<span class="hljs-number">3</span>.<span class="hljs-number">3</span>.<span class="hljs-number">1</span>.tar.gz <span class="hljs-number">605187279</span> bytes, replicated: replication=<span class="hljs-number">3</span>, <span class="hljs-number">5</span> block(s):  OK<br><span class="hljs-number">0</span>. BP-<span class="hljs-number">1433066220-192</span>.<span class="hljs-number">168.10.101</span>-<span class="hljs-number">1675649203021</span>:blk_1073<span class="hljs-number">742165_1342</span> len=<span class="hljs-number">134217728</span> Live_repl=<span class="hljs-number">3</span><br><span class="hljs-number">1</span>. BP-<span class="hljs-number">1433066220-192</span>.<span class="hljs-number">168.10.101</span>-<span class="hljs-number">1675649203021</span>:blk_1073<span class="hljs-number">742166_1343</span> len=<span class="hljs-number">134217728</span> Live_repl=<span class="hljs-number">3</span><br><span class="hljs-number">2</span>. BP-<span class="hljs-number">1433066220-192</span>.<span class="hljs-number">168.10.101</span>-<span class="hljs-number">1675649203021</span>:blk_1073<span class="hljs-number">742167_1344</span> len=<span class="hljs-number">134217728</span> Live_repl=<span class="hljs-number">3</span><br><span class="hljs-number">3</span>. BP-<span class="hljs-number">1433066220-192</span>.<span class="hljs-number">168.10.101</span>-<span class="hljs-number">1675649203021</span>:blk_1073<span class="hljs-number">742168_1345</span> len=<span class="hljs-number">134217728</span> Live_repl=<span class="hljs-number">3</span><br><span class="hljs-number">4</span>. BP-<span class="hljs-number">1433066220-192</span>.<span class="hljs-number">168.10.101</span>-<span class="hljs-number">1675649203021</span>:blk_1073<span class="hljs-number">742169_1346</span> len=<span class="hljs-number">68316367</span> Live_repl=<span class="hljs-number">3</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="1-2-4-locations"><a href="#1-2-4-locations" class="headerlink" title="1.2.4 -locations"></a>1.2.4 -locations</h4><p>-locations 选项可以列举出来每一个 Block 的位置信息，例如</p>
+<p><strong>hdfs fsck /test -files -blocks -locations</strong></p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs dns">/test &lt;dir&gt;<br>/test/hadoop-<span class="hljs-number">3</span>.<span class="hljs-number">3</span>.<span class="hljs-number">1</span>.tar.gz <span class="hljs-number">605187279</span> bytes, replicated: replication=<span class="hljs-number">3</span>, <span class="hljs-number">5</span> block(s):  OK<br><span class="hljs-number">0</span>. BP-<span class="hljs-number">1433066220-192</span>.<span class="hljs-number">168.10.101</span>-<span class="hljs-number">1675649203021</span>:blk_1073<span class="hljs-number">742165_1342</span> len=<span class="hljs-number">134217728</span> Live_repl=<span class="hljs-number">3</span>  [DatanodeInfoWithStorage[<span class="hljs-number">192.168.10.103</span>:<span class="hljs-number">9866</span>,<span class="hljs-keyword">DS</span>-<span class="hljs-number">4d</span>0d454b-<span class="hljs-number">3</span>cfb-<span class="hljs-number">40</span>fa-ac99-ce<span class="hljs-number">085773b234</span>,DISK], DatanodeInfoWithStorage[<span class="hljs-number">192.168.10.102</span>:<span class="hljs-number">9866</span>,<span class="hljs-keyword">DS</span>-bf195ada-<span class="hljs-number">1901-4026</span>-<span class="hljs-number">8</span>e8c-<span class="hljs-number">25210</span>b517040,DISK], DatanodeInfoWithStorage[<span class="hljs-number">192.168.10.101</span>:<span class="hljs-number">9866</span>,<span class="hljs-keyword">DS</span>-e<span class="hljs-number">146d373</span>-<span class="hljs-number">21</span>ef-<span class="hljs-number">4d61-8464</span>-d02f<span class="hljs-number">8c347695</span>,DISK]]<br><span class="hljs-number">1</span>. BP-<span class="hljs-number">1433066220-192</span>.<span class="hljs-number">168.10.101</span>-<span class="hljs-number">1675649203021</span>:blk_1073<span class="hljs-number">742166_1343</span> len=<span class="hljs-number">134217728</span> Live_repl=<span class="hljs-number">3</span>  [DatanodeInfoWithStorage[<span class="hljs-number">192.168.10.102</span>:<span class="hljs-number">9866</span>,<span class="hljs-keyword">DS</span>-bf195ada-<span class="hljs-number">1901-4026</span>-<span class="hljs-number">8</span>e8c-<span class="hljs-number">25210</span>b517040,DISK], DatanodeInfoWithStorage[<span class="hljs-number">192.168.10.103</span>:<span class="hljs-number">9866</span>,<span class="hljs-keyword">DS</span>-<span class="hljs-number">4d</span>0d454b-<span class="hljs-number">3</span>cfb-<span class="hljs-number">40</span>fa-ac99-ce<span class="hljs-number">085773b234</span>,DISK], DatanodeInfoWithStorage[<span class="hljs-number">192.168.10.101</span>:<span class="hljs-number">9866</span>,<span class="hljs-keyword">DS</span>-e<span class="hljs-number">146d373</span>-<span class="hljs-number">21</span>ef-<span class="hljs-number">4d61-8464</span>-d02f<span class="hljs-number">8c347695</span>,DISK]]<br><span class="hljs-number">2</span>. BP-<span class="hljs-number">1433066220-192</span>.<span class="hljs-number">168.10.101</span>-<span class="hljs-number">1675649203021</span>:blk_1073<span class="hljs-number">742167_1344</span> len=<span class="hljs-number">134217728</span> Live_repl=<span class="hljs-number">3</span>  [DatanodeInfoWithStorage[<span class="hljs-number">192.168.10.102</span>:<span class="hljs-number">9866</span>,<span class="hljs-keyword">DS</span>-bf195ada-<span class="hljs-number">1901-4026</span>-<span class="hljs-number">8</span>e8c-<span class="hljs-number">25210</span>b517040,DISK], DatanodeInfoWithStorage[<span class="hljs-number">192.168.10.103</span>:<span class="hljs-number">9866</span>,<span class="hljs-keyword">DS</span>-<span class="hljs-number">4d</span>0d454b-<span class="hljs-number">3</span>cfb-<span class="hljs-number">40</span>fa-ac99-ce<span class="hljs-number">085773b234</span>,DISK], DatanodeInfoWithStorage[<span class="hljs-number">192.168.10.101</span>:<span class="hljs-number">9866</span>,<span class="hljs-keyword">DS</span>-e<span class="hljs-number">146d373</span>-<span class="hljs-number">21</span>ef-<span class="hljs-number">4d61-8464</span>-d02f<span class="hljs-number">8c347695</span>,DISK]]<br><span class="hljs-number">3</span>. BP-<span class="hljs-number">1433066220-192</span>.<span class="hljs-number">168.10.101</span>-<span class="hljs-number">1675649203021</span>:blk_1073<span class="hljs-number">742168_1345</span> len=<span class="hljs-number">134217728</span> Live_repl=<span class="hljs-number">3</span>  [DatanodeInfoWithStorage[<span class="hljs-number">192.168.10.103</span>:<span class="hljs-number">9866</span>,<span class="hljs-keyword">DS</span>-<span class="hljs-number">4d</span>0d454b-<span class="hljs-number">3</span>cfb-<span class="hljs-number">40</span>fa-ac99-ce<span class="hljs-number">085773b234</span>,DISK], DatanodeInfoWithStorage[<span class="hljs-number">192.168.10.101</span>:<span class="hljs-number">9866</span>,<span class="hljs-keyword">DS</span>-e<span class="hljs-number">146d373</span>-<span class="hljs-number">21</span>ef-<span class="hljs-number">4d61-8464</span>-d02f<span class="hljs-number">8c347695</span>,DISK], DatanodeInfoWithStorage[<span class="hljs-number">192.168.10.102</span>:<span class="hljs-number">9866</span>,<span class="hljs-keyword">DS</span>-bf195ada-<span class="hljs-number">1901-4026</span>-<span class="hljs-number">8</span>e8c-<span class="hljs-number">25210</span>b517040,DISK]]<br><span class="hljs-number">4</span>. BP-<span class="hljs-number">1433066220-192</span>.<span class="hljs-number">168.10.101</span>-<span class="hljs-number">1675649203021</span>:blk_1073<span class="hljs-number">742169_1346</span> len=<span class="hljs-number">68316367</span> Live_repl=<span class="hljs-number">3</span>  [DatanodeInfoWithStorage[<span class="hljs-number">192.168.10.102</span>:<span class="hljs-number">9866</span>,<span class="hljs-keyword">DS</span>-bf195ada-<span class="hljs-number">1901-4026</span>-<span class="hljs-number">8</span>e8c-<span class="hljs-number">25210</span>b517040,DISK], DatanodeInfoWithStorage[<span class="hljs-number">192.168.10.103</span>:<span class="hljs-number">9866</span>,<span class="hljs-keyword">DS</span>-<span class="hljs-number">4d</span>0d454b-<span class="hljs-number">3</span>cfb-<span class="hljs-number">40</span>fa-ac99-ce<span class="hljs-number">085773b234</span>,DISK], DatanodeInfoWithStorage[<span class="hljs-number">192.168.10.101</span>:<span class="hljs-number">9866</span>,<span class="hljs-keyword">DS</span>-e<span class="hljs-number">146d373</span>-<span class="hljs-number">21</span>ef-<span class="hljs-number">4d61-8464</span>-d02f<span class="hljs-number">8c347695</span>,DISK]]<br></code></pre></td></tr></table></figure>
+
+<h4 id="1-2-5-list-corruptfileblocks"><a href="#1-2-5-list-corruptfileblocks" class="headerlink" title="1.2.5 -list-corruptfileblocks"></a>1.2.5 -list-corruptfileblocks</h4><p>-list-corruptfileblocks 选项可以列举出来损坏的 block 的信息，例如</p>
+<p><strong>hdfs fsck /test -list-corruptfileblocks</strong></p>
+<figure class="highlight nsis"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs nsis">The <span class="hljs-keyword">file</span><span class="hljs-params">system</span> under path <span class="hljs-string">&#x27;/test&#x27;</span> has <span class="hljs-number">0</span> CORRUPT files<br></code></pre></td></tr></table></figure>
+
+<h3 id="1-3-场景模拟"><a href="#1-3-场景模拟" class="headerlink" title="1.3 场景模拟"></a>1.3 场景模拟</h3><h4 id="1-3-1-模拟数据顺坏"><a href="#1-3-1-模拟数据顺坏" class="headerlink" title="1.3.1 模拟数据顺坏"></a>1.3.1 模拟数据顺坏</h4><p>通过 <code>hdfs fsck /test -files -blocks</code> 可以查看到文件的块信息如下</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs dns">/test &lt;dir&gt;<br>/test/hadoop-<span class="hljs-number">3</span>.<span class="hljs-number">3</span>.<span class="hljs-number">1</span>.tar.gz <span class="hljs-number">605187279</span> bytes, replicated: replication=<span class="hljs-number">3</span>, <span class="hljs-number">5</span> block(s):  OK<br><span class="hljs-number">0</span>. BP-<span class="hljs-number">1433066220-192</span>.<span class="hljs-number">168.10.101</span>-<span class="hljs-number">1675649203021</span>:blk_1073<span class="hljs-number">742165_1342</span> len=<span class="hljs-number">134217728</span> Live_repl=<span class="hljs-number">3</span><br><span class="hljs-number">1</span>. BP-<span class="hljs-number">1433066220-192</span>.<span class="hljs-number">168.10.101</span>-<span class="hljs-number">1675649203021</span>:blk_1073<span class="hljs-number">742166_1343</span> len=<span class="hljs-number">134217728</span> Live_repl=<span class="hljs-number">3</span><br><span class="hljs-number">2</span>. BP-<span class="hljs-number">1433066220-192</span>.<span class="hljs-number">168.10.101</span>-<span class="hljs-number">1675649203021</span>:blk_1073<span class="hljs-number">742167_1344</span> len=<span class="hljs-number">134217728</span> Live_repl=<span class="hljs-number">3</span><br><span class="hljs-number">3</span>. BP-<span class="hljs-number">1433066220-192</span>.<span class="hljs-number">168.10.101</span>-<span class="hljs-number">1675649203021</span>:blk_1073<span class="hljs-number">742168_1345</span> len=<span class="hljs-number">134217728</span> Live_repl=<span class="hljs-number">3</span><br><span class="hljs-number">4</span>. BP-<span class="hljs-number">1433066220-192</span>.<span class="hljs-number">168.10.101</span>-<span class="hljs-number">1675649203021</span>:blk_1073<span class="hljs-number">742169_1346</span> len=<span class="hljs-number">68316367</span> Live_repl=<span class="hljs-number">3</span><br></code></pre></td></tr></table></figure>
+
+<p>可以直接到三个节点的存放块的文件夹下，使用<code>rm</code>命令删除数据块，来模拟块损坏的问题。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">rm -f blk_1073742169_1346.meta blk_1073742169<br></code></pre></td></tr></table></figure>
+
+<p>当数据丢失以后，NameNode 需要等待 6 个小时，或者重启之后才会知道数据丢失。直接重启集群。</p>
+<h4 id="1-3-2-监测损坏"><a href="#1-3-2-监测损坏" class="headerlink" title="1.3.2 监测损坏"></a>1.3.2 监测损坏</h4><p>重启之后，在 WebUI 上会有警告信息，来提示我们数据有损坏。</p>
+<p><img src="/image/Hadoop/HDFS/19.png" srcset="/img/loading.gif" lazyload></p>
+<p>也可以通过 <code>hdfs fsck /</code> 来查看到有数据损坏的情况出现</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-string">/test/hadoop-3.3.1.tar.gz:</span> <span class="hljs-string">MISSING</span> <span class="hljs-number">1</span> <span class="hljs-string">blocks</span> <span class="hljs-string">of</span> <span class="hljs-string">total</span> <span class="hljs-string">size</span> <span class="hljs-number">68316367</span> <span class="hljs-string">B.</span><br><span class="hljs-attr">Status:</span> <span class="hljs-string">CORRUPT</span><br> <span class="hljs-attr">Number of data-nodes:</span>	<span class="hljs-number">3</span><br> <span class="hljs-attr">Number of racks:</span>		<span class="hljs-number">1</span><br> <span class="hljs-attr">Total dirs:</span>			<span class="hljs-number">41</span><br> <span class="hljs-attr">Total symlinks:</span>		<span class="hljs-number">0</span><br><br><span class="hljs-attr">Replicated Blocks:</span><br> <span class="hljs-attr">Total size:</span>	<span class="hljs-number">1153777167</span> <span class="hljs-string">B</span> <span class="hljs-string">(Total</span> <span class="hljs-attr">open files size:</span> <span class="hljs-number">58</span> <span class="hljs-string">B)</span><br> <span class="hljs-attr">Total files:</span>	<span class="hljs-number">70</span> <span class="hljs-string">(Files</span> <span class="hljs-attr">currently being written:</span> <span class="hljs-number">1</span><span class="hljs-string">)</span><br> <span class="hljs-string">Total</span> <span class="hljs-string">blocks</span> <span class="hljs-string">(validated):</span>	<span class="hljs-number">76</span> <span class="hljs-string">(avg.</span> <span class="hljs-string">block</span> <span class="hljs-string">size</span> <span class="hljs-number">15181278</span> <span class="hljs-string">B)</span> <span class="hljs-string">(Total</span> <span class="hljs-string">open</span> <span class="hljs-string">file</span> <span class="hljs-string">blocks</span> <span class="hljs-string">(not</span> <span class="hljs-string">validated):</span> <span class="hljs-number">1</span><span class="hljs-string">)</span><br>  <span class="hljs-string">********************************</span><br>  <span class="hljs-string">UNDER</span> <span class="hljs-string">MIN</span> <span class="hljs-string">REPL&#x27;D</span> <span class="hljs-attr">BLOCKS:</span>	<span class="hljs-number">1</span> <span class="hljs-string">(1.3157895</span> <span class="hljs-string">%)</span><br>  <span class="hljs-attr">MINIMAL BLOCK REPLICATION:</span>	<span class="hljs-number">1</span><br>  <span class="hljs-attr">CORRUPT FILES:</span>	<span class="hljs-number">1</span><br>  <span class="hljs-attr">MISSING BLOCKS:</span>	<span class="hljs-number">1</span><br>  <span class="hljs-attr">MISSING SIZE:</span>		<span class="hljs-number">68316367</span> <span class="hljs-string">B</span><br>  <span class="hljs-string">********************************</span><br> <span class="hljs-attr">Minimally replicated blocks:</span>	<span class="hljs-number">75</span> <span class="hljs-string">(98.68421</span> <span class="hljs-string">%)</span><br> <span class="hljs-attr">Over-replicated blocks:</span>	<span class="hljs-number">0</span> <span class="hljs-string">(0.0</span> <span class="hljs-string">%)</span><br> <span class="hljs-attr">Under-replicated blocks:</span>	<span class="hljs-number">0</span> <span class="hljs-string">(0.0</span> <span class="hljs-string">%)</span><br> <span class="hljs-attr">Mis-replicated blocks:</span>		<span class="hljs-number">0</span> <span class="hljs-string">(0.0</span> <span class="hljs-string">%)</span><br> <span class="hljs-attr">Default replication factor:</span>	<span class="hljs-number">3</span><br> <span class="hljs-attr">Average block replication:</span>	<span class="hljs-number">2.9605262</span><br> <span class="hljs-attr">Missing blocks:</span>		<span class="hljs-number">1</span><br> <span class="hljs-attr">Corrupt blocks:</span>		<span class="hljs-number">0</span><br> <span class="hljs-attr">Missing replicas:</span>		<span class="hljs-number">0</span> <span class="hljs-string">(0.0</span> <span class="hljs-string">%)</span><br> <span class="hljs-attr">Blocks queued for replication:</span>	<span class="hljs-number">0</span><br></code></pre></td></tr></table></figure>
+
+<p>使用 <code>hdfs fsck /test -files -blocks</code> 查看到更加细致的块丢失的信息</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs dns">/test &lt;dir&gt;<br>/test/hadoop-<span class="hljs-number">3</span>.<span class="hljs-number">3</span>.<span class="hljs-number">1</span>.tar.gz <span class="hljs-number">605187279</span> bytes, replicated: replication=<span class="hljs-number">3</span>, <span class="hljs-number">5</span> block(s):  MISSING <span class="hljs-number">1</span> blocks of total size <span class="hljs-number">68316367</span> B<br><span class="hljs-number">0</span>. BP-<span class="hljs-number">1433066220-192</span>.<span class="hljs-number">168.10.101</span>-<span class="hljs-number">1675649203021</span>:blk_1073<span class="hljs-number">742165_1342</span> len=<span class="hljs-number">134217728</span> Live_repl=<span class="hljs-number">3</span><br><span class="hljs-number">1</span>. BP-<span class="hljs-number">1433066220-192</span>.<span class="hljs-number">168.10.101</span>-<span class="hljs-number">1675649203021</span>:blk_1073<span class="hljs-number">742166_1343</span> len=<span class="hljs-number">134217728</span> Live_repl=<span class="hljs-number">3</span><br><span class="hljs-number">2</span>. BP-<span class="hljs-number">1433066220-192</span>.<span class="hljs-number">168.10.101</span>-<span class="hljs-number">1675649203021</span>:blk_1073<span class="hljs-number">742167_1344</span> len=<span class="hljs-number">134217728</span> Live_repl=<span class="hljs-number">3</span><br><span class="hljs-number">3</span>. BP-<span class="hljs-number">1433066220-192</span>.<span class="hljs-number">168.10.101</span>-<span class="hljs-number">1675649203021</span>:blk_1073<span class="hljs-number">742168_1345</span> len=<span class="hljs-number">134217728</span> Live_repl=<span class="hljs-number">3</span><br><span class="hljs-number">4</span>. BP-<span class="hljs-number">1433066220-192</span>.<span class="hljs-number">168.10.101</span>-<span class="hljs-number">1675649203021</span>:blk_1073<span class="hljs-number">742169_1346</span> len=<span class="hljs-number">68316367</span> MISSING!<br></code></pre></td></tr></table></figure>
+
+<h4 id="1-3-3-损坏文件删除"><a href="#1-3-3-损坏文件删除" class="headerlink" title="1.3.3 损坏文件删除"></a>1.3.3 损坏文件删除</h4><p>使用 <code>hdfs fsck /test -move</code> 将损坏的文件移动到 <code>/lost+found</code> 目录</p>
+<p>使用 <code>hdfs fsck /test -delete</code> 将损坏的文件删除</p>
+<h2 id="2-动态上线"><a href="#2-动态上线" class="headerlink" title="2 动态上线"></a>2 动态上线</h2><p>HDFS支持在廉价硬件上部署分布式文件系统，来存储海量的数据，并且支持扩容。如果已有 HDFS 的集群容量已经不能满足存储数据的需求，此时可以在原有集群的基础上动态添加新的 DataNode 节点，来实现对集群的动态扩容。</p>
+<h3 id="2-1-集群规模规划"><a href="#2-1-集群规模规划" class="headerlink" title="2.1 集群规模规划"></a>2.1 集群规模规划</h3><p>扩容之前的集群如下:</p>
+<table>
+<thead>
+<tr>
+<th>IP 地址</th>
+<th>hostname</th>
+<th>角色进程</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>192.168.10.101</td>
+<td>qianfeng01</td>
+<td>NameNode、DataNode</td>
+</tr>
+<tr>
+<td>192.168.10.102</td>
+<td>qianfeng02</td>
+<td>SecondaryNameNode、DataNode</td>
+</tr>
+<tr>
+<td>192.168.10.103</td>
+<td>qianfeng03</td>
+<td>DataNode</td>
+</tr>
+</tbody></table>
+<p>扩容之后的集群如下:</p>
+<table>
+<thead>
+<tr>
+<th>IP 地址</th>
+<th>hostname</th>
+<th>角色进程</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>192.168.10.101</td>
+<td>qianfeng01</td>
+<td>NameNode、DataNode</td>
+</tr>
+<tr>
+<td>192.168.10.102</td>
+<td>qianfeng02</td>
+<td>SecondaryNameNode、DataNode</td>
+</tr>
+<tr>
+<td>192.168.10.103</td>
+<td>qianfeng03</td>
+<td>DataNode</td>
+</tr>
+<tr>
+<td>192.168.10.104</td>
+<td>qianfeng04</td>
+<td>DataNode</td>
+</tr>
+</tbody></table>
+<h3 id="2-2-动态上线过程"><a href="#2-2-动态上线过程" class="headerlink" title="2.2 动态上线过程"></a>2.2 动态上线过程</h3><ol>
+<li>准备一台新的虚拟机，准备如下工作：</li>
+</ol>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm"><span class="hljs-number">1</span>、设置 IP 地址为 <span class="hljs-number">192</span>.<span class="hljs-number">168</span>.<span class="hljs-number">10</span>.<span class="hljs-number">104</span><br><span class="hljs-number">2</span>、设置 hostname 为 qianfeng04<br><span class="hljs-number">3</span>、设置防火墙关闭<br><span class="hljs-number">4</span>、设置时间同步<br><span class="hljs-number">5</span>、安装 <span class="hljs-keyword">JDK </span>并设置 <span class="hljs-keyword">JDK </span>的环境变量（可以直接从已有节点拷贝）<br><span class="hljs-number">6</span>、安装好 Hadoop 并设置 Hadoop 的环境变量<br></code></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>在qianfeng01节点进行修改操作，添加对qianfeng04的host映射，并同步给每一个节点</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">编辑 qianfeng01 节点上的 /etc/hosts 文件，添加映射</span><br>192.168.10.104 qianfeng04<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">分发给其他的节点</span><br>scp /etc/hosts qianfeng02:/etc<br>scp /etc/hosts qianfeng03:/etc<br>scp /etc/hosts qianfeng04:/etc<br></code></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>设置qianfeng01到qianfeng04节点的免密登录</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">将 qianfeng01 节点生成的公钥拷贝到 qianfeng04 节点</span><br>ssh-copy-id qianfeng04<br></code></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>修改 qianfeng01 节点上的 Hadoop 配置文件中的 workers 文件，添加 qianfeng04</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">编辑 workers 文件</span><br>vim /usr/local/hadoop-3.3.1/etc/hadoop/workers<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">添加qianfeng04</span><br></code></pre></td></tr></table></figure>
+
+<ol start="5">
+<li>将编辑之后的 workers 文件分发到 qianfeng02 和 qianfeng03 节点</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">cd /usr/local/hadoop-3.3.1/etc/hadoop<br>scp workers qianfeng02:$PWD<br>scp workers qianfeng03:$PWD<br></code></pre></td></tr></table></figure>
+
+<ol start="6">
+<li>将 qianfeng01 节点的 Hadoop 的配置文件直接拷贝到 qianfeng04 节点</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">cd /usr/local/hadoop-3.3.1/<br>scp -r etc qianfeng04:$PWD<br></code></pre></td></tr></table></figure>
+
+<ol start="7">
+<li>在 qianfeng04 节点启动 DataNode</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">hdfs --daemon start datanode<br></code></pre></td></tr></table></figure>
+
+<ol start="8">
+<li>打开 WebUI 查看 DataNodes，发现 qianfeng04 节点已经上线！</li>
+</ol>
+<p><img src="/image/Hadoop/HDFS/20.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="2-3-数据平衡"><a href="#2-3-数据平衡" class="headerlink" title="2.3 数据平衡"></a>2.3 数据平衡</h3><p>虽然现在已经上线了 qianfeng04 节点，但是这个新的节点上没有数据存储。可以在 WebUI 的 DataNodes 界面查看到这个新的节点上的 Blocks 的数量为 0，这样就使得集群的负载不均衡。因此需要对 HDFS 进行节点之间的数据均衡。</p>
+<p><strong>通过 <code>balancer</code> 可以实现这个效果！</strong>在主节点 qianfeng01 上执行 balancer 命令，实现均衡不同的 DataNodes 之间的负载。</p>
+<p><img src="/image/Hadoop/HDFS/21.png" srcset="/img/loading.gif" lazyload></p>
+<p>使用 balancer 的时候需要设置 threshold 参数，表示均衡的阈值。默认的阈值是 10，表示 10% 的阈值。那么这个阈值有什么用呢？它表示 balancer 在进行数据均衡的时候，将保证每个 DataNode 上的磁盘使用量与集群的总体使用量的差值不超过这个阈值。</p>
+<blockquote>
+<p>例如：将阈值设置为 10%，</p>
+<p>那么在做数据平衡的时候，如果集群中所有的 DataNode 节点总的使用占全部磁盘的 40%，那么就确保每一个 DataNode 的磁盘使用率在 30% 到 40% 之间。</p>
+</blockquote>
+<p>为了能够更加方便看到效果，使用 1 来设置平衡：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">hdfs</span> balancer -threshold <span class="hljs-number">1</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="/image/Hadoop/HDFS/22.png" srcset="/img/loading.gif" lazyload></p>
+<p>平衡之后的结果，可以在 WebUI 上查看到</p>
+<p><img src="/image/Hadoop/HDFS/23.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="3-动态下线"><a href="#3-动态下线" class="headerlink" title="3 动态下线"></a>3 动态下线</h2><p>集群在使用的过程中，可能会遇到旧的服务器需要进行升级、更换的操作。HDFS 是支持动态的下线节点的，不需要停止 HDFS 的服务，即可动态的将某个节点下线。升级或者更换完成之后，再使用上述章节中的动态上线的技术重新上线即可。</p>
+<h3 id="3-1-集群规模规划"><a href="#3-1-集群规模规划" class="headerlink" title="3.1 集群规模规划"></a>3.1 集群规模规划</h3><p>扩容之前的集群如下:</p>
+<table>
+<thead>
+<tr>
+<th>IP 地址</th>
+<th>hostname</th>
+<th>角色进程</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>192.168.10.101</td>
+<td>qianfeng01</td>
+<td>NameNode、DataNode</td>
+</tr>
+<tr>
+<td>192.168.10.102</td>
+<td>qianfeng02</td>
+<td>SecondaryNameNode、DataNode</td>
+</tr>
+<tr>
+<td>192.168.10.103</td>
+<td>qianfeng03</td>
+<td>DataNode</td>
+</tr>
+<tr>
+<td>192.168.10.104</td>
+<td>qianfeng04</td>
+<td>DataNode</td>
+</tr>
+</tbody></table>
+<p>扩容之后的集群如下:</p>
+<table>
+<thead>
+<tr>
+<th>IP 地址</th>
+<th>hostname</th>
+<th>角色进程</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>192.168.10.101</td>
+<td>qianfeng01</td>
+<td>NameNode、DataNode</td>
+</tr>
+<tr>
+<td>192.168.10.102</td>
+<td>qianfeng02</td>
+<td>SecondaryNameNode、DataNode</td>
+</tr>
+<tr>
+<td>192.168.10.103</td>
+<td>qianfeng03</td>
+<td>DataNode</td>
+</tr>
+</tbody></table>
+<h3 id="3-2-节点动态下线"><a href="#3-2-节点动态下线" class="headerlink" title="3.2 节点动态下线"></a>3.2 节点动态下线</h3><h4 id="3-2-1-准备工作"><a href="#3-2-1-准备工作" class="headerlink" title="3.2.1 准备工作"></a>3.2.1 准备工作</h4><p>节点的动态下线比起动态上线来说，稍微麻烦一些。因为动态下线的时候需要提前将数据移动到其他节点才可以。Hadoop 虽然提供了动态下线的功能，但是有一个前提条件就是需要再在 <code>hdfs-site.xml</code> 文件中配置属性: <code>dfs.hosts.exclude</code> 。这个属性的值需要指向一个文件，也就是需要下线的文件。也就是一个黑名单，在这个文件中的机器，会被 NameNode 移除集群。</p>
+<p>但是这个<code>hdfs-site.xml</code>文件修改之后是需要重启集群才生效的。因此在生产环境中，我们需要提前将这个属性配置好，因为生产环境中的集群是不允许随意的关闭、重启的。我们直接修改这个文件，然后重启集群即可。</p>
+<ol>
+<li>修改 qianfeng01 节点的 hdfs-site.xml 文件</li>
+</ol>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>dfs.hosts.exclude<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>/usr/local/hadoop-3.3.1/etc/hadoop/exclude<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>创建这个 exclude 文件</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">这个文件是一个黑名单文件，为了操作起来方便、合理，我们将它放在 Hadoop 的配置文件目录中</span><br>touch /usr/local/hadoop-3.3.1/etc/hadoop/exclude<br></code></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>重启HDFS集群</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">stop-dfs.sh<br>start-dfs.sh<br></code></pre></td></tr></table></figure>
+
+<h4 id="3-2-2-动态下线过程"><a href="#3-2-2-动态下线过程" class="headerlink" title="3.2.2 动态下线过程"></a>3.2.2 动态下线过程</h4><ol>
+<li>将需要下线的节点，添加到<strong>exclude</strong>文件中</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">echo &quot;qianfeng04&quot; &gt; /usr/local/hadoop-3.3.1/etc/hadoop/exclude<br></code></pre></td></tr></table></figure>
+
+<p><strong>注意事项：</strong>下线之后的节点数量，不能少于副本数量。例如副本因子为 3，在线的节点数量是小于等于 3 的，此时是无法下线的。如果需要下线的话，需要修改副本数之后再下线。</p>
+<ol start="2">
+<li>刷新节点（需要在 NameNode 节点操作）</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">hdfs dfsadmin -refreshNodes<br></code></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>在 WebUI 查看节点状态</li>
+</ol>
+<p><img src="/image/Hadoop/HDFS/24.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/image/Hadoop/HDFS/25.png" srcset="/img/loading.gif" lazyload></p>
+<p>这里的 Decommissioning 表示正在“退役中”，此时会将这个节点上面的数据块拷贝到其他的节点。</p>
+<ol start="4">
+<li>等待一会，即可完成退役。</li>
+</ol>
+<p><img src="/image/Hadoop/HDFS/26.png" srcset="/img/loading.gif" lazyload></p>
+<ol start="5">
+<li>退役完成，可以停止 qianfeng04 节点上的服务</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">hdfs --daemon stop datanode<br></code></pre></td></tr></table></figure>
+
+<ol start="6">
+<li>其他的节点的数据如果不均衡的话，使用 balancer 命令平衡一下即可</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">hdfs balancer<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注：</p>
+<p>如果这个节点下线之后，从此就不再使用了。我们可以修改 workers 文件，从中删除掉这个节点。再修改 exclude 文件，将其从中删除即可。</p>
+</blockquote>
+<h2 id="4-磁盘平衡"><a href="#4-磁盘平衡" class="headerlink" title="4 磁盘平衡"></a>4 磁盘平衡</h2><p>HDFS 提供了一个<strong>balancer</strong>命令，可以实现 DataNode 之间的负载均衡。但是一个 DataNode 节点上可能存在多个磁盘，而 balancer 是无法实现单个节点上的磁盘之间的均衡的。</p>
+<p>在 HDFS 中，DataNode 是真正负责数据块的存储的，最终将数据以 Block 的形式存储在机器的磁盘上。在写入新的 Block 的时候，DataNode 将根据指定的策略，选择将数据块存储在什么磁盘上：</p>
+<ul>
+<li><strong>循环策略 round-robin：</strong>这种策略会将新的 Block 均匀的分布在可用磁盘上。默认使用这个策略。</li>
+<li><strong>可用空间策略 avaliable space：</strong>这种策略会将新的 Block 会按照磁盘占用百分比，写入具有更多可用空间的磁盘上。</li>
+</ul>
+<p>如果在长期运行的集群中采用默认的循环策略，可能会出现由于大量的删除操作，或者更换磁盘，而导致数据不均匀的填充在磁盘上。而使用可用空间策略的话，新增的数据块都会往新的磁盘上写，在此期间，其他的磁盘都处于空闲状态。那么这个新的磁盘将会是整个 HDFS 的瓶颈。</p>
+<p>在 Hadoop3 中新增了一个 <strong>Disk Balancer</strong> 的工具，这个工具就是用来平衡 DataNode 中的数据在不同磁盘之间分布的。</p>
+<p><strong>前提1：</strong>以 qianfeng03 节点挂载一块新的硬盘为例，现在已经在 qianfeng03 节点挂载了一块新的硬盘，并将其挂载在 /mnt/disk 目录。</p>
+<p><img src="/image/Hadoop/HDFS/27.png" srcset="/img/loading.gif" lazyload></p>
+<p><strong>前提2：</strong>修改 qianfeng03 节点的 DataNode 数据保存的目录，添加上这个新的磁盘。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-comment">&lt;!-- 修改 qianfeng03 节点的 hdfs-site.xml 文件，添加如下 --&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>dfs.datanode.data.dir<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>file://$&#123;hadoop.tmp.dir&#125;/dfs/data,/mnt/disk2/hadoop/dfs/data<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>在 qianfeng03 节点上，现在有两块硬盘，并且两块磁盘的数据并不均衡。此时可以使用磁盘平衡工具，来平衡两块磁盘。磁盘平衡工具 diskbalancer 在使用的时候分为 3 步：</p>
+<ol>
+<li>生成平衡计划</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">平衡的时候，默认的阈值是10%，表示平衡之后的磁盘间的数据使用占比差值不会超过10%</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">这个阈值可以使用 -thresholdPercentage 来设置</span><br><br>hdfs diskbalancer -plan qianfeng03<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">可以从输出的日志中，看到生成了磁盘平衡计划，以 JSON 的形式保存在了 HDFS 的指定目录下</span><br>INFO balancer.NameNodeConnector: getBlocks calls for hdfs://qianfeng01:9820 will be rate-limited to 20 per second<br>INFO planner.GreedyPlanner: Starting plan for Node : qianfeng03:9867<br>INFO planner.GreedyPlanner: Disk Volume set e003df25-b249-4f06-91d9-ef0116ce552e - Type : DISK plan completed.<br>INFO planner.GreedyPlanner: Compute Plan for Node : qianfeng03:9867 took 9 ms<br>INFO command.Command: Writing plan to:<br>INFO command.Command: /system/diskbalancer/2023-三月-02-16-42-00/qianfeng03.plan.json<br>Writing plan to:<br>/system/diskbalancer/XXX/qianfeng03.plan.json<br></code></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>执行平衡操作</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">在需要平衡磁盘的节点上执行</span><br>hdfs diskbalancer -execute /system/diskbalancer/XXX/qianfeng03.plan.json<br></code></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>查看平衡结果</li>
+</ol>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs awk"><span class="hljs-comment"># -execute开始执行平衡操作的时候，HDFS 会启动一个线程来完成这个操作。</span><br><span class="hljs-comment"># 我们可以使用 -query 来查看这个进度</span><br>hdfs diskbalancer -query qianfeng03<br><br><span class="hljs-comment"># 出现如下的 Result，说明正在执行中，还没有结束</span><br>Plan File: <span class="hljs-regexp">/system/</span>diskbalancer<span class="hljs-regexp">/XXX/</span>qianfeng03.plan.json<br>Plan ID: <span class="hljs-number">63</span>d55420750b6657e608a67db7571ad171dfd5d8<br>Result: PLAN_UNDER_PROGRESS<br><br><span class="hljs-comment"># 出现如下的 Result，说明磁盘平衡结束了</span><br>Plan File: <span class="hljs-regexp">/system/</span>diskbalancer<span class="hljs-regexp">/XXX/</span>qianfeng03.plan.json<br>Plan ID: <span class="hljs-number">63</span>d55420750b6657e608a67db7571ad171dfd5d8<br>Result: PLAN_DONE<br></code></pre></td></tr></table></figure>
+
+<p>磁盘平衡结束后，我们可以使用 <strong>df -h</strong> 来查看各个磁盘的使用情况：</p>
+<p><img src="/image/Hadoop/HDFS/28.png" srcset="/img/loading.gif" lazyload></p>
+<p>会发现两者之间被平衡到了 10% 的阈值以内，这个也是默认的阈值。磁盘平衡完成！</p>
+<h2 id="5-分布式拷贝"><a href="#5-分布式拷贝" class="headerlink" title="5 分布式拷贝"></a>5 分布式拷贝</h2><h3 id="5-1-distcp的介绍"><a href="#5-1-distcp的介绍" class="headerlink" title="5.1 distcp的介绍"></a>5.1 distcp的介绍</h3><p><strong>distcp</strong> 其实是两个单词的缩写拼接而成的：Distributed Copy，即<strong>分布式拷贝</strong>。可以实现将一个分布式集群的数据拷贝到另外的一个分布式集群！distcp 命令的拷贝过程本质依然是 MapReduce 的任务，使用 MapReduce 实现文件分发、错误处理和恢复、报告生成。以文件或目录的列表作为 MapTask 的输入，每个 MapTask 都会拷贝原文件列表中指定路径下的文件。</p>
+<blockquote>
+<p><strong>应用场景：</strong>数据迁移、异地容灾等。</p>
+</blockquote>
+<p>使用 distcp 命令做分布式拷贝有如下优点：</p>
+<ul>
+<li>可以使用 <code>bandwidth</code> 参数为每一个 MapTask 限流，控制 MapTask 并发数量以控制整个拷贝任务的带宽。防止出现拷贝任务将带宽占满，影响其他的业务。</li>
+<li>支持多种拷贝模式：<ul>
+<li>overwrite: 覆盖写，无条件覆盖目标文件</li>
+<li>update: 增量写，如果目标文件的名称和大小与源文件不同，则覆盖；如果目标文件的名称和大小与源文件相同，则跳过</li>
+<li>delete: 删除写，删除目标路径存在而原路径中不存在的文件。</li>
+</ul>
+</li>
+</ul>
+<h3 id="5-2-distcp的使用"><a href="#5-2-distcp的使用" class="headerlink" title="5.2 distcp的使用"></a>5.2 distcp的使用</h3><h4 id="5-2-1-基础使用"><a href="#5-2-1-基础使用" class="headerlink" title="5.2.1 基础使用"></a>5.2.1 基础使用</h4><p>在拷贝的时候，也可以指定多个源路径</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">hadoop distcp hdfs://namenode01:9820/src hdfs://namenode02:9820/dst<br></code></pre></td></tr></table></figure>
+
+<h4 id="5-2-2-多数据源目录"><a href="#5-2-2-多数据源目录" class="headerlink" title="5.2.2 多数据源目录"></a>5.2.2 多数据源目录</h4><p>在拷贝的时候，也可以指定多个源路径</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">hadoop distcp hdfs://namenode01:9820/src1 hdfs://namenode01:9820/src2 hdfs://namenode02:9820/dst<br></code></pre></td></tr></table></figure>
+
+<p>如果需要拷贝的源路径比较多，不方便直接写到命令中的，也可以将其做成文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">1. 在 HDFS 上创建一个文件，用来存储源路径</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">   例如在 hdfs://namenode01:9820/distcp/src 文件中书写</span><br>hdfs://namenode01:9820/src1<br>hdfs://namenode01:9820/src2<br>hdfs://namenode01:9820/src3<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">2. 执行拷贝操作</span><br>hadoop distcp -f hdfs://namenode01:9820/distcp/src hdfs://namenode02:9820/dst<br></code></pre></td></tr></table></figure>
+
+<h4 id="5-2-3-常用选项"><a href="#5-2-3-常用选项" class="headerlink" title="5.2.3 常用选项"></a>5.2.3 常用选项</h4><table>
+<thead>
+<tr>
+<th>选项</th>
+<th>描述</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>-i</td>
+<td>忽略错误</td>
+<td></td>
+</tr>
+<tr>
+<td>-log &lt;logdir&gt;</td>
+<td>生成日志到logdir目录中</td>
+<td>这里其实就是 MapTask 的输出</td>
+</tr>
+<tr>
+<td>-m &lt;num_maps&gt;</td>
+<td>最大同时拷贝的数量</td>
+<td>可以确定 MapTask 的数量</td>
+</tr>
+<tr>
+<td>-bandwidth</td>
+<td>为每个 MapTask 设置带宽，单位是MB/s</td>
+<td></td>
+</tr>
+<tr>
+<td>-overwrite</td>
+<td>覆盖目标路径</td>
+<td>会改变源目录复制到目标目录的路径</td>
+</tr>
+<tr>
+<td>-update</td>
+<td>跳过目标路径下的同名、同大小的文件</td>
+<td>会改变源目录复制到目标目录的路径</td>
+</tr>
+<tr>
+<td>-delete</td>
+<td>删除目标路径存在、源路径不存在的文件</td>
+<td></td>
+</tr>
+</tbody></table>
+<p><img src="/image/Hadoop/HDFS/29.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="6-归档"><a href="#6-归档" class="headerlink" title="6 归档"></a>6 归档</h2><h3 id="6-1-archives命令介绍"><a href="#6-1-archives命令介绍" class="headerlink" title="6.1 archives命令介绍"></a>6.1 archives命令介绍</h3><p>HDFS 在使用的时候有一个缺点：不适合小文件存储。因为每一个小文件都会占用一个块来存储，而每一个块也都会有固定大小的元数据需要保存在 NameNode 的内存中。如果 HDFS 中有大量的小文件的话，会带来非常大的内存开销。此时就可以使用 archives 来处理这个问题。</p>
+<p>archives 就是归档的意思，它可以将 HDFS 的多个文件归档成为一个扩展名为.har的文件，而且归档之后的文件还可以透明的访问每一个文件，并且可以作为 MapReduce 任务的输入。</p>
+<p><img src="/image/Hadoop/HDFS/30.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="6-2-创建归档"><a href="#6-2-创建归档" class="headerlink" title="6.2 创建归档"></a>6.2 创建归档</h3><h4 id="6-2-1-创建归档语法"><a href="#6-2-1-创建归档语法" class="headerlink" title="6.2.1 创建归档语法"></a>6.2.1 创建归档语法</h4><p>归档的用法: <code>hadoop archive -archiveName name -p &lt;parent&gt; [-r &lt;replication factor&gt;] &lt;src&gt;* &lt;dest&gt;</code></p>
+<ul>
+<li>-archiveName: 指定归档后文件的名称，需要以.har结尾</li>
+<li>-p: 指定需要归档的文件的父级路径</li>
+<li>-r: 指定归档文件的副本因子，默认是 3</li>
+<li>&lt;src&gt;: 指定所有需要归档的文件</li>
+<li>&lt;dest&gt;: 指定归档后的文件存放的位置</li>
+</ul>
+<h4 id="6-2-2-创建归档操作"><a href="#6-2-2-创建归档操作" class="headerlink" title="6.2.2 创建归档操作"></a>6.2.2 创建归档操作</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">1. 准备工作：在 HDFS 的 /little_files 目录下，上传了若干小文件 file1、file2、file3、file4、file5</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">2. 将file1、file2归档到一起，归档文件存放于 /archives</span><br>hadoop archive -archiveName file12.har -p /little_files -r 3 file1 file2 /archives/<br><span class="hljs-meta prompt_"># </span><span class="language-bash">3. 如果需要将某个文件夹下的所有文件都进行归档，可以直接这样做</span><br>hadoop archive -archiveName files.har -p /little_files /archive<br></code></pre></td></tr></table></figure>
+
+<p>创建归档的时候，会生成一个 MapReduce 的任务，如果已经设置了 YARN 调度，需要保证 YARN 是启动的状态。最终会在目标路径下生成归档文件。</p>
+<p>归档文件在 HDFS 的体现形式其实是一个文件夹，其中包含了元数据信息（_index, _masterindex）和数据文件(part_xxx)</p>
+<p><strong>注意：创建归档之后，原来的小文件不会被删除！</strong></p>
+<h3 id="6-3-查看归档"><a href="#6-3-查看归档" class="headerlink" title="6.3 查看归档"></a>6.3 查看归档</h3><p>如果要查看某一个归档文件中都有什么文件，需要通过特定的 URI 进行查看。在 HDFS 中，归档文件默认使用的是 <strong>har://</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@qianfeng01 ~]# hdfs dfs -ls -R har:///archive/files.har<br>har:///archive/files.har/file1<br>har:///archive/files.har/file2<br>har:///archive/files.har/file3<br>har:///archive/files.har/file4<br>har:///archive/files.har/file5<br></code></pre></td></tr></table></figure>
+
+<h3 id="6-4-解归档"><a href="#6-4-解归档" class="headerlink" title="6.4 解归档"></a>6.4 解归档</h3><p>归档文件在 HDFS 的映射是一个文件夹，可以透明的访问其中的文件。因此如果我们需要将归档文件中的小文件解出来的话，直接进行拷贝即可。但是需要注意归档文件的 URI 是 <strong>har://</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">1. 在 HDFS 上创建一个文件夹，用来接收解归档之后的文件</span><br>hdfs dfs -mkdir /unarchive<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">2. 拷贝归档中的文件到指定目录</span><br>hdfs dfs -cp har:///archive/files.har/file1 har:///archive/files.har/file2 /unarchive<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">3. 也可以使用分布式拷贝命令实现拷贝</span><br>hadoop distcp har:///archive/files.har/* /unarchive<br></code></pre></td></tr></table></figure>
+
+<h3 id="6-5-归档特性总结"><a href="#6-5-归档特性总结" class="headerlink" title="6.5 归档特性总结"></a>6.5 归档特性总结</h3><ul>
+<li>归档文件本身不支持压缩</li>
+<li>创建归档的时候使用到的小文件和目录都不会自动删除，如果需要删除，需要手动删除</li>
+<li>归档文件是不可变的，如果想要在归档文件中新增小文件或者删除小文件，需要重新创建归档文件</li>
+<li>归档文件只是用来减少小文件带来的 NameNode 过高的内存占用，对于 MapReduce 来说没有优化。并不会减少分片的数量，也就无法减少 MapTask 的数量。</li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Hadoop/" class="category-chain-item">Hadoop</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Hadoop/HDFS/" class="category-chain-item">HDFS</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Hadoop/">#Hadoop</a>
+      
+        <a href="/tags/HDFS/">#HDFS</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>7-高级操作</div>
+      <div>http://www.zivjie.cn/2024/06/02/Hadoop/HDFS/7-HDFS高级操作/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Francis</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年6月2日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/11/01/spring%E6%A1%86%E6%9E%B6/springAI/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E4%BB%8B%E7%BB%8D/" title="大模型介绍">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">大模型介绍</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/06/02/Hadoop/HDFS/6-IDE%E8%BF%9C%E7%A8%8B%E7%AE%A1%E7%90%86HDFS/" title="6-IDE远程管理">
+                        <span class="hidden-mobile">6-IDE远程管理</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
