@@ -222,99 +222,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/12/09/%E7%AE%97%E6%B3%95/%E4%B8%80%E8%87%B4%E6%80%A7%E7%AE%97%E6%B3%95/Paxos%E7%AE%97%E6%B3%95/" target="_self">
-          <img src="/img/4K%E9%BB%84%E6%98%8F.png" srcset="/img/loading.gif" lazyload alt="Paxos算法">
+        <a href="/2023/12/09/%E7%AE%97%E6%B3%95/%E4%B8%80%E8%87%B4%E6%80%A7%E7%AE%97%E6%B3%95/Raft%E7%AE%97%E6%B3%95/" target="_self">
+          <img src="/img/4K%E9%BB%84%E6%98%8F.png" srcset="/img/loading.gif" lazyload alt="Raft算法">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/12/09/%E7%AE%97%E6%B3%95/%E4%B8%80%E8%87%B4%E6%80%A7%E7%AE%97%E6%B3%95/Paxos%E7%AE%97%E6%B3%95/" target="_self">
-          Paxos算法
+        <a href="/2023/12/09/%E7%AE%97%E6%B3%95/%E4%B8%80%E8%87%B4%E6%80%A7%E7%AE%97%E6%B3%95/Raft%E7%AE%97%E6%B3%95/" target="_self">
+          Raft算法
         </a>
       </h1>
 
       
-      <a class="index-excerpt " href="/2023/12/09/%E7%AE%97%E6%B3%95/%E4%B8%80%E8%87%B4%E6%80%A7%E7%AE%97%E6%B3%95/Paxos%E7%AE%97%E6%B3%95/" target="_self">
+      <a class="index-excerpt " href="/2023/12/09/%E7%AE%97%E6%B3%95/%E4%B8%80%E8%87%B4%E6%80%A7%E7%AE%97%E6%B3%95/Raft%E7%AE%97%E6%B3%95/" target="_self">
         <div>
-          Basic Paxos相关概念在Paxos算法中，有三种角色：  Proposer Acceptor Learners  在具体的实现中，一个进程可能同时充当多种角色。比如一个进程可能既是Proposer又是Acceptor又是Learner。 还有一个很重要的概念叫提案（Proposal）。最终要达成一致的value就在提案里。 注：  暂且认为『提案=value』，即提案只包含value。在我
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-12-09 08:13" pubdate>
-              2023-12-09
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E7%AE%97%E6%B3%95/" class="category-chain-item">算法</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/%E7%AE%97%E6%B3%95/%E4%B8%80%E8%87%B4%E6%80%A7%E7%AE%97%E6%B3%95/" class="category-chain-item">一致性算法</a>
-  
-  
-
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E7%AE%97%E6%B3%95/">#算法</a>
-            
-              <a href="/tags/%E4%B8%80%E8%87%B4%E6%80%A7%E7%AE%97%E6%B3%95/">#一致性算法</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/12/09/%E7%AE%97%E6%B3%95/%E4%B8%80%E8%87%B4%E6%80%A7%E7%AE%97%E6%B3%95/ZAB%E5%8D%8F%E8%AE%AE/" target="_self">
-          <img src="/img/4K%E9%BB%84%E6%98%8F.png" srcset="/img/loading.gif" lazyload alt="ZAB协议">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/12/09/%E7%AE%97%E6%B3%95/%E4%B8%80%E8%87%B4%E6%80%A7%E7%AE%97%E6%B3%95/ZAB%E5%8D%8F%E8%AE%AE/" target="_self">
-          ZAB协议
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt " href="/2023/12/09/%E7%AE%97%E6%B3%95/%E4%B8%80%E8%87%B4%E6%80%A7%E7%AE%97%E6%B3%95/ZAB%E5%8D%8F%E8%AE%AE/" target="_self">
-        <div>
-          服务的状态  Leader：处理所有客户端的线性写操作，日志复制。同时只能有一个Leader Follower：被动处理Leader请求和客户端读请求 Looking：用来重新选举Leader Observer：特殊节点状态，不参与Leader选举，负责接收客户端读请求  正常情况下，1个Leader，n-1个Follower Leader选举 Epoch &gt; Counter &gt; SI
+          概括：  Leader选举。选择一台服务器作为leader，心跳监测，如果Leader崩溃则选择一台服务器作为Leader  系统正常运行（日志复制）  Leader变化后的安全性和一致性  处理旧Leader  客户端和服务端的交互  配置的变更   服务的状态： 在任何时候，每个服务器都处于三种状态之一：  Leader：处理所有客户端交互、日志复制。同时只能有一个Leader Followe
         </div>
       </a>
 
@@ -450,23 +374,99 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/12/09/%E7%AE%97%E6%B3%95/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%AE%97%E6%B3%95/%E5%8A%A0%E6%9D%83%E6%9C%80%E5%B0%91%E6%B4%BB%E8%B7%83%E5%BA%A6%E7%AE%97%E6%B3%95/" target="_self">
-          <img src="/img/4K%E9%BB%84%E6%98%8F.png" srcset="/img/loading.gif" lazyload alt="加权最少活跃度算法">
+        <a href="/2023/12/09/%E7%AE%97%E6%B3%95/%E4%B8%80%E8%87%B4%E6%80%A7%E7%AE%97%E6%B3%95/ZAB%E5%8D%8F%E8%AE%AE/" target="_self">
+          <img src="/img/4K%E9%BB%84%E6%98%8F.png" srcset="/img/loading.gif" lazyload alt="ZAB协议">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/12/09/%E7%AE%97%E6%B3%95/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%AE%97%E6%B3%95/%E5%8A%A0%E6%9D%83%E6%9C%80%E5%B0%91%E6%B4%BB%E8%B7%83%E5%BA%A6%E7%AE%97%E6%B3%95/" target="_self">
-          加权最少活跃度算法
+        <a href="/2023/12/09/%E7%AE%97%E6%B3%95/%E4%B8%80%E8%87%B4%E6%80%A7%E7%AE%97%E6%B3%95/ZAB%E5%8D%8F%E8%AE%AE/" target="_self">
+          ZAB协议
         </a>
       </h1>
 
       
-      <a class="index-excerpt " href="/2023/12/09/%E7%AE%97%E6%B3%95/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%AE%97%E6%B3%95/%E5%8A%A0%E6%9D%83%E6%9C%80%E5%B0%91%E6%B4%BB%E8%B7%83%E5%BA%A6%E7%AE%97%E6%B3%95/" target="_self">
+      <a class="index-excerpt " href="/2023/12/09/%E7%AE%97%E6%B3%95/%E4%B8%80%E8%87%B4%E6%80%A7%E7%AE%97%E6%B3%95/ZAB%E5%8D%8F%E8%AE%AE/" target="_self">
         <div>
-          概念：为每个服务器分配一个权重值，表示其处理请求的能力，与加权轮询算法类似。不同之处在于服务器的选择是基于当前服务器的活跃连接数进行决策。 适用场景：服务器性能和负载差异较大的场景，适用有不同服务器性能差异和负载波动的情况 代码实现：Next Page 优点：精准负载分配，动态负载分配，避免不活跃的服务器 缺点：算法的复杂性，资源开销，权重设置不准确导致负载不均衡  实现思路： 1.定义一个数据结
+          服务的状态  Leader：处理所有客户端的线性写操作，日志复制。同时只能有一个Leader Follower：被动处理Leader请求和客户端读请求 Looking：用来重新选举Leader Observer：特殊节点状态，不参与Leader选举，负责接收客户端读请求  正常情况下，1个Leader，n-1个Follower Leader选举 Epoch &gt; Counter &gt; SI
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-12-09 08:13" pubdate>
+              2023-12-09
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%AE%97%E6%B3%95/" class="category-chain-item">算法</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E7%AE%97%E6%B3%95/%E4%B8%80%E8%87%B4%E6%80%A7%E7%AE%97%E6%B3%95/" class="category-chain-item">一致性算法</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E7%AE%97%E6%B3%95/">#算法</a>
+            
+              <a href="/tags/%E4%B8%80%E8%87%B4%E6%80%A7%E7%AE%97%E6%B3%95/">#一致性算法</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2023/12/09/%E7%AE%97%E6%B3%95/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%AE%97%E6%B3%95/P2C%E7%AE%97%E6%B3%95/" target="_self">
+          <img src="/img/wyy3.png" srcset="/img/loading.gif" lazyload alt="P2C算法">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/12/09/%E7%AE%97%E6%B3%95/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%AE%97%E6%B3%95/P2C%E7%AE%97%E6%B3%95/" target="_self">
+          P2C算法
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt " href="/2023/12/09/%E7%AE%97%E6%B3%95/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%AE%97%E6%B3%95/P2C%E7%AE%97%E6%B3%95/" target="_self">
+        <div>
+          概念：基于公平性考虑的P2C算法， 对于每次调用，从可用的服务列表中选择两个节点，然后选择一个“当前正在处理的连接数”较少的那个节点。 使用场景：服务器机器配置比较均匀下，高并发下快速选择负载较轻的服务器。 优点：公平性、均衡性 缺点：随机性，简单的P2C无法考虑服务器的实时负载情况和性能指标  实现思路： 1.获取可用的服务提供列表 2.选择两个随机的服务提供者 3.通过负载指标选择负载较轻的服
         </div>
       </a>
 
@@ -746,6 +746,80 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2023/12/09/%E7%AE%97%E6%B3%95/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%AE%97%E6%B3%95/%E5%8A%A0%E6%9D%83%E6%9C%80%E5%B0%91%E6%B4%BB%E8%B7%83%E5%BA%A6%E7%AE%97%E6%B3%95/" target="_self">
+          <img src="/img/4K%E9%BB%84%E6%98%8F.png" srcset="/img/loading.gif" lazyload alt="加权最少活跃度算法">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/12/09/%E7%AE%97%E6%B3%95/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%AE%97%E6%B3%95/%E5%8A%A0%E6%9D%83%E6%9C%80%E5%B0%91%E6%B4%BB%E8%B7%83%E5%BA%A6%E7%AE%97%E6%B3%95/" target="_self">
+          加权最少活跃度算法
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt " href="/2023/12/09/%E7%AE%97%E6%B3%95/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%AE%97%E6%B3%95/%E5%8A%A0%E6%9D%83%E6%9C%80%E5%B0%91%E6%B4%BB%E8%B7%83%E5%BA%A6%E7%AE%97%E6%B3%95/" target="_self">
+        <div>
+          概念：为每个服务器分配一个权重值，表示其处理请求的能力，与加权轮询算法类似。不同之处在于服务器的选择是基于当前服务器的活跃连接数进行决策。 适用场景：服务器性能和负载差异较大的场景，适用有不同服务器性能差异和负载波动的情况 代码实现：Next Page 优点：精准负载分配，动态负载分配，避免不活跃的服务器 缺点：算法的复杂性，资源开销，权重设置不准确导致负载不均衡  实现思路： 1.定义一个数据结
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-12-09 08:13" pubdate>
+              2023-12-09
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%AE%97%E6%B3%95/" class="category-chain-item">算法</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E7%AE%97%E6%B3%95/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%AE%97%E6%B3%95/" class="category-chain-item">负载均衡算法</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E7%AE%97%E6%B3%95/">#算法</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
         <a href="/2023/12/09/%E7%AE%97%E6%B3%95/%E9%99%90%E6%B5%81%E7%AE%97%E6%B3%95/%E4%BB%A4%E7%89%8C%E6%A1%B6%E7%AE%97%E6%B3%95/" target="_self">
           <img src="/img/4K%E9%BB%84%E6%98%8F.png" srcset="/img/loading.gif" lazyload alt="令牌桶算法">
         </a>
@@ -839,82 +913,6 @@
       <a class="index-excerpt " href="/2023/12/09/%E7%AE%97%E6%B3%95/%E9%99%90%E6%B5%81%E7%AE%97%E6%B3%95/%E5%9B%BA%E5%AE%9A%E7%AA%97%E5%8F%A3%E7%AE%97%E6%B3%95/" target="_self">
         <div>
           实现思路：  把时间线划分为多个独立且固定大小的窗口 设置一个计数器，用于记录限流阈值 拦截所有请求执行canPass操作，如果在当前数据窗口计数器超过了阈值，则后续落在该窗口的请求都会被拒绝，没有超过则计数器 +1 时间到达下一个时间窗口后，重置时间窗口  123456789101112131415161718192021222324252627282930313233343536373839
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-12-09 08:13" pubdate>
-              2023-12-09
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E7%AE%97%E6%B3%95/" class="category-chain-item">算法</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/%E7%AE%97%E6%B3%95/%E9%99%90%E6%B5%81%E7%AE%97%E6%B3%95/" class="category-chain-item">限流算法</a>
-  
-  
-
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E7%AE%97%E6%B3%95/">#算法</a>
-            
-              <a href="/tags/%E9%99%90%E6%B5%81%E7%AE%97%E6%B3%95/">#限流算法</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/12/09/%E7%AE%97%E6%B3%95/%E9%99%90%E6%B5%81%E7%AE%97%E6%B3%95/%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E7%AE%97%E6%B3%95/" target="_self">
-          <img src="/img/4K%E9%BB%84%E6%98%8F.png" srcset="/img/loading.gif" lazyload alt="滑动窗口算法">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/12/09/%E7%AE%97%E6%B3%95/%E9%99%90%E6%B5%81%E7%AE%97%E6%B3%95/%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E7%AE%97%E6%B3%95/" target="_self">
-          滑动窗口算法
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt " href="/2023/12/09/%E7%AE%97%E6%B3%95/%E9%99%90%E6%B5%81%E7%AE%97%E6%B3%95/%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E7%AE%97%E6%B3%95/" target="_self">
-        <div>
-          实现思路：  把时间单位划分为多个区间，一般都是均分为多个小的时间段 每个区间都有一个计数器，有一个请求落在该区间，则该区间内的计数器 + 1 没过一个时间段，时间窗口就会往右滑动一个，抛弃最老的一个区间并重置它的计数器，并纳入新的一个区间 拦截所有请求执行canPass操作，计算整个时间窗口内的请求总数需要累计所有时间片段的计数器，如果计数总和超过了限制数量，则落在当前窗口的请求都会被丢弃和拒绝
         </div>
       </a>
 

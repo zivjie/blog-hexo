@@ -1,0 +1,738 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Francis">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1 shuffle阶段1.1 概述MapReduce会确保每个reducer的输入都是按键排序的。从map方法输出数据开始、到作为输入数据传给reduce方法的过程称为shuffle。在此，我们将学习shuffle是如何工作的，因为它有助于我们理解工作机制（如果需要优化MapReduce程序）。shuffle属于不断被优化和改进的代码库的一部分，因此会随着版本的不同，细节上可能会发生变量。不管怎样">
+<meta property="og:type" content="article">
+<meta property="og:title" content="4-MapReduce高级">
+<meta property="og:url" content="http://www.zivjie.cn/2024/06/15/Hadoop/MapReduce/4-MapReduce%E9%AB%98%E7%BA%A7/index.html">
+<meta property="og:site_name" content="Francis-Blog">
+<meta property="og:description" content="1 shuffle阶段1.1 概述MapReduce会确保每个reducer的输入都是按键排序的。从map方法输出数据开始、到作为输入数据传给reduce方法的过程称为shuffle。在此，我们将学习shuffle是如何工作的，因为它有助于我们理解工作机制（如果需要优化MapReduce程序）。shuffle属于不断被优化和改进的代码库的一部分，因此会随着版本的不同，细节上可能会发生变量。不管怎样">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.zivjie.cn/img/Sitting%20on%20an%20Elk.png">
+<meta property="article:published_time" content="2024-06-15T07:13:00.000Z">
+<meta property="article:modified_time" content="2025-12-04T07:14:57.515Z">
+<meta property="article:author" content="Francis">
+<meta property="article:tag" content="Hadoop">
+<meta property="article:tag" content="MapReduce">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://www.zivjie.cn/img/Sitting%20on%20an%20Elk.png">
+  
+  
+  
+  <title>4-MapReduce高级 - Francis-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.zivjie.cn","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Francis</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="4-MapReduce高级"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-06-15 15:13" pubdate>
+          2024年6月15日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6.5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          55 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">4-MapReduce高级</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="1-shuffle阶段"><a href="#1-shuffle阶段" class="headerlink" title="1 shuffle阶段"></a>1 shuffle阶段</h1><h2 id="1-1-概述"><a href="#1-1-概述" class="headerlink" title="1.1 概述"></a>1.1 概述</h2><p>MapReduce会确保每个reducer的输入都是按键排序的。从map方法输出数据开始、到作为输入数据传给reduce方法的过程称为shuffle。在此，我们将学习shuffle是如何工作的，因为它有助于我们理解工作机制（如果需要优化MapReduce程序）。shuffle属于不断被优化和改进的代码库的一部分，因此会随着版本的不同，细节上可能会发生变量。不管怎样，从许多方面来看，shuffle是MapReduce的“心脏“，是奇迹发生的地方。</p>
+<p><img src="/image/Hadoop/MapReduce/7.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="1-2-map端"><a href="#1-2-map端" class="headerlink" title="1.2 map端"></a>1.2 map端</h2><p>map方法开始产生输出数据时，并不是简单地将它写到磁盘。这个过程非常复杂，它利用缓冲的方式写到内存并出于效率的考虑进行预排序。</p>
+<p>每个map任务都会有一个环形内存缓冲区用于存储map的输出数据。在默认情况下，缓冲区的大小为100MB,这个值可以通过mapreduce.task.io.sort.mb属性来调整。一旦缓冲区的内容达到阙值（默认是0.8，或者是80%，属性是mapreduce.map.sort.spill.percent），一个后台线程便开始把内容溢写(spill)到磁盘里，这个位置由属性mapreduce.cluster.local.dir来指定的。在将数据溢写到磁盘过程中，map的输出数据继续写到缓冲区，但如果在此期间缓冲区被填满，map会被阻塞直到写磁盘过程完成。</p>
+<p>在写磁盘之前，线程会根据分区器的逻辑把数据划分为不同的分区(partition)。然后，在每个分区中，后台线程会按键进行内存中排序（QuickSort，默认是字典顺序）。如果指定了一个combiner函数，它就在排序后的输出上运行。运行combiner函数使得map输出结果更紧凑，因此减少写到磁盘的数据和传递给reducer的数据。</p>
+<p>每次内存缓冲区达到溢出阖值，就会新建一个溢出文件(spill file),因此在map任务写完其最后一个输出记录之后，可能会有几个溢出文件。在MapTask任务完成之前，多个溢出文件被合并成一个已分区且已排序的输出文件。配置属性mapreduce.task.io.sort.factor控制着一次最多能合并多少个文件，默认值是10。</p>
+<p>如果至少存在3个溢出文件(通过mapreduce.map.combine.minspills属性设置)时，则combiner就会在输出文件写到磁盘之前再次运行。combiner可以在输入上反复运行，但并不影响最终结果。如果只有1或2个溢出文件，那么由于map输出规模减少，因而不值得调用combiner产生开销，因此不会为该map输出再次运行combiner。</p>
+<p>为了使写磁盘的速度更快，节约磁盘空间，并且减少传给reducer的数据量，在溢写到磁盘的过程中对数据进行压缩往往是个很好的主意。在默认情况下，输出是不压缩的，但只要将mapreduce.map.output, compress设置为true,就可以轻松启用此功能。使用的压缩库由mapreduce.map.output.compress.codec指定。</p>
+<p><strong>扩展  环形缓冲区的详解</strong></p>
+<p><img src="/image/Hadoop/MapReduce/4-9.1-8247916.jpg" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/image/Hadoop/MapReduce/8.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="1-3-Reduce端"><a href="#1-3-Reduce端" class="headerlink" title="1.3 Reduce端"></a>1.3 Reduce端</h2><p>reducer通过HTTP得到输出文件的分区。用于文件分区的工作线程的数量由任务的mapreduce. shuffle.max. threads属性控制，此设置针对的是每一个节点管理器，而不是针对每个map任务。</p>
+<p>现在转到处理过程的reduce部分。map输出文件位于运行MapTask的本地磁盘（注意，尽管map输出经常写到MapTask本地磁盘，但reduce输出并不这样）。现在，ApplicatioinMaster需要为分区文件运行reduce任务。并且，reduce任务需要集群上若干个map任务的map输出作为其特殊的分区文件。每个map任务的完成时间可能不同，因此在每个任务完成时，reduce任务就开始复制其输出。这就是reduce任务的复制阶段。reduce任务有少量复制线程，因此能够并行取得map输出。默认值是5个线程，但这个默认值可以修改设置mapreduce.reduce.shuffle. parallelcopies 属性即可。</p>
+<figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs arcade">reducer如何知道要从哪台机器取得<span class="hljs-built_in">map</span>输出呢？<br><br><span class="hljs-built_in">map</span>任务成功完成后，它们会使用心跳机制通知它们的application master。因此，对于指定作业，application master知道<span class="hljs-built_in">map</span>输出和主机位置之间的映射关系。reducer中的一个线程定期询问master以便获取<span class="hljs-built_in">map</span>输出主机的位置，直到获得所有输出位置。<br><br>由于第一个reducer可能失败，因此主机并没有在第一个reducer检索到<span class="hljs-built_in">map</span>输出时就立即从磁盘上删除它们。相反，主机会等待，直到application master告知它删除<span class="hljs-built_in">map</span>输出，这是作业完成后执行的。<br></code></pre></td></tr></table></figure>
+
+<p>如果map输出相当小，会被复制到reduce任务JVM的内存（缓冲区大小由mapreduce.reduce.shuffle.input. buffer.percent 属性控制，指定用于此用途的堆空间的百分比），否则，map输出被复制到磁盘。一旦内存缓冲区达到阈值大小（由 mapreduce.reduce.shuffle.merge.percent 决定）或达到 map 输出阈值（由 mapreduce. reduce. merge. inmem .threshold 控制），则合并后溢出写到磁盘中。如果指定combiner,则在合并期间运行它以降低写入硬盘的数据量。</p>
+<p>随着磁盘上的溢写文件数量增多，后台线程会将它们合并为更大的、排好序的文件。这会为后面的合并节省一些时间。注意，为了合并，压缩的map输出（通过map任务）都必须在内存中被解压缩。</p>
+<p>复制完所有map输出后，reduce任务进入排序阶段（更恰当的说法是合并阶段，因为排序是在map端进行的），这个阶段将合并map输岀，维持其顺序排序。这是循环进行的。比如，如果有50个map输出，而合并因子是10（10为默认设置，由mapreduce.task. io.sort.factor,与 的合并类似），合并将进行 5 趟 ，每趟将10个文件合并成一个文件，因此最后有5个中间文件。</p>
+<p>在最后阶段，即reduce阶段，直接把数据输入reduce函数，从而省略了一次磁盘往返行程，并没有将这5个文件合并成一个已排序的文件作为最后一趟。最后的合并可以来自内存和磁盘片段。</p>
+<p><img src="/image/Hadoop/MapReduce/9.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="1-4-shuffle流程总结"><a href="#1-4-shuffle流程总结" class="headerlink" title="1.4 shuffle流程总结"></a>1.4 shuffle流程总结</h2><ol>
+<li><p>从map函数输出到reduce函数接受输入数据，这个过程称之为shuffle.</p>
+</li>
+<li><p>map函数的输出，存储环形缓冲区（默认大小100M,阈值80M）</p>
+<p>环形缓冲区：其实是一个字节数组kvbuffer. 有一个sequator标记，kv原始数据从左向右填充(顺时针)，<br>kvmeta是对kvbuffer的一个封装，封装成了int数组，用于存储kv原始数据的对应的元数据valstart，<br>keystart，partition，vallen信息，从右向左(逆时针)。参考(环形缓冲区的详解一张)</p>
+</li>
+<li><p>当达到阈值时，准备溢写到本地磁盘(因为是中间数据，因此没有必要存储在HDFS上)。在溢写前要进行对元数据分区(partition)整理，然后进行排序(quick sort,通过元数据找到出key，同一分区的所有key进行排序，排序完，元数据就已经有序了，在溢写时，按照元数据的顺序寻找原始数据进行溢写)</p>
+</li>
+<li><p>如果有必要，可以在排序后，溢写前调用combiner函数进行运算，来达到减少数据的目的</p>
+</li>
+<li><p>溢写文件有可能产生多个，然后对这多个溢写文件进行再次合并(也要进行分区和排序)。当溢写个数&gt;=3时，可以再次调用combiner函数来减少数据。如果溢写个数&lt;3时，默认不会调用combiner函数。</p>
+</li>
+<li><p>合并的最终溢写文件可以使用压缩技术来达到节省磁盘空间和减少向reduce阶段传输数据的目的。（存储在本地磁盘中）</p>
+</li>
+<li><p>Reduce阶段通过HTTP写抓取属于自己的分区的所有map的输出数据(默认线程数是5，因此可以并发抓取)。</p>
+</li>
+<li><p>抓取到的数据存在内存中，如果数据量大，当达到本地内存的阈值时会进行溢写操作，在溢写前会进行合并和排序(排序阶段)，然后写到磁盘中，</p>
+</li>
+<li><p>溢写文件可能会产生多个，因此在进入reduce之前会再次合并(合并因子是10),最后一次合并要满足10这个因子，同时输入给reduce函数，而不是产生合并文件。reduce函数输出数据会直接存储在HDFS上。</p>
+</li>
+</ol>
+<h2 id="1-5-shuffle整体流程图"><a href="#1-5-shuffle整体流程图" class="headerlink" title="1.5 shuffle整体流程图"></a>1.5 shuffle整体流程图</h2><p><img src="/image/Hadoop/MapReduce/MapReduce-3340274.png" srcset="/img/loading.gif" lazyload></p>
+<h1 id="2-combiner函数"><a href="#2-combiner函数" class="headerlink" title="2 combiner函数"></a>2 combiner函数</h1><p>集群的可用带宽本来就很稀缺，因此在不影响结果数据的前提下，尽可能的减少磁盘IO和网络传输，是非常合适的。Hadoop允许用户针对map任务的输出指定一个combiner函数（其实是一个运行在map端的reduce函数），用于优化MR的执行效率。</p>
+<p>特点总结：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs markdown"><span class="hljs-bullet">1.</span> Combiner是MR程序中Mapper和Reduce之外的一种组件<br><br><span class="hljs-bullet">2.</span> Combiner组件的父类就是Reducer<br><br><span class="hljs-bullet">3.</span> Combiner和Reducer之间的区别在于运行的位置<br><br><span class="hljs-bullet">4.</span> Reduce阶段的Reducer是每一个接收全局的Map Task 所输出的结果<br><br><span class="hljs-bullet">5.</span> Combiner是在合并排序后运行的。因此map端和reduce端都可以调用此函数。<br><br><span class="hljs-bullet">6.</span> Combiner的存在就是提高当前网络IO传输的性能，是MapReduce的一种优化手段。<br><br><span class="hljs-bullet">7.</span> Combiner在驱动类中的设置：<br><br>   job.setCombinerClass(MyCombiner.class);<br></code></pre></td></tr></table></figure>
+
+<p>注意：combiner不適合做求平均值这类需求，很可能就影响了结果。</p>
+<h1 id="3-MapReduce参数优化"><a href="#3-MapReduce参数优化" class="headerlink" title="3 MapReduce参数优化"></a>3 MapReduce参数优化</h1><h2 id="3-1-资源相关参数"><a href="#3-1-资源相关参数" class="headerlink" title="3.1 资源相关参数"></a>3.1 资源相关参数</h2><p>以下参数是在用户自己的mr应用程序中配置在mapred-site.xml就可以生效</p>
+<figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs arcade"><span class="hljs-number">1.</span> mapreduce.<span class="hljs-built_in">map</span>.memory.mb: 一个<span class="hljs-built_in">Map</span> Task可使用的资源上限（单位:MB），默认为<span class="hljs-number">1024</span>。如果<span class="hljs-built_in">Map</span> Task实际使用的资源量超过该值，则会被强制杀死。	<br><span class="hljs-number">2.</span> mapreduce.<span class="hljs-built_in">reduce</span>.memory.mb: 一个<span class="hljs-built_in">Reduce</span> Task可使用的资源上限（单位:MB），默认为<span class="hljs-number">1024</span>。如果<span class="hljs-built_in">Reduce</span> Task实际使用的资源量超过该值，则会被强制杀死。	<br><span class="hljs-number">3.</span> mapreduce.<span class="hljs-built_in">map</span>.cpu.vcores: 每个<span class="hljs-built_in">Map</span> task可使用的最多cpu core数目, 默认值: <span class="hljs-number">1</span><br><span class="hljs-number">4.</span> mapreduce.<span class="hljs-built_in">reduce</span>.cpu.vcores: 每个<span class="hljs-built_in">Reduce</span> task可使用的最多cpu core数目, 默认值: <span class="hljs-number">1</span><br><span class="hljs-number">5.</span> mapreduce.<span class="hljs-built_in">map</span>.java.opts: <span class="hljs-built_in">Map</span> Task的JVM参数，你可以在此配置默认的java heap size等参数.<br>   比如：<br>   -Xmx1024m -verbose:gc -Xloggc:<span class="hljs-regexp">/tmp/</span>@taskid@.gc” （@taskid@会被Hadoop框架自动换为相应的taskid）, <br>     默认值: <span class="hljs-string">&quot;&quot;</span>	<br><span class="hljs-number">6.</span> mapreduce.<span class="hljs-built_in">reduce</span>.java.opts: <span class="hljs-built_in">Reduce</span> Task的JVM参数,可以在此配置默认的java heap size等参数. <br>   比如:<br>   “-Xmx1024m -verbose:gc -Xloggc:<span class="hljs-regexp">/tmp/</span>@taskid@.gc”, 默认值: “”<br></code></pre></td></tr></table></figure>
+
+<p>下面的配置，应该在yarn启动之前就配置在服务器的yarn-site.xml配置文件中才能生效    </p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs stylus"><span class="hljs-number">7</span>. yarn<span class="hljs-selector-class">.scheduler</span><span class="hljs-selector-class">.minimum-allocation-mb</span>	  <span class="hljs-number">1024</span>   给应用程序container分配的最小内存<br><span class="hljs-number">8</span>. yarn<span class="hljs-selector-class">.scheduler</span><span class="hljs-selector-class">.maximum-allocation-mb</span>	  <span class="hljs-number">8192</span>	给应用程序container分配的最大内存<br><span class="hljs-number">9</span>. yarn<span class="hljs-selector-class">.scheduler</span><span class="hljs-selector-class">.minimum-allocation-vcores</span>	<span class="hljs-number">1</span>	<br><span class="hljs-number">10</span>. yarn<span class="hljs-selector-class">.scheduler</span><span class="hljs-selector-class">.maximum-allocation-vcores</span>	<span class="hljs-number">32</span><br><span class="hljs-number">11</span>. yarn<span class="hljs-selector-class">.nodemanager</span><span class="hljs-selector-class">.resource</span><span class="hljs-selector-class">.memory-mb</span>   <span class="hljs-number">8192</span>   每台NodeManager最大可用内存<br><span class="hljs-number">12</span>. yarn<span class="hljs-selector-class">.nodemanager</span><span class="hljs-selector-class">.resource</span><span class="hljs-selector-class">.cpu-vcores</span>    <span class="hljs-number">8</span>    每台NodeManager最大可用cpu核数<br></code></pre></td></tr></table></figure>
+
+<p>shuffle性能优化的关键参数，应在yarn启动之前就配置好</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs stylus"><span class="hljs-number">13</span>. mapreduce<span class="hljs-selector-class">.task</span><span class="hljs-selector-class">.io</span><span class="hljs-selector-class">.sort</span><span class="hljs-selector-class">.mb</span>   <span class="hljs-number">100</span>         <span class="hljs-comment">//shuffle的环形缓冲区大小，默认100m</span><br><span class="hljs-number">14</span>. mapreduce<span class="hljs-selector-class">.map</span><span class="hljs-selector-class">.sort</span><span class="hljs-selector-class">.spill</span><span class="hljs-selector-class">.percent</span>   <span class="hljs-number">0.8</span>    <span class="hljs-comment">//环形缓冲区溢出的阈值，默认80%</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="3-2-容错相关参数"><a href="#3-2-容错相关参数" class="headerlink" title="3.2 容错相关参数"></a>3.2 容错相关参数</h2><ol>
+<li>mapreduce.map.maxattempts: 每个Map Task最大重试次数，一旦重试参数超过该值，则认为Map Task运行失败，默认值：4。</li>
+<li>mapreduce.reduce.maxattempts: 每个Reduce Task最大重试次数，一旦重试参数超过该值，则认为Map Task运行失败，默认值：4。</li>
+<li>mapreduce.map.failures.maxpercent: 当失败的Map Task失败比例超过该值时，整个作业则失败，默认值<br>为0. 如果你的应用程序允许丢弃部分输入数据，则该该值设为一个大于0的值，比如5，表示如果有低于5%的Map<br>Task失败（如果一个MapTask重试次数超过mapreduce.map.maxattempts，则认为这个Map Task失败，其对应的输入数据将不会产生任何结果），整个作业仍认为成功。</li>
+<li>mapreduce.reduce.failures.maxpercent: 当失败的Reduce Task失败比例超过该值时，整个作业则失败，默认值为0.</li>
+<li>mapreduce.task.timeout: Task超时时间，经常需要设置的一个参数，该参数表达的意思为：如果一个task<br>在一定时间内没有任何进入，即不会读取新的数据，也没有输出数据，则认为该task处于block状态，可能是卡住<br>了，也许永远会卡住，为了防止因为用户程序永远block住不退出，则强制设置了一个该超时时间（单位毫秒），默<br>认是300000。如果你的程序对每条输入数据的处理时间过长（比如会访问数据库，通过网络拉取数据等），建议将该<br>参数调大，该参数过小常出现的错误提示<br>是“AttemptID:attempt_14267829456721_123456_m_000224_0 Timed out after 300 sec  <pre><code class="hljs"> sContainer killed by the ApplicationMaster.”。
+</code></pre>
+</li>
+</ol>
+<h2 id="3-3-本地运行MapReduce作业"><a href="#3-3-本地运行MapReduce作业" class="headerlink" title="3.3 本地运行MapReduce作业"></a>3.3 本地运行MapReduce作业</h2><p>设置以下几个参数:</p>
+<figure class="highlight delphi"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs delphi">mapreduce.framework.<span class="hljs-keyword">name</span>=<span class="hljs-keyword">local</span><br><br>fs.defaultFS=<span class="hljs-keyword">local</span>(<span class="hljs-keyword">file</span>:<span class="hljs-comment">///)</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="3-4-效率和稳定性相关参数"><a href="#3-4-效率和稳定性相关参数" class="headerlink" title="3.4 效率和稳定性相关参数"></a>3.4 效率和稳定性相关参数</h2><ol>
+<li><p>mapreduce.map.speculative: 是否为Map Task打开推测执行机制，默认为false</p>
+</li>
+<li><p>mapreduce.reduce.speculative: 是否为Reduce Task打开推测执行机制，默认为false</p>
+</li>
+<li><p>mapreduce.job.user.classpath.first &amp; MapReduce.task.classpath.user.precedence：当同一个class同时出现在用户jar包和hadoop jar中时，优先使用哪个jar包中的class，默认为false，表示优先使用hadoop jar中的class</p>
+</li>
+<li><p>mapreduce.input.fileinputformat.split.minsize: FileInputFormat做切片时的最小切片大小</p>
+</li>
+<li><p>mapreduce.input.fileinputformat.split.maxsize:  FileInputFormat做切片时的最大切片大小(切片的默认大小就等于blocksize，即 134217728) </p>
+</li>
+</ol>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Hadoop/" class="category-chain-item">Hadoop</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Hadoop/MapReduce/" class="category-chain-item">MapReduce</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Hadoop/">#Hadoop</a>
+      
+        <a href="/tags/MapReduce/">#MapReduce</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>4-MapReduce高级</div>
+      <div>http://www.zivjie.cn/2024/06/15/Hadoop/MapReduce/4-MapReduce高级/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Francis</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年6月15日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/06/15/Hadoop/MapReduce/5-Hadoop%E6%95%B0%E6%8D%AE%E5%8E%8B%E7%BC%A9/" title="5-Hadoop数据压缩">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">5-Hadoop数据压缩</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/06/15/Hadoop/MapReduce/3-MapReduce%E5%9F%BA%E7%A1%80/" title="3-MapReduce基础">
+                        <span class="hidden-mobile">3-MapReduce基础</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

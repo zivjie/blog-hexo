@@ -1,0 +1,795 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Francis">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1 MapReduce是什么2004年，谷歌发表了一篇名为《MapReduce》的论文，主要介绍了如何在分布式的存储系统上对数据进行高效率的计算。2005年，Nutch团队使用Java语言实现了这个技术，并命名为MapReduce。时至今日，MapReduce是Apache Hadoop的核心模块之一，是运行在HDFS上的分布式运算程序的编程框架，用于大规模数据集（大于1TB）的并行运算。其中的概">
+<meta property="og:type" content="article">
+<meta property="og:title" content="1-MapReduce入门">
+<meta property="og:url" content="http://www.zivjie.cn/2024/06/15/Hadoop/MapReduce/1-MapReduce%E5%85%A5%E9%97%A8/index.html">
+<meta property="og:site_name" content="Francis-Blog">
+<meta property="og:description" content="1 MapReduce是什么2004年，谷歌发表了一篇名为《MapReduce》的论文，主要介绍了如何在分布式的存储系统上对数据进行高效率的计算。2005年，Nutch团队使用Java语言实现了这个技术，并命名为MapReduce。时至今日，MapReduce是Apache Hadoop的核心模块之一，是运行在HDFS上的分布式运算程序的编程框架，用于大规模数据集（大于1TB）的并行运算。其中的概">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.zivjie.cn/img/Remote%20Bay%20Milky.png">
+<meta property="article:published_time" content="2024-06-15T02:13:00.000Z">
+<meta property="article:modified_time" content="2025-12-04T06:41:25.679Z">
+<meta property="article:author" content="Francis">
+<meta property="article:tag" content="Hadoop">
+<meta property="article:tag" content="MapReduce">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://www.zivjie.cn/img/Remote%20Bay%20Milky.png">
+  
+  
+  
+  <title>1-MapReduce入门 - Francis-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.zivjie.cn","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Francis</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="1-MapReduce入门"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-06-15 10:13" pubdate>
+          2024年6月15日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          13k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          108 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">1-MapReduce入门</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="1-MapReduce是什么"><a href="#1-MapReduce是什么" class="headerlink" title="1 MapReduce是什么"></a>1 MapReduce是什么</h1><p>2004年，谷歌发表了一篇名为《MapReduce》的论文，主要介绍了如何在分布式的存储系统上对数据进行高效率的计算。2005年，Nutch团队使用Java语言实现了这个技术，并命名为MapReduce。时至今日，MapReduce是Apache Hadoop的核心模块之一，是运行在HDFS上的分布式运算程序的编程框架，用于大规模数据集（大于1TB）的并行运算。其中的概念，”Map（映射）”和”Reduce（归约）”，是它们的主要思想，都是从函数式编程语言里借来的，还有从矢量编程语言里借来的特性。</p>
+<blockquote>
+<p>  《阅读资料》</p>
+<ul>
+<li>在过去的很长一段时间里，CPU的性能都会遵循”摩尔定律“，在性能上每隔18个月左右就是提高一倍。那个时候，不需要对程序做任何改变，仅仅通过使用更优秀的CPU，就可以进行性能提升。但是现在，在CPU性能提升的道路上，人类已经到达了制作工艺的瓶颈，因此，我们不能再把希望寄托在性能更高的CPU身上了。</li>
+<li>现在这个时候，大规模数据存储在分布式文件系统上，人们也开始采用分布式并行编程来提高程序的性能。分布式程序运行在大规模计算机集群上，集群是大量的廉价服务器，可以并行执行大规模数据处理任务，这样就获得了海量的计算能力</li>
+<li>分布式并行编程比传统的程序有明显的区别，它运行在大量计算机构成的集群上，可以充分利用集群的并行处理能力；同时，通过向集群中增加新的计算节点，就可以很容易的实现集群计算能力的扩展。</li>
+</ul>
+</blockquote>
+<h1 id="2-为什么学习MapReduce"><a href="#2-为什么学习MapReduce" class="headerlink" title="2 为什么学习MapReduce"></a>2 为什么学习MapReduce</h1><p>MapReduce主要解决的是分布式文件存储系统上，数据的分布式计算的问题。如果我们将所有的需要处理的数据移动到一个节点上进行处理，那么只是在数据传输的过程中就得消耗大量的时间，而且还可能在一台节点存不下这大量的数据。就算是能够存储下，也能够接受数据移动所带来的时间消耗，集群中其他节点的计算资源也都是在闲置的，不能高效率的利用集群。</p>
+<p>因此我们就需要进行分布式的计算，将计算程序分发给不同的节点。在每一个节点上处理自己节点的数据，最后将每一个节点的数据处理结果汇总在一起。而在分布式计算的过程中会遇到很多的分布式计算的细节问题，这些问题都是需要开发人员去考虑的。那么如何去解决这些问题呢？</p>
+<p>MapReduce是一个开源的、分布式的计算框架，封装了分布式计算程序的实现细节，使得开发人员不需要了解分布式计算底层实现的情况下，就可以去开发一个分布式的计算程序。开发人员只需要将重心放在业务逻辑的实现即可，不需要关注分布式开发的底层细节。因此，对于开发人员来说，可以简化不少的工作量，提交程序开发的效率!</p>
+<h1 id="3-优缺点"><a href="#3-优缺点" class="headerlink" title="3 优缺点"></a>3 优缺点</h1><h2 id="3-1-优点"><a href="#3-1-优点" class="headerlink" title="3.1 优点"></a>3.1 优点</h2><ul>
+<li><p>易于编程</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs armasm">它简单的实现一些接口，就可以完成一个分布式程序，这个程序可以分布到大量的廉价的<span class="hljs-built_in">pc</span>机器上运行。也就是说你写一个分布式程序，跟写一个简单的串行程序是一模一样的。就是因为这个特性使的MapReduce编程变得非常流行。<br></code></pre></td></tr></table></figure></li>
+<li><p>良好的扩展性</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">当你的计算资源得不到满足的时候，你可以简单的通过增加机器来扩展它的计算能力<br></code></pre></td></tr></table></figure></li>
+<li><p>高容错性</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs armasm"><span class="hljs-symbol">MapReduce</span>的设计初衷就是使程序能够部署在廉价的<span class="hljs-built_in">pc</span>机器上，这就要求它具有很高的容错性。比如一个机器挂了，它可以把上面的计算任务转移到另一个节点上运行，不至于这个任务运行失败，而且这个过程不需要人工参与，而完全是由hadoop内部完成的。<br></code></pre></td></tr></table></figure></li>
+<li><p>适合PB级以上海量数据的离线处理</p>
+</li>
+</ul>
+<h2 id="3-2-缺点"><a href="#3-2-缺点" class="headerlink" title="3.2 缺点"></a>3.2 缺点</h2><ul>
+<li><p>不适合做实时计算</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">MapReduce无法做到像Mysql那样做到毫秒或者秒级的返回结果<br></code></pre></td></tr></table></figure></li>
+<li><p>不适合做流式计算</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">流式计算的输入数据是动态的，而MapReduce的输入数据集是静态的，不能流态变化。这是MR自身的设计特点决定了数据源必须是静态的。<br></code></pre></td></tr></table></figure></li>
+<li><p>不适合DAG(有向图)计算</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">多个应用程序存在依赖关系，后一个应用程序的输入为前一个应用程序的输出，在这种情况下，MapReduce并不是不能做，而是使用后每个MapReduce作业的输出结果都会写入到磁盘，会造成大量的磁盘IO，导致性能非常低下。<br></code></pre></td></tr></table></figure></li>
+</ul>
+<h1 id="4-核心思想"><a href="#4-核心思想" class="headerlink" title="4 核心思想"></a>4 核心思想</h1><ol>
+<li><p>MapReduce设计的一个理念是“计算向数据靠拢”（移动计算），而不是“数据向计算靠拢”（移动数据）</p>
+</li>
+<li><p>将用户编写的业务逻辑代码和自带默认组件整合成一个完整的分布式运算程序，移动到有数据存储的集群节点上，一是可以减少节点间的数据移动开销。二是在存储节点上可以并行计算，大大提高计算效率问题。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">因为移动数据需要大量的网络传输开销，尤其是在大规模数据环境下，这种开销尤为惊人，所以移动计算要比移动数据更加经济。<br></code></pre></td></tr></table></figure></li>
+<li><p>MapReduce一个完整的运算分为Map和Reduce两个部分。Map会处理本节点的原始数据，产生的数据会临时存储到本地磁盘。Reduce会跨节点fetch属于自己的数据，并进行处理，产生的数据会存储到HDFS上。</p>
+</li>
+</ol>
+<blockquote>
+<p>《阅读资料》</p>
+<p>Hadoop的MapReduce核心技术起源于谷歌在2004年发表的关于MapReduce系统的论文介绍。论文中有这么一句话：Our abstraction is inspired by the map and reduce primitives present in Lisp and many other functional languages。这句话提到了MapReduce思想来源，大致意思是，MapReduce的灵感来源于函数式语言（比如Lisp）中的内置函数map（映射）和reduce（规约）。</p>
+<p>简单来说，在函数式语言里，map表示对一个列表（List）中的每个元素做计算，reduce表示对一个列表中的每个元素做迭代计算。它们具体的计算是通过传入的函数来实现的，map和reduce提供的是计算的框架。我们想一下，reduce既然能做迭代计算，那就表示列表中的元素是相关的（比如我想对列表中的所有元素做相加求和，那么列表中至少都应该是数值吧）。而map是对列表中每个元素做单独处理的，这表示列表中可以是杂乱无章的数据。这样看来，就有点联系了。在MapReduce里，Map处理的是原始数据，自然是杂乱无章的，每条数据之间互相没有关系；到了Reduce阶段，数据是以key后面跟着若干个value来组织的，这些value有相关性，至少它们都在一个key下面，于是就符合函数式语言里map和reduce的基本思想了。</p>
+</blockquote>
+<p><img src="/image/Hadoop/MapReduce/1.png" srcset="/img/loading.gif" lazyload></p>
+<h1 id="5-阶段分类"><a href="#5-阶段分类" class="headerlink" title="5 阶段分类"></a>5 阶段分类</h1><p>MapReduce的程序在运行的过程中，一般分为两个阶段: Map阶段和Reduce阶段</p>
+<h2 id="5-1-第一阶段：Map"><a href="#5-1-第一阶段：Map" class="headerlink" title="5.1 第一阶段：Map"></a>5.1 第一阶段：Map</h2><p>第一阶段，也称之为Map阶段。这个阶段会有若干个MapTask实例，完全并行运行，互不相干。每个MapTask会读取分析一个InputSplit(输入分片，简称分片)对应的原始数据。计算的结果数据会临时保存到所在节点的本地磁盘里。</p>
+<p>该阶段的编程模型中会有一个map函数需要开发人员重写，map函数的输入是一个&lt;key,value&gt;对,map函数的输出也是一个&lt;key,value&gt;对,key和value的类型需要开发人员指定。参考下图：</p>
+<p><img src="/image/Hadoop/MapReduce/2.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="5-2-第二阶段：Reduce"><a href="#5-2-第二阶段：Reduce" class="headerlink" title="5.2 第二阶段：Reduce"></a>5.2 第二阶段：Reduce</h2><p>第二阶段，也称为Reduce阶段。这个阶段会有若干个ReduceTask实例并发运行，互不相干。但是他们的数据依赖于上一个阶段的所有maptask并发实例的输出。一个ReudceTask会从多个MapTask运行节点上fetch自己要处理的分区数据。经过处理后，输出到HDFS上。</p>
+<p>该阶段的编程模型中有一个reduce函数需要开发人员重写，reduce函数的输入也是一个&lt;key，value&gt;对，reduce函数的输出也是一个&lt;key，value&gt;对。这里要强调的是，reduce的输入其实就是map的输出，只不过map的输出经过shuffle技术后变成了&lt;key,List&lt;Value&gt;&gt;而已。参考下图：</p>
+<p><img src="/image/Hadoop/MapReduce/3.png" srcset="/img/loading.gif" lazyload></p>
+<p><strong>注意:</strong> MapReduce编程模型只能包含一个map阶段和一个reduce阶段，如果用户的业务逻辑非常复杂，那就只能多个MapReduce程序，串行运行。</p>
+<h1 id="6-编程规范"><a href="#6-编程规范" class="headerlink" title="6 编程规范"></a>6 编程规范</h1><p>用户编写MapReduce程序的时候，需要设计至少三个类: Mapper、Reducer、Driver(用于提交MR的任务)</p>
+<h2 id="6-1-Mapper"><a href="#6-1-Mapper" class="headerlink" title="6.1 Mapper"></a>6.1 Mapper</h2><ol>
+<li>自定义类，继承 <strong>org.apache.hadoop.mapreduce.Mapper</strong> 类型</li>
+<li>定义K1,V1,K2,V2的泛型（K1,V1是Mapper的输入数据类型，K2,V2是Mapper的输出数据类型）</li>
+<li>重写map方法（处理逻辑）</li>
+</ol>
+<p><img src="/image/Hadoop/MapReduce/4.png" srcset="/img/loading.gif" lazyload></p>
+<p><strong>注意:</strong> Map方法，每一个键值对都会调用一次。</p>
+<h2 id="6-2-Reducer"><a href="#6-2-Reducer" class="headerlink" title="6.2 Reducer"></a>6.2 Reducer</h2><ol>
+<li>自定义类，继承 <strong>org.apache.hadoop.mapreduce.Reducer</strong> 类型</li>
+<li>定义K2,V2,K3,V3的泛型（K2,V2是Reducer的输入数据类型，K3,V3是Reducer的输出数据类型）</li>
+<li>重写reduce方法的处理逻辑</li>
+</ol>
+<p><img src="/image/Hadoop/MapReduce/5.png" srcset="/img/loading.gif" lazyload></p>
+<p><strong>注意:</strong> reduce方法，默认按key分组，每一组都调用一次。</p>
+<h2 id="6-3-Driver"><a href="#6-3-Driver" class="headerlink" title="6.3 Driver"></a>6.3 Driver</h2><p>MapReduce的程序，需要进行执行之前的属性配置与任务的提交，这些操作都需要在Driver类中来完成。</p>
+<h1 id="7-WordCount案例演示"><a href="#7-WordCount案例演示" class="headerlink" title="7 WordCount案例演示"></a>7 WordCount案例演示</h1><h2 id="7-1-案例需求"><a href="#7-1-案例需求" class="headerlink" title="7.1 案例需求"></a>7.1 案例需求</h2><p>给定一个路径，统计这个路径下所有的文件中的每一个单词出现的次数。</p>
+<p><img src="/image/Hadoop/MapReduce/MapReduce.jpg" srcset="/img/loading.gif" lazyload></p>
+<h2 id="7-2-测试数据"><a href="#7-2-测试数据" class="headerlink" title="7.2 测试数据"></a>7.2 测试数据</h2><figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm">a.txt<br>hello qianfeng hello <span class="hljs-number">1999</span> hello <span class="hljs-keyword">beijing </span>hello <br>world hello hello <span class="hljs-keyword">java </span>good<br><br><span class="hljs-keyword">b.txt</span><br><span class="hljs-keyword"></span>hello xisanqi hello <span class="hljs-keyword">bingbing </span><br>hello chenchen hello <br>ACMilan hello china<br><br>c.txt<br>hello hadoop hello <span class="hljs-keyword">java </span>hello storm hello spark hello redis hello zookeeper<br>hello hive hello hbase hello flume<br></code></pre></td></tr></table></figure>
+
+<h2 id="7-3-pom文件"><a href="#7-3-pom文件" class="headerlink" title="7.3 pom文件"></a>7.3 pom文件</h2><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependencies</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.apache.hadoop<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>hadoop-common<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>3.3.1<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br>    <span class="hljs-comment">&lt;!-- https://mvnrepository.com/artifact/org.apache.hadoop/hadoop-client --&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.apache.hadoop<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>hadoop-client<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>3.3.1<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br>    <span class="hljs-comment">&lt;!-- https://mvnrepository.com/artifact/org.apache.hadoop/hadoop-hdfs --&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.apache.hadoop<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>hadoop-hdfs<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>3.3.1<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependencies</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="7-4-定义Mapper类"><a href="#7-4-定义Mapper类" class="headerlink" title="7.4 定义Mapper类"></a>7.4 定义Mapper类</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> wc;<br><br><span class="hljs-keyword">import</span> org.apache.hadoop.io.IntWritable;<br><span class="hljs-keyword">import</span> org.apache.hadoop.io.LongWritable;<br><span class="hljs-keyword">import</span> org.apache.hadoop.io.Text;<br><span class="hljs-keyword">import</span> org.apache.hadoop.mapreduce.Mapper;<br><br><span class="hljs-keyword">import</span> java.io.IOException;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">WordCountMapper</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Mapper</span>&lt;LongWritable, Text, Text, IntWritable&gt; &#123;<br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * Map阶段，每当读取到一行的数据，都会触发这个方法</span><br><span class="hljs-comment">     * 注意: LongWritable、Text、IntWritable都是Hadoop中的序列化的数据类型，相当于Java中的long、String、int类型。这部分内容在后续的序列化部分讲解。</span><br><span class="hljs-comment">     *</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> key 读取到数据的行偏移量，表示这一行的数据的首字符在这个数据块中是第几个字符</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> value 读取到的一行的数据</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> context 操作上下文</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">map</span><span class="hljs-params">(LongWritable key, Text value, Mapper&lt;LongWritable, Text, Text, IntWritable&gt;.Context context)</span> <span class="hljs-keyword">throws</span> IOException, InterruptedException &#123;<br>        <span class="hljs-comment">// 1. 获取读取到的每一行的数据</span><br>        <span class="hljs-type">String</span> <span class="hljs-variable">line</span> <span class="hljs-operator">=</span> value.toString();<br>        <span class="hljs-comment">// 2. 将每一行的数据进行切割，得到每一个单词</span><br>        String[] words = line.split(<span class="hljs-string">&quot;\\s+&quot;</span>);<br>        <span class="hljs-comment">// 3. 将每一个单词与数字1拼接成键值对，写出</span><br>        <span class="hljs-keyword">for</span> (String word : words) &#123;<br>            context.write(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Text</span>(word), <span class="hljs-keyword">new</span> <span class="hljs-title class_">IntWritable</span>(<span class="hljs-number">1</span>));<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="7-5-定义Reducer类"><a href="#7-5-定义Reducer类" class="headerlink" title="7.5 定义Reducer类"></a>7.5 定义Reducer类</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> wc;<br><br><span class="hljs-keyword">import</span> org.apache.hadoop.io.IntWritable;<br><span class="hljs-keyword">import</span> org.apache.hadoop.io.Text;<br><span class="hljs-keyword">import</span> org.apache.hadoop.mapreduce.Reducer;<br><br><span class="hljs-keyword">import</span> java.io.IOException;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">WordCountReducer</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Reducer</span>&lt;Text, IntWritable, Text, IntWritable&gt; &#123;<br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 经过Shuffle阶段的处理，Map阶段写出的所有键值对按照Key进行了分组，并将所有的值都存入一个集合中。形成了 &lt;K2, Iterable&lt;V2&gt;&gt;的键值对。每一个Key都会触发一次这个方法。</span><br><span class="hljs-comment">     *</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> key K2，在这个需求中就是每一个单词</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> values V2，一个单词出现的所有的次数</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> context 操作上下文</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">reduce</span><span class="hljs-params">(Text key, Iterable&lt;IntWritable&gt; values, Reducer&lt;Text, IntWritable, Text, IntWritable&gt;.Context context)</span> <span class="hljs-keyword">throws</span> IOException, InterruptedException &#123;<br>        <span class="hljs-comment">// 遍历这个Key对应的所有的次数，累加到一起即可得到单词出现的总次数</span><br>        <span class="hljs-comment">// 1. 定义一个变量，用来记录总的次数</span><br>        <span class="hljs-type">int</span> <span class="hljs-variable">times</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;<br>        <span class="hljs-comment">// 2. 遍历每一个次数</span><br>        <span class="hljs-keyword">for</span> (IntWritable value : values) &#123;<br>            <span class="hljs-comment">// 3. 累加次数，因为value是IntWritable类型的，因此需要使用get获取到包装的整型的值</span><br>            times += value.get();<br>        &#125;<br>        <span class="hljs-comment">// 4. 将最终的结果写出</span><br>        context.write(key, <span class="hljs-keyword">new</span> <span class="hljs-title class_">IntWritable</span>(times));<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="7-6-定义Driver类"><a href="#7-6-定义Driver类" class="headerlink" title="7.6 定义Driver类"></a>7.6 定义Driver类</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> wc;<br><br><span class="hljs-keyword">import</span> org.apache.hadoop.conf.Configuration;<br><span class="hljs-keyword">import</span> org.apache.hadoop.fs.Path;<br><span class="hljs-keyword">import</span> org.apache.hadoop.io.IntWritable;<br><span class="hljs-keyword">import</span> org.apache.hadoop.io.Text;<br><span class="hljs-keyword">import</span> org.apache.hadoop.mapreduce.Job;<br><span class="hljs-keyword">import</span> org.apache.hadoop.mapreduce.lib.input.FileInputFormat;<br><span class="hljs-keyword">import</span> org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;<br><br><span class="hljs-keyword">import</span> java.io.IOException;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">WordCountDriver</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> IOException, InterruptedException, ClassNotFoundException &#123;<br>        <span class="hljs-comment">// 1. 获取配置信息</span><br>        <span class="hljs-comment">//    加载默认的配置，即core-default.xml、hdfs-default.xml、mapred-default.xml和yarn-default.xml中的配置信息</span><br>        <span class="hljs-comment">//    然后读取项目中的core-site.xml、hdfs-site.xml、mapred-site.xml和yarn-site.xml中配置的信息，更新某些属性的值</span><br>        <span class="hljs-type">Configuration</span> <span class="hljs-variable">conf</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Configuration</span>();<br>        <span class="hljs-comment">// 2. 如果需要继续更新某些属性的值，可以在代码中更新</span><br>        conf.set(<span class="hljs-string">&quot;fs.defaultFS&quot;</span>, <span class="hljs-string">&quot;hdfs://192.168.10.101:9820&quot;</span>);<br>        <span class="hljs-comment">// 3. 创建Job对象</span><br>        <span class="hljs-type">Job</span> <span class="hljs-variable">job</span> <span class="hljs-operator">=</span> Job.getInstance(conf);<br><br>        <span class="hljs-comment">// 4. 设置Mapper类型</span><br>        job.setMapperClass(WordCountMapper.class);<br>        <span class="hljs-comment">// 5. 设置Reducer类型</span><br>        job.setReducerClass(WordCountReducer.class);<br>        <span class="hljs-comment">// 6. 设置驱动类型</span><br>        job.setJarByClass(WordCountDriver.class);<br><br>        <span class="hljs-comment">// 7. 设置Map阶段输出的键值对类型</span><br>        <span class="hljs-comment">//    如果Map阶段输出的键值对类型与Reduce阶段输出的键值对类型相同，则可以省略这个设置</span><br>        <span class="hljs-comment">//    例如: 现在的Map阶段输出是&lt;Text, IntWritable&gt;类型的，与Reduce阶段的数据类型相同，因此可以省略不写</span><br>        <span class="hljs-comment">// job.setMapOutputKeyClass(Text.class);</span><br>        <span class="hljs-comment">// job.setMapOutputValueClass(IntWritable.class);</span><br><br>        <span class="hljs-comment">// 8. 设置Reduce阶段输出的键值对类型</span><br>        job.setOutputKeyClass(Text.class);<br>        job.setOutputValueClass(IntWritable.class);<br><br>        <span class="hljs-comment">// 9. 设置输入输出路径</span><br>        FileInputFormat.setInputPaths(job, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Path</span>(args[<span class="hljs-number">0</span>]));<br>        FileOutputFormat.setOutputPath(job, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Path</span>(args[<span class="hljs-number">1</span>]));<br><br>        <span class="hljs-comment">// 10. 提交Job</span><br>        System.exit(job.waitForCompletion(<span class="hljs-literal">true</span>) ? <span class="hljs-number">0</span> : -<span class="hljs-number">1</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="7-7-打jar包"><a href="#7-7-打jar包" class="headerlink" title="7.7 打jar包"></a>7.7 打jar包</h2><p><img src="/image/Hadoop/MapReduce/6.png" srcset="/img/loading.gif" lazyload></p>
+<ol>
+<li><p>在本地创建好测试数据，将其上传到HDFS</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">hdfs dfs -put ~/input /wordcount<br></code></pre></td></tr></table></figure></li>
+<li><p>检查YARN是否开启，如果没有开启，将其开启</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">start-yarn.sh<br></code></pre></td></tr></table></figure></li>
+<li><p>执行程序</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">hadoop jar jar包名称 驱动类全名 输入路径 输出路径</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">注意，输出路径不能存在，必须由程序自己创建。如果输出路径存在，会出现异常</span><br>hadoop jar xxxxx.jar com.qianfeng.wordcount.WordCount.Driver /wordcount/input /wordcount/output<br></code></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="7-8-查看结果"><a href="#7-8-查看结果" class="headerlink" title="7.8 查看结果"></a>7.8 查看结果</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">hdfs dfs -cat /wordcount/output/*<br></code></pre></td></tr></table></figure>
+
+<h1 id="8-Partitioner组件"><a href="#8-Partitioner组件" class="headerlink" title="8 Partitioner组件"></a>8 Partitioner组件</h1><h2 id="8-1-介绍"><a href="#8-1-介绍" class="headerlink" title="8.1 介绍"></a>8.1 介绍</h2><p>我们已经实现了一个WordCount的案例，统计了一个目录下所有的文件中每一个单词出现的次数，并将计算结果输出到了一个文件中存储起来。但是有时候我们的需求是需要将处理的结果存储在多个文件中，这时应该怎么做呢？</p>
+<p>首先我们需要知道一个前提条件，在MapReduce的程序中，最终生成多少个文件是由ReduceTask的数量来决定的。在上述的案例中我们最终生成了一个文件，是因为只有一个ReduceTask。那么如果需要最终生成两个结果文件呢？我只需要将ReduceTask的数量设置为2即可。这样就带来了另外一个问题: 某一个单词的统计结果，到底应该存放在哪个文件中呢？</p>
+<p>在MapReduce的程序中，一个MapTask处理一个分片的数据（后文会讲解），而一个ReduceTask是用来处理一个分区的数据的。因此我如果需要明确某一个单词的统计结果到底存放在哪个文件中，只需要设置好分区即可。而Partitioner就是一个分区器组件，来实现数据的分区操作的。默认的分区器是HashPartitioner，如果我们需要实现自己的分区逻辑，就需要自定义分区器了。</p>
+<blockquote>
+<p>HashPartitioner的逻辑:</p>
+<ul>
+<li>  分区器计算每一个Key的HashCode</li>
+<li>  将计算后的HashCode % ReduceTask的数量，得到一个分区的编号</li>
+</ul>
+</blockquote>
+<h2 id="8-2-自定义Partitioner"><a href="#8-2-自定义Partitioner" class="headerlink" title="8.2 自定义Partitioner"></a>8.2 自定义Partitioner</h2><p>需求: 将单词的统计结果存入三个文件: a-i开头的存一个文件、j-q开头的存一个文件、其他的存一个文件</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> wc;<br><br><span class="hljs-keyword">import</span> org.apache.hadoop.io.IntWritable;<br><span class="hljs-keyword">import</span> org.apache.hadoop.io.Text;<br><span class="hljs-keyword">import</span> org.apache.hadoop.mapreduce.Partitioner;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">WordCountPartitioner</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Partitioner</span>&lt;Text, IntWritable&gt; &#123;<br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 计算每一个键值对所对应的分区号，分区号从0开始</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> text 键</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> intWritable 值</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> i 总的ReduceTask的数量</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@return</span> 该键值对对应的分区</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">getPartition</span><span class="hljs-params">(Text text, IntWritable intWritable, <span class="hljs-type">int</span> i)</span> &#123;<br>        <span class="hljs-comment">// 需求是将键值对按照首字母分为三个分区: a-i, j-q, 其他</span><br>        <span class="hljs-comment">// 1. 获取首字母</span><br>        <span class="hljs-type">char</span> <span class="hljs-variable">firstLetter</span> <span class="hljs-operator">=</span> text.toString().charAt(<span class="hljs-number">0</span>);<br>        <span class="hljs-comment">// 2. 判断范围</span><br>        <span class="hljs-keyword">if</span> (firstLetter &gt;= <span class="hljs-string">&#x27;a&#x27;</span> &amp;&amp; firstLetter &lt;= <span class="hljs-string">&#x27;i&#x27;</span>) &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>        &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (firstLetter &gt;= <span class="hljs-string">&#x27;j&#x27;</span> &amp;&amp; firstLetter &lt;= <span class="hljs-string">&#x27;q&#x27;</span>) &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>        &#125;<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">2</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="8-3-应用分区器"><a href="#8-3-应用分区器" class="headerlink" title="8.3 应用分区器"></a>8.3 应用分区器</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> wc;<br><br><span class="hljs-keyword">import</span> org.apache.hadoop.conf.Configuration;<br><span class="hljs-keyword">import</span> org.apache.hadoop.fs.Path;<br><span class="hljs-keyword">import</span> org.apache.hadoop.io.IntWritable;<br><span class="hljs-keyword">import</span> org.apache.hadoop.io.Text;<br><span class="hljs-keyword">import</span> org.apache.hadoop.mapreduce.Job;<br><span class="hljs-keyword">import</span> org.apache.hadoop.mapreduce.lib.input.FileInputFormat;<br><span class="hljs-keyword">import</span> org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;<br><br><span class="hljs-keyword">import</span> java.io.IOException;<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * <span class="hljs-doctag">@author</span> 章鱼哥</span><br><span class="hljs-comment"> * <span class="hljs-doctag">@company</span> 北京千锋互联科技有限公司</span><br><span class="hljs-comment"> */</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">WordCountDriver</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> IOException, InterruptedException, ClassNotFoundException &#123;<br>        <span class="hljs-comment">// 1. 获取配置信息</span><br>        <span class="hljs-comment">//    加载默认的配置，即core-default.xml、hdfs-default.xml、mapred-default.xml和yarn-default.xml中的配置信息</span><br>        <span class="hljs-comment">//    然后读取项目中的core-site.xml、hdfs-site.xml、mapred-site.xml和yarn-site.xml中配置的信息，更新某些属性的值</span><br>        <span class="hljs-type">Configuration</span> <span class="hljs-variable">conf</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Configuration</span>();<br>        <span class="hljs-comment">// 2. 如果需要继续更新某些属性的值，可以在代码中更新</span><br>        conf.set(<span class="hljs-string">&quot;fs.defaultFS&quot;</span>, <span class="hljs-string">&quot;hdfs://192.168.10.101:9820&quot;</span>);<br>        <span class="hljs-comment">// 3. 创建Job对象</span><br>        <span class="hljs-type">Job</span> <span class="hljs-variable">job</span> <span class="hljs-operator">=</span> Job.getInstance(conf);<br><br>        <span class="hljs-comment">// 4. 设置Mapper类型</span><br>        job.setMapperClass(WordCountMapper.class);<br>        <span class="hljs-comment">// 5. 设置Reducer类型</span><br>        job.setReducerClass(WordCountReducer.class);<br>        <span class="hljs-comment">// 6. 设置驱动类型</span><br>        job.setJarByClass(WordCountDriver.class);<br><br>        <span class="hljs-comment">// 7. 设置Map阶段输出的键值对类型</span><br>        <span class="hljs-comment">//    如果Map阶段输出的键值对类型与Reduce阶段输出的键值对类型相同，则可以省略这个设置</span><br>        <span class="hljs-comment">//    例如: 现在的Map阶段输出是&lt;Text, IntWritable&gt;类型的，与Reduce阶段的数据类型相同，因此可以省略不写</span><br>        <span class="hljs-comment">// job.setMapOutputKeyClass(Text.class);</span><br>        <span class="hljs-comment">// job.setMapOutputValueClass(IntWritable.class);</span><br><br>        <span class="hljs-comment">// 8. 设置Reduce阶段输出的键值对类型</span><br>        job.setOutputKeyClass(Text.class);<br>        job.setOutputValueClass(IntWritable.class);<br><br>        <span class="hljs-comment">// 9. 设置输入输出路径</span><br>        FileInputFormat.setInputPaths(job, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Path</span>(args[<span class="hljs-number">0</span>]));<br>        FileOutputFormat.setOutputPath(job, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Path</span>(args[<span class="hljs-number">1</span>]));<br><br>        <span class="hljs-comment">// 10. 设置分区器</span><br>        job.setPartitionerClass(WordCountPartitioner.class);<br>        <span class="hljs-comment">// 11. 设置ReduceTask的数量</span><br>        <span class="hljs-comment">//     ReduceTask的数量最好和分区的数量保持一致:</span><br>        <span class="hljs-comment">//     如果ReduceTask的数量多于分区的数量: 会出现多余的ReduceTask空占资源，不去处理任何的数据，浪费资源，且生成空的结果文件</span><br>        <span class="hljs-comment">//     如果ReduceTask的数量少于分区的数量: 会出现某个分区的数据暂时无法处理，需要等待某ReduceTask任务处理结束后再处理这个分区的数据，无法高效并发</span><br>        job.setNumReduceTasks(<span class="hljs-number">3</span>);<br><br>        <span class="hljs-comment">// 12. 提交Job</span><br>        System.exit(job.waitForCompletion(<span class="hljs-literal">true</span>) ? <span class="hljs-number">0</span> : -<span class="hljs-number">1</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h1 id="9-IDE运行MapReduce的模式"><a href="#9-IDE运行MapReduce的模式" class="headerlink" title="9 IDE运行MapReduce的模式"></a>9 IDE运行MapReduce的模式</h1><h2 id="9-1-local模式测本地文件"><a href="#9-1-local模式测本地文件" class="headerlink" title="9.1 local模式测本地文件"></a>9.1 local模式测本地文件</h2><p>原理: </p>
+<ul>
+<li>  将MapReduce的任务资源调度设置为local，不使用YARN进行资源调度。</li>
+<li>  将文件系统设置为本地文件系统，不使用HDFS</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">Configuration</span> <span class="hljs-variable">configuration</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Configuration</span>();<br>configuration.set(<span class="hljs-string">&quot;mapreduce.framework.name&quot;</span>, <span class="hljs-string">&quot;local&quot;</span>);		<span class="hljs-comment">// 设置为本地运行模式，任务不会在YARN上运行。</span><br>configuration.set(<span class="hljs-string">&quot;fs.defaultFS&quot;</span>, <span class="hljs-string">&quot;file:///&quot;</span>);				<span class="hljs-comment">// 设置为本地文件系统，不使用HDFS。</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="9-2-local模式测集群文件"><a href="#9-2-local模式测集群文件" class="headerlink" title="9.2 local模式测集群文件"></a>9.2 local模式测集群文件</h2><p>原理:</p>
+<ul>
+<li>  将MapReduce的任务资源调度设置为local，不使用YARN进行资源调度。</li>
+<li>  将文件系统设置为HDFS</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">Configuration</span> <span class="hljs-variable">configuration</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Configuration</span>();<br>configuration.set(<span class="hljs-string">&quot;mapreduce.framework.name&quot;</span>, <span class="hljs-string">&quot;local&quot;</span>);			<span class="hljs-comment">// 设置为本地运行模式，任务不会在YARN上运行。</span><br>configuration.set(<span class="hljs-string">&quot;fs.defaultFS&quot;</span>, <span class="hljs-string">&quot;hdfs://qianfeng01:9820&quot;</span>);	<span class="hljs-comment">// 设置为HDFS。</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="9-3-YARN模式测集群"><a href="#9-3-YARN模式测集群" class="headerlink" title="9.3 YARN模式测集群"></a>9.3 YARN模式测集群</h2><p>原理:</p>
+<ul>
+<li>  将MapReduce的任务资源调度设置为YARN</li>
+<li>  将文件系统设置为HDFS</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">Configuration</span> <span class="hljs-variable">configuration</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Configuration</span>();<br>configuration.set(<span class="hljs-string">&quot;mapreduce.framework.name&quot;</span>, <span class="hljs-string">&quot;yarn&quot;</span>);					<span class="hljs-comment">// 设置为本地运行模式，任务不会在YARN上运行。</span><br>configuration.set(<span class="hljs-string">&quot;fs.defaultFS&quot;</span>, <span class="hljs-string">&quot;hdfs://qianfeng01:9820&quot;</span>);			<span class="hljs-comment">// 设置为HDFS。</span><br>configuration.set(<span class="hljs-string">&quot;mapreduce.app-submission.cross-platform&quot;</span>, <span class="hljs-string">&quot;true&quot;</span>);	<span class="hljs-comment">// 跨平台任务提交打开。</span><br></code></pre></td></tr></table></figure>
+
+<p>注意事项:</p>
+<p>在上述的配置都完成后，将程序打jar包，然后将jar包添加到classpath，才可以运行程序。</p>
+<blockquote>
+<p>  在jar包上右键 -&gt; Add As Library</p>
+</blockquote>
+<h2 id="9-4-打jar包传Linux运行"><a href="#9-4-打jar包传Linux运行" class="headerlink" title="9.4 打jar包传Linux运行"></a>9.4 打jar包传Linux运行</h2><p>原理:</p>
+<ul>
+<li>  将写好的程序打jar包，上传到Linux</li>
+<li>  使用hadoop jar的命令去执行</li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Hadoop/" class="category-chain-item">Hadoop</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Hadoop/MapReduce/" class="category-chain-item">MapReduce</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Hadoop/">#Hadoop</a>
+      
+        <a href="/tags/MapReduce/">#MapReduce</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>1-MapReduce入门</div>
+      <div>http://www.zivjie.cn/2024/06/15/Hadoop/MapReduce/1-MapReduce入门/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Francis</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年6月15日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/06/15/Hadoop/MapReduce/2-Hadoop%E5%BA%8F%E5%88%97%E5%8C%96%E6%9C%BA%E5%88%B6/" title="2-Hadoop序列化机制">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">2-Hadoop序列化机制</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/06/02/Hadoop/YARN/YARN/" title="YARN">
+                        <span class="hidden-mobile">YARN</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

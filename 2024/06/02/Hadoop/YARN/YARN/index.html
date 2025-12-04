@@ -1,0 +1,903 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Francis">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1  简介1.1 MapReduce 1.x第一代Hadoop，由分布式存储系统HDFS和分布式计算框架MapReduce组成，其中，HDFS由一个NameNode和多个DataNode组成，MapReduce由一个JobTracker和多个TaskTracker组成。对应Hadoop版本为Hadoop 1.x和0.21.X，0.22.x。 1.1.1 MapReduce 1.x的角色   Cli">
+<meta property="og:type" content="article">
+<meta property="og:title" content="YARN">
+<meta property="og:url" content="http://www.zivjie.cn/2024/06/02/Hadoop/YARN/YARN/index.html">
+<meta property="og:site_name" content="Francis-Blog">
+<meta property="og:description" content="1  简介1.1 MapReduce 1.x第一代Hadoop，由分布式存储系统HDFS和分布式计算框架MapReduce组成，其中，HDFS由一个NameNode和多个DataNode组成，MapReduce由一个JobTracker和多个TaskTracker组成。对应Hadoop版本为Hadoop 1.x和0.21.X，0.22.x。 1.1.1 MapReduce 1.x的角色   Cli">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.zivjie.cn/img/rgb%20spiderman.png">
+<meta property="article:published_time" content="2024-06-02T10:13:00.000Z">
+<meta property="article:modified_time" content="2025-12-04T03:21:17.110Z">
+<meta property="article:author" content="Francis">
+<meta property="article:tag" content="Hadoop">
+<meta property="article:tag" content="YARN">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://www.zivjie.cn/img/rgb%20spiderman.png">
+  
+  
+  
+  <title>YARN - Francis-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.zivjie.cn","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Francis</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="YARN"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-06-02 18:13" pubdate>
+          2024年6月2日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          21k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          176 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">YARN</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="1-简介"><a href="#1-简介" class="headerlink" title="1  简介"></a>1  简介</h1><h2 id="1-1-MapReduce-1-x"><a href="#1-1-MapReduce-1-x" class="headerlink" title="1.1 MapReduce 1.x"></a>1.1 MapReduce 1.x</h2><p>第一代Hadoop，由分布式存储系统HDFS和分布式计算框架MapReduce组成，其中，HDFS由一个NameNode和多个DataNode组成，MapReduce由一个JobTracker和多个TaskTracker组成。对应Hadoop版本为Hadoop 1.x和0.21.X，0.22.x。</p>
+<h3 id="1-1-1-MapReduce-1-x的角色"><a href="#1-1-1-MapReduce-1-x的角色" class="headerlink" title="1.1.1 MapReduce 1.x的角色"></a>1.1.1 MapReduce 1.x的角色</h3><ul>
+<li>  Client: 作业提交发起者</li>
+<li>  JobTracker: 初始化作业，分配作业，与TaskTracker通信，协调整个作业。</li>
+<li>  TaskTracker: 保持JobTracker通信，在分配的数据片段上执行MapReduce任务。</li>
+</ul>
+<p><img src="/image/Hadoop/YARN/1.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="1-1-2-MapReduce-1-x的执行流程"><a href="#1-1-2-MapReduce-1-x的执行流程" class="headerlink" title="1.1.2 MapReduce 1.x的执行流程"></a>1.1.2 MapReduce 1.x的执行流程</h3><p><img src="/image/Hadoop/YARN/2.png" srcset="/img/loading.gif" lazyload></p>
+<ol>
+<li><p>提交作业</p>
+<figure class="highlight cos"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cos">编写MapReduce程序代码,创建<span class="hljs-keyword">job</span>对象，并进行配置，比如输入和输出路径，压缩格式等，然后通过JobClinet来提交作业。<br></code></pre></td></tr></table></figure></li>
+<li><p>初始化作业</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">客户端提交完成后，JobTracker会将作业加入队列，然后进行调度，默认的调度方法是FIFO调试方式。<br></code></pre></td></tr></table></figure></li>
+<li><p>分配任务</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm">TaskTracker和<span class="hljs-keyword">JobTracker之间的通信与任务的分配是通过心跳机制完成的。</span><br><span class="hljs-keyword"></span><br>TaskTracker会主动向<span class="hljs-keyword">JobTracker询问是否有作业要做，如果自己可以做，那么就会申请到作业任务，这个任务可以是MapTask也可能是ReduceTask。</span><br></code></pre></td></tr></table></figure></li>
+<li><p>执行任务</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs markdown">申请到任务后，TaskTracker会做如下事情:<br><br><span class="hljs-bullet">1.</span> 拷贝代码到本地<br><span class="hljs-bullet">2.</span> 拷贝任务的信息到本地<br><span class="hljs-bullet">3.</span> 启动JVM运行任务<br></code></pre></td></tr></table></figure></li>
+<li><p>状态与任务的更新</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">任务在运行过程中，首先会将自己的状态汇报给TaskTracker，然后由TaskTracker汇总告之JobTracker。任务进度是通过计数器来实现的。<br></code></pre></td></tr></table></figure></li>
+<li><p>作业的完成</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">JobTracker是在接受到最后一个任务运行完成后，才会将任务标记为成功。此时会做删除中间结果等善后处理工作。<br></code></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="1-2-介绍"><a href="#1-2-介绍" class="headerlink" title="1.2 介绍"></a>1.2 介绍</h2><p>为克服Hadoop 1.0中HDFS和MapReduce存在的各种问题而提出的，针对Hadoop 1.0中的MapReduce在扩展性和多框架支持方面的不足，提出了全新的资源管理框架YARN.</p>
+<p>Apache YARN（Yet another Resource Negotiator的缩写）是Hadoop集群的资源管理系统，负责为计算程序提供服务器计算资源，相当于一个分布式的操作系统平台，而MapReduce等计算程序则相当于运行于操作系统之上的应用程序。</p>
+<p>YARN被引入Hadoop2,最初是为了改善MapReduce的实现，但是因为具有足够的通用性，同样可以支持其他的分布式计算模式，比如Spark，Tez等计算框架。</p>
+<p><img src="/image/Hadoop/YARN/3.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<p>注意：还有一层应用是运行在MapReduce，Spark或者Tez之上的处理框架，如Pig,Hive和Crunch等。</p>
+</blockquote>
+<h1 id="2-设计思想"><a href="#2-设计思想" class="headerlink" title="2 设计思想"></a>2 设计思想</h1><p>YARN的基本思想是将资源管理和作业调度/监视功能划分为单独的守护进程。其思想是拥有一个全局ResourceManager (RM)，以及每个应用程序拥有一个ApplicationMaster (AM)。应用程序可以是单个作业，也可以是一组作业。</p>
+<p><img src="/image/Hadoop/YARN/4.png" srcset="/img/loading.gif" lazyload></p>
+<p>一个ResourceManager和多个NodeManager构成了YARN资源管理框架。他们是YARN启动后长期运行的守护进程，来提供核心服务。</p>
+<ul>
+<li><p>ResourceManager</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs scss">是在系统中的所有应用程序之间仲裁资源的最终权威，即管理整个集群上的所有资源分配,内部含有一个<span class="hljs-built_in">Scheduler</span>(资源调度器)<br></code></pre></td></tr></table></figure></li>
+<li><p>NodeManager</p>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs arduino">是每台机器的资源管理器，也就是单个节点的管理者，负责启动和监视容器(container)资源使用情况，并向ResourceManager及其 <span class="hljs-built_in">Scheduler</span>报告使用情况<br></code></pre></td></tr></table></figure></li>
+<li><p>container</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs x86asm">即集群上的可使用资源，包含<span class="hljs-meta">cpu</span>、内存、磁盘、网络等<br></code></pre></td></tr></table></figure></li>
+<li><p>ApplicationMaster（简称AM）</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">实际上是框架的特定的库，每启动一个应用程序，都会启动一个AM，它的任务是与ResourceManager协商资源，并与NodeManager一起执行和监视任务<br></code></pre></td></tr></table></figure></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>YARN的角色</th>
+<th>MapReduce 1.x的角色</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ResourceManager、Application Master、Timeline Server</td>
+<td>JobTracker</td>
+</tr>
+<tr>
+<td>NodeManager</td>
+<td>TaskTracker</td>
+</tr>
+<tr>
+<td>Container</td>
+<td>Slot</td>
+</tr>
+</tbody></table>
+<h1 id="3-配置"><a href="#3-配置" class="headerlink" title="3 配置"></a>3 配置</h1><p>YARN属于Hadoop的核心组件，不需要单独安装，只需要修改一些配置文件即可。</p>
+<h2 id="3-1-mapred-site-xml"><a href="#3-1-mapred-site-xml" class="headerlink" title="3.1 mapred-site.xml"></a>3.1 mapred-site.xml</h2><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">configuration</span>&gt;</span><br>    <span class="hljs-comment">&lt;!-- 指定MapReduce作业执行时，使用YARN进行资源调度 --&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>mapreduce.framework.name<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>yarn<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.app.mapreduce.am.env<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>HADOOP_MAPRED_HOME=/usr/local/hadoop-3.3.1<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>mapreduce.map.env<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>HADOOP_MAPRED_HOME=/usr/local/hadoop-3.3.1<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>mapreduce.reduce.env<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>HADOOP_MAPRED_HOME=/usr/local/hadoop-3.3.1<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">configuration</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="3-2-yarn-site-xml"><a href="#3-2-yarn-site-xml" class="headerlink" title="3.2 yarn-site.xml"></a>3.2 yarn-site.xml</h2><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">configuration</span>&gt;</span><br>    <span class="hljs-comment">&lt;!-- 设置ResourceManager --&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.resourcemanager.hostname<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>qianfeng01<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br><br>    <span class="hljs-comment">&lt;!--配置yarn的shuffle服务--&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.nodemanager.aux-services<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>mapreduce_shuffle<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span> <br>    <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">configuration</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="3-3-hadoop-env-sh"><a href="#3-3-hadoop-env-sh" class="headerlink" title="3.3 hadoop-env.sh"></a>3.3 hadoop-env.sh</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">添加如下:</span><br>export YARN_RESOURCEMANAGER_USER=root<br>export YARN_NODEMANAGER_USER=root<br></code></pre></td></tr></table></figure>
+
+<h2 id="3-4-分发到其他节点"><a href="#3-4-分发到其他节点" class="headerlink" title="3.4 分发到其他节点"></a>3.4 分发到其他节点</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@qianfeng01 ~]# cd $HADOOP_HOME/etc/<br>[root@qianfeng01 etc]# scp -r hadoop qianfeng02:$PWD<br>[root@qianfeng01 etc]# scp -r hadoop qianfeng03:$PWD<br></code></pre></td></tr></table></figure>
+
+<h2 id="3-5-YARN的服务启停"><a href="#3-5-YARN的服务启停" class="headerlink" title="3.5 YARN的服务启停"></a>3.5 YARN的服务启停</h2><table>
+<thead>
+<tr>
+<th>描述</th>
+<th>命令</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>开启YARN全部服务</td>
+<td>start-yarn.sh</td>
+</tr>
+<tr>
+<td>停止YARN全部服务</td>
+<td>stop-yarn.sh</td>
+</tr>
+<tr>
+<td>单点开启YARN相关进程</td>
+<td>yarn –daemon start resourcemanager<br />yarn –daemon start nodemanager</td>
+</tr>
+<tr>
+<td>单点停止YARN相关进程</td>
+<td>yarn –daemon stop resourcemanager<br />yarn –daemon stop nodemanager</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>当YARN的进程开启之后，可以在WebUI上查看到集群的资源信息、任务的运行状态等</p>
+<p><a target="_blank" rel="noopener" href="http://192.168.10.101:8088/">http://192.168.10.101:8088</a></p>
+</blockquote>
+<h2 id="3-6-任务测试"><a href="#3-6-任务测试" class="headerlink" title="3.6 任务测试"></a>3.6 任务测试</h2><p>当开启所有的YARN的进程之后，再次运行之前的Hadoop的官方案例: wordcount</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@qianfeng01 ~]# hadoop jar $HADOOP_HOME/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.3.1.jar wordcount /input /output<br></code></pre></td></tr></table></figure>
+
+<p>当任务运行起来之后，可以在WebUI上查看到任务的运行状态: <a target="_blank" rel="noopener" href="http://192.168.10.101:8088/">http://192.168.10.101:8088</a></p>
+<h1 id="4-历史日志"><a href="#4-历史日志" class="headerlink" title="4 历史日志"></a>4 历史日志</h1><h2 id="4-1-概述"><a href="#4-1-概述" class="headerlink" title="4.1 概述"></a>4.1 概述</h2><p>在YARN上运行MapReduce的程序的时候，可以在控制台上看到任务的日志输出，以获取到任务的运行状态。同时，YARN也会将日志写在本地的**$HADOOP_HOMOE/logs/userlogs**文件夹中，可以到文件夹中进行日志的查看。但是这个文件夹中的内容，会随着YARN的重启而被删除掉。那么此时将如何查看日志？</p>
+<p>此时就需要开启Hadoop的历史日志服务了，Hadoop会将MapReduce的任务日志在HDFS也保留一份，我们可以通过Hadoop的历史任务服务来查看到之前的历史日志！</p>
+<p>但是每一个程序会被分布在不同的节点上进行运行，我们在进行任务查看的时候还得一个个的去指定节点进行查看，并一个个的找MapTask或者ReduceTask的日志，很麻烦！预设YARN提供了历史日志聚合的服务！</p>
+<p>顾名思义，就是将每一个程序的历史日志都聚合在一起，存储在HDFS上，方便查看！</p>
+<h2 id="4-2-mr-historyserver"><a href="#4-2-mr-historyserver" class="headerlink" title="4.2 mr-historyserver"></a>4.2 mr-historyserver</h2><p>顾名思义，就是去记录MapReduce的历史日志的。接下来我们从配置开始、到日志聚合、运行任务去讲解。</p>
+<h3 id="4-2-1-配置文件"><a href="#4-2-1-配置文件" class="headerlink" title="4.2.1 配置文件"></a>4.2.1 配置文件</h3><ol>
+<li><p>mapred-site.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-comment">&lt;!-- 添加如下配置 --&gt;</span><br><br><span class="hljs-comment">&lt;!-- 历史任务的内部通讯地址 --&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>MapReduce.jobhistory.address<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>qianfeng01:10020<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br><br><span class="hljs-comment">&lt;!--历史任务的外部监听页面--&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>MapReduce.jobhistory.webapp.address<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>qianfeng01:19888<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br></code></pre></td></tr></table></figure></li>
+<li><p>yarn-site.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-comment">&lt;!-- 添加如下配置 --&gt;</span><br><br><span class="hljs-comment">&lt;!-- 是否需要开启日志聚合 --&gt;</span><br><span class="hljs-comment">&lt;!-- 开启日志聚合后，将会将各个Container的日志保存在yarn.nodemanager.remote-app-log-dir的位置 --&gt;</span><br><span class="hljs-comment">&lt;!-- 默认保存在/tmp/logs --&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.log-aggregation-enable<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>true<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br><br><span class="hljs-comment">&lt;!-- 历史日志在HDFS保存的时间，单位是秒 --&gt;</span><br><span class="hljs-comment">&lt;!-- 默认的是-1，表示永久保存 --&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.log-aggregation.retain-seconds<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>604800<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br><br><span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.log.server.url<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>http://qianfeng01:19888/jobhistory/logs<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br></code></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="4-2-2-分发配置"><a href="#4-2-2-分发配置" class="headerlink" title="4.2.2 分发配置"></a>4.2.2 分发配置</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@qianfeng01 ~]# cd $HADOOP_HOME/etc/hadoop<br>[root@qianfeng01 hadoop]# scp mapred-site.xml yarn-site.xml qianfeng02:$PWD<br>[root@qianfeng01 hadoop]# scp mapred-site.xml yarn-site.xml qianfeng03:<br></code></pre></td></tr></table></figure>
+
+<h3 id="4-2-3-开启历史服务"><a href="#4-2-3-开启历史服务" class="headerlink" title="4.2.3 开启历史服务"></a>4.2.3 开启历史服务</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">重启YARN集群</span><br>[root@qianfeng01 ~]# stop-yarn.sh<br>[root@qianfeng01 ~]# start-yarn.sh<br><span class="hljs-meta prompt_"># </span><span class="language-bash">打开历史服务</span><br>[root@qianfeng01 ~]# mapred --daemon start historyserver<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">开启之后，通过jps可以查看到 JobHistoryServer 进程，表示开启成功</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="4-2-4-执行任务"><a href="#4-2-4-执行任务" class="headerlink" title="4.2.4 执行任务"></a>4.2.4 执行任务</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@qianfeng01 ~]# hadoop jar $HADOOP_HOME/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.3.1.jar wordcount /input /output<br></code></pre></td></tr></table></figure>
+
+<p>以官方案例wordcount为例，现在在运行完这个任务后，就会在WebUI上看到这个任务。我们可以点击任务的ID进入到任务的详情页，此时可以查看日志。</p>
+<p><img src="/image/Hadoop/YARN/5.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/image/Hadoop/YARN/6.png" srcset="/img/loading.gif" lazyload></p>
+<p>也可以在<a href="http://192.168.10.101:19888查看每一个MapTask、ReduceTask的日志">http://192.168.10.101:19888查看每一个MapTask、ReduceTask的日志</a></p>
+<p><img src="/image/Hadoop/YARN/7.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/image/Hadoop/YARN/8.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="4-3-timeline"><a href="#4-3-timeline" class="headerlink" title="4.3 timeline"></a>4.3 timeline</h2><h3 id="4-3-1-timeline服务简介"><a href="#4-3-1-timeline服务简介" class="headerlink" title="4.3.1 timeline服务简介"></a>4.3.1 timeline服务简介</h3><p>在前面配置完成了mr-jobhistoryserver服务，从名字也可以看出来，这个服务只能够保存MapReduce任务的日志信息。但是YARN是一个通用的资源调度框架，运行在YARN上的任务不仅仅是MapReduce的任务，还有Spark的任务、Flink的任务等。假如有一天在YARN上运行了一个Spark的任务，那么此时mr-jobhistoryserver将不会保存日志信息。当然Spark会有自己的服务来保存历史日志。但是如果每一种作业我们都需要考虑单独的历史服务是不是比较麻烦呢？于是timeline就出现了。</p>
+<p>YARN中有一个Timeline Server的组件，我们通常称为<strong>时间轴服务</strong>，可以以通用的方式存储程序的运行日志信息。无论是MapReduce的任务，还是Spark的任务，或者是Flink的任务等等，都可以将日志保存下来。mr-jobhistoryserver只是实现了时间轴服务的一部分功能。</p>
+<p>目前位置，Timeline Server有V1、V1.5、V2三种版本，其中V2的版本正在测试中，功能尚不完善，且后端依赖HBase。所以目前以V1.5的版本为例。</p>
+<h3 id="4-3-2-配置文件"><a href="#4-3-2-配置文件" class="headerlink" title="4.3.2 配置文件"></a>4.3.2 配置文件</h3><p>只需要配置yarn-site.xml即可</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-comment">&lt;!-- 是否需要开启Timeline服务 --&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.timeline-service.enabled<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>true<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br><br><span class="hljs-comment">&lt;!-- Timeline Web服务的主机，通过8188端口访问 --&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.timeline-service.hostname<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>qianfeng01<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br><br><span class="hljs-comment">&lt;!-- 设置ResourceManager是否发送指标信息到Timeline服务 --&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.system-metrics-publisher.enabled<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>false<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="4-3-3-分发并启动服务"><a href="#4-3-3-分发并启动服务" class="headerlink" title="4.3.3 分发并启动服务"></a>4.3.3 分发并启动服务</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@qianfeng01 ~]# cd $HADOOP_HOME/etc/hadoop<br>[root@qianfeng01 hadoop]# scp yarn-site.xml qianfeng02:$PWD<br>[root@qianfeng01 hadoop]# scp yarn-site.xml qianfeng03:$PWD<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">因为修改了yarn-site.xml的内容，因此需要重启YARN</span><br>[root@qianfeng01 ~]# stop-yarn.sh<br>[root@qianfeng01 ~]# start-yarn.sh<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">开启Timeline服务</span><br>[root@qianfeng01 ~]# yarn --daemon start timelineserver<br></code></pre></td></tr></table></figure>
+
+<h3 id="4-3-4-执行任务"><a href="#4-3-4-执行任务" class="headerlink" title="4.3.4 执行任务"></a>4.3.4 执行任务</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@qianfeng01 ~]# hadoop jar $HADOOP_HOME/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.3.1.jar wordcount /input /output<br></code></pre></td></tr></table></figure>
+
+<p>此时，可以到TimelineServer的WebUI上查看任务的状态和历史服务 <a target="_blank" rel="noopener" href="http://192.168.10.101:8188/">http://192.168.10.101:8188</a></p>
+<h1 id="5-Job的提交"><a href="#5-Job的提交" class="headerlink" title="5 Job的提交"></a>5 Job的提交</h1><p>在MR程序运行时，有五个独立的进程：  </p>
+<ul>
+<li> YarnRunner: 用于提交作业的客户端程序</li>
+<li> ResourceManager: yarn资源管理器，负责协调集群上计算机资源的分配</li>
+<li> NodeManager: yarn节点管理器，负责启动和监视集群中机器上的计算容器（container）</li>
+<li> Application Master: 负责协调运行MapReduce作业的任务，他和任务都在容器中运行，这些容器由资源管理器分配并由节点管理器进行管理。</li>
+<li> HDFS:用于共享作业所需文件。</li>
+</ul>
+<p><img src="/image/Hadoop/YARN/9.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs markdown"><span class="hljs-bullet">1.</span> 调用waitForCompletion方法每秒轮询作业的进度，内部封装了submit()方法，用于创建JobCommiter实例，并且调用其的submitJobInternal方法。提交成功后，如果有状态改变，就会把进度报告到控制台。错误也会报告到控制台<br><br><span class="hljs-bullet">2.</span> JobCommiter实例会向ResourceManager申请一个新应用ID，用于MapReduce作业ID。这期间JobCommiter也会进行检查输出路径的情况，以及计算输入分片。<br><br><span class="hljs-bullet">3.</span> 如果成功申请到ID,就会将运行作业所需要的资源（包括作业jar文件，配置文件和计算所得的输入分片元数据文件）上传到一个用ID命名的目录下的HDFS上。此时副本个数默认是10.<br><br><span class="hljs-bullet">4.</span> 准备工作已经做好，再通知ResourceManager调用submitApplication方法提交作业。<br><br><span class="hljs-bullet">5.</span> ResourceManager调用submitApplication方法后，会通知Yarn调度器（Scheduler），调度器分配一个容器，在节点管理器的管理下在容器中启动 application master进程。<br><br><span class="hljs-bullet">6.</span> application master的主类是MRAppMaster，其主要作用是初始化任务，并接受来自任务的进度和完成报告。<br><br><span class="hljs-bullet">7.</span> 然后从HDFS上接受资源，主要是split。然后为每一个split创建MapTask以及参数指定的ReduceTask，任务ID在此时分配<br><br><span class="hljs-bullet">8.</span> 然后Application Master会向资源管理器请求容器，首先为MapTask申请容器，然后再为ReduceTask申请容器。（5%）<br><br><span class="hljs-bullet">9.</span> 一旦ResourceManager中的调度器（Scheduler），为Task分配了一个特定节点上的容器，Application Master就会与NodeManager进行通信来启动容器。<br><br><span class="hljs-bullet">10.</span> 运行任务是由YarnChild来执行的，运行任务前，先将资源本地化（jar文件，配置文件，缓存文件）<br><br><span class="hljs-bullet">11.</span> 然后开始运行MapTask或ReduceTask。<br><br><span class="hljs-bullet">12.</span> 当收到最后一个任务已经完成的通知后，application master会把作业状态设置为success。然后Job轮询时，知道成功完成，就会通知客户端，并把统计信息输出到控制台<br></code></pre></td></tr></table></figure>
+
+<h1 id="6-命令"><a href="#6-命令" class="headerlink" title="6 命令"></a>6 命令</h1><ul>
+<li>yarn top</li>
+</ul>
+<figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs coq">类似于Linux的<span class="hljs-built_in">top</span>命令，查看正在运行的程序资源占用情况。<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>yarn queue -status root.default</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">查看指定队列使用情况，下文会讲解任务队列<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><p>yarn application</p>
+<ul>
+<li><p>-list</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">通过任务的状态，列举YARN的任务。使用 -appStates 指定状态</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">任务状态: ALL、NEW、NEW_SAVING、SUBMITTED、ACCEPTED、RUNNING、FINISHED、FAILED、KILLED</span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">e.g.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">查看所有正在运行的任务</span><br>[root@qianfeng01 ~]# yarn application -list -appStates RUNNING<br><span class="hljs-meta prompt_"># </span><span class="language-bash">查看所有的失败的任务</span><br>[root@qianfeng01 ~]# yarn application -list -appStates FAILED<br></code></pre></td></tr></table></figure></li>
+<li><p>-movetoqueue</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">将一个任务移动到指定的队列中</span><br>[root@qianfeng01 ~]# yarn application -movetoqueue application_xxxxxx_xxx -queue root.small<br></code></pre></td></tr></table></figure></li>
+<li><p>-kill</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">杀死指定的任务</span><br>[root@qianfeng01 ~]# yarn application -kill application_xxxxxx_xxx<br></code></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p>yarn container</p>
+<ul>
+<li><p>-list</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">查看正在执行的任务的容器信息</span><br>[root@qianfeng01 ~]# yarn container -list application_xxxxxx_xxx<br></code></pre></td></tr></table></figure></li>
+<li><p>-status</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">查看指定容器信息</span><br>[root@qianfeng01 ~]# yarn container -status container_xxxxx<br></code></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>yarn jar</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">提交任务到YARN执行</span><br>[root@qianfeng01 ~]# yarn jar $HADOOP_HOME/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.3.1.jar /input /output<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>yarn logs</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">查看YARN的程序运行时的日志信息</span><br>[root@qianfeng01 ~]# yarn logs -applicationId application_1528080031923_0064<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>yarn node -all -list</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">查看所有节点信息<br></code></pre></td></tr></table></figure>
+
+<h1 id="7-三种调度器"><a href="#7-三种调度器" class="headerlink" title="7 三种调度器"></a>7 三种调度器</h1><h2 id="7-1-什么是调度器"><a href="#7-1-什么是调度器" class="headerlink" title="7.1 什么是调度器"></a>7.1 什么是调度器</h2><p>Scheduler即调度器，根据容量、队列等限制条件（如每个队列分配一定的资源，最多执行一定数量的作业等），将系统中的资源分配给各个正在运行的应用程序。</p>
+<h2 id="7-2-YARN提供的三种内置调度器"><a href="#7-2-YARN提供的三种内置调度器" class="headerlink" title="7.2 YARN提供的三种内置调度器"></a>7.2 YARN提供的三种内置调度器</h2><h3 id="7-2-1-FIFO调度器"><a href="#7-2-1-FIFO调度器" class="headerlink" title="7.2.1 FIFO调度器"></a>7.2.1 FIFO调度器</h3><p>FIFO 为 First Input First Output 的缩写，先进先出。FIFO 调度器将应用放在一个队列中，按照先后顺序运行应用。这种策略较为简单，但不适合共享集群，因为大的应用会占用集群的所有资源，每个应用必须等待直到轮到自己。  </p>
+<p>优点：简单易懂，不需要任何配置<br>缺点：不适合共享集群，大的应用会占据集群中的所有资源，所以每个应用都必须等待，直到轮到自己执行。</p>
+<p><img src="/image/Hadoop/YARN/10.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="7-2-2-Capacity-Scheduler（容量调度器）"><a href="#7-2-2-Capacity-Scheduler（容量调度器）" class="headerlink" title="7.2.2 Capacity Scheduler（容量调度器）"></a>7.2.2 Capacity Scheduler（容量调度器）</h3><p>容量调度器 Capacity Scheduler 允许多个组织共享一个 Hadoop 集群。使用容量调度器时，一个独立的专门队列保证小作业一提交就可以启动。</p>
+<p>优点：小任务不会因为前面有大任务在执行，而只能一直等下去<br>缺点：这种策略是以整个集群利用率为代价的，这意味着与使用FIFO调度器相比，大作业执行的时间要长上一些。</p>
+<p><img src="/image/Hadoop/YARN/11.png" srcset="/img/loading.gif" lazyload></p>
+<p>如图所示，专门留了一部分资源给小任务，可以在执行job1的同时，不会阻塞job2的执行，但是因为这部分资源是一直保留给其他任务的，所以就算只有一个任务，也无法为其分配全部资源，只能让这部分保留资源闲置着，有着一定的资源浪费问题。</p>
+<h3 id="7-2-3-Fair-Scheduler（公平调度器）"><a href="#7-2-3-Fair-Scheduler（公平调度器）" class="headerlink" title="7.2.3  Fair Scheduler（公平调度器）"></a>7.2.3  Fair Scheduler（公平调度器）</h3><p>公平调度器的目的就是为所有运行的应用公平分配资源。使用公平调度器时，不需要预留一定量的资源，因为调度器会在所有运行的作业之间动态平衡资源，第一个（大）作业启动时，它也是唯一运行的作业，因而获得集群中的所有资源，当第二个（小）作业启动时，它被分配到集群的一半资源，这样每个作业都能公平共享资源。</p>
+<p><img src="/image/Hadoop/YARN/12.png" srcset="/img/loading.gif" lazyload></p>
+<p> 如图所示，就像是把好几个任务拼接成了一个任务，可以充分利用资源，同时又不会因为大任务在前面执行而导致小任务一直无法完成</p>
+<h1 id="8-队列配置"><a href="#8-队列配置" class="headerlink" title="8 队列配置"></a>8 队列配置</h1><p>YARN默认采用的调度器是容量调度，且默认只有一个任务队列。该调度器内单个队列的调度策略为FIFO，因此在单个队列中的任务并行度为1。那么就会出现单个任务阻塞的情况，如果随着业务的增长，充分的利用到集群的使用率，我们就需要手动的配置多条任务队列。</p>
+<h2 id="8-1-配置任务队列"><a href="#8-1-配置任务队列" class="headerlink" title="8.1 配置任务队列"></a>8.1 配置任务队列</h2><blockquote>
+<p>默认YARN只有一个default任务队列，现在我们添加一个small的任务队列。</p>
+</blockquote>
+<p>修改配置文件: <strong>$HADOOP_HOME/etc/hadoop/capacity-scheduler.xml</strong></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">configuration</span>&gt;</span><br>    <span class="hljs-comment">&lt;!-- 不需要修改 --&gt;</span><br>    <span class="hljs-comment">&lt;!-- 容量调度器中最多容纳多少个Job --&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.scheduler.capacity.maximum-applications<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>10000<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">description</span>&gt;</span><br>            Maximum number of applications that can be pending and running.<br>        <span class="hljs-tag">&lt;/<span class="hljs-name">description</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br><br>    <span class="hljs-comment">&lt;!-- 不需要修改 --&gt;</span><br>    <span class="hljs-comment">&lt;!-- MRAppMaster进程所占的资源可以占用队列总资源的百分比，可以通过修改这个参数来限制队列中提交Job的数量 --&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.scheduler.capacity.maximum-am-resource-percent<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>0.1<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">description</span>&gt;</span><br>            Maximum percent of resources in the cluster which can be used to run<br>            application masters i.e. controls number of concurrent running<br>            applications.<br>        <span class="hljs-tag">&lt;/<span class="hljs-name">description</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br><br>    <span class="hljs-comment">&lt;!-- 不需要修改 --&gt;</span><br>    <span class="hljs-comment">&lt;!-- 为Job分配资源的时候，使用什么策略 --&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.scheduler.capacity.resource-calculator<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>org.apache.hadoop.yarn.util.resource.DefaultResourceCalculator<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">description</span>&gt;</span><br>            The ResourceCalculator implementation to be used to compare<br>            Resources in the scheduler.<br>            The default i.e. DefaultResourceCalculator only uses Memory while<br>            DominantResourceCalculator uses dominant-resource to compare<br>            multi-dimensional resources such as Memory, CPU etc.<br>        <span class="hljs-tag">&lt;/<span class="hljs-name">description</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br><br>    <span class="hljs-comment">&lt;!-- 修改!!! --&gt;</span><br>    <span class="hljs-comment">&lt;!-- 调度器中有什么队列，我们添加一个small队列 --&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.scheduler.capacity.root.queues<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>default,small<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">description</span>&gt;</span><br>            The queues at the this level (root is the root queue).<br>        <span class="hljs-tag">&lt;/<span class="hljs-name">description</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br><br>    <span class="hljs-comment">&lt;!-- 修改!!! --&gt;</span><br>    <span class="hljs-comment">&lt;!-- 配置default队列的容量百分比 --&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.scheduler.capacity.root.default.capacity<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>70<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">description</span>&gt;</span>Default queue target capacity.<span class="hljs-tag">&lt;/<span class="hljs-name">description</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br><br>    <span class="hljs-comment">&lt;!-- 新增!!! --&gt;</span><br>    <span class="hljs-comment">&lt;!-- 新增small队列的容量百分比 --&gt;</span><br>    <span class="hljs-comment">&lt;!-- 所有的队列容量百分比和需要是100 --&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.scheduler.capacity.root.small.capacity<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>30<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">description</span>&gt;</span>Default queue target capacity.<span class="hljs-tag">&lt;/<span class="hljs-name">description</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br><br>    <span class="hljs-comment">&lt;!-- 不需要修改 --&gt;</span><br>    <span class="hljs-comment">&lt;!-- default队列用户能使用的容量最大百分比 --&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.scheduler.capacity.root.default.user-limit-factor<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>1<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">description</span>&gt;</span><br>            Default queue user limit a percentage from 0.0 to 1.0.<br>        <span class="hljs-tag">&lt;/<span class="hljs-name">description</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br><br>    <span class="hljs-comment">&lt;!-- 添加!!! --&gt;</span><br>    <span class="hljs-comment">&lt;!-- small队列用户能使用的容量最大百分比 --&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.scheduler.capacity.root.small.user-limit-factor<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>1<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">description</span>&gt;</span><br>            Default queue user limit a percentage from 0.0 to 1.0.<br>        <span class="hljs-tag">&lt;/<span class="hljs-name">description</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br><br>    <span class="hljs-comment">&lt;!-- 不需要修改 --&gt;</span><br>    <span class="hljs-comment">&lt;!-- default队列能使用的容量最大百分比 --&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.scheduler.capacity.root.default.maximum-capacity<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>100<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">description</span>&gt;</span><br>            The maximum capacity of the default queue. <br>        <span class="hljs-tag">&lt;/<span class="hljs-name">description</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br><br>    <span class="hljs-comment">&lt;!-- 添加!!! --&gt;</span><br>    <span class="hljs-comment">&lt;!-- small队列能使用的容量最大百分比 --&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.scheduler.capacity.root.small.maximum-capacity<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>100<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">description</span>&gt;</span><br>            The maximum capacity of the default queue. <br>        <span class="hljs-tag">&lt;/<span class="hljs-name">description</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br><br>    <span class="hljs-comment">&lt;!-- 不需要修改 --&gt;</span><br>    <span class="hljs-comment">&lt;!-- default队列的状态 --&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.scheduler.capacity.root.default.state<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>RUNNING<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">description</span>&gt;</span><br>            The state of the default queue. State can be one of RUNNING or STOPPED.<br>        <span class="hljs-tag">&lt;/<span class="hljs-name">description</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br><br>    <span class="hljs-comment">&lt;!-- 添加!!! --&gt;</span><br>    <span class="hljs-comment">&lt;!-- small队列的状态 --&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.scheduler.capacity.root.small.state<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>RUNNING<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">description</span>&gt;</span><br>            The state of the default queue. State can be one of RUNNING or STOPPED.<br>        <span class="hljs-tag">&lt;/<span class="hljs-name">description</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br><br>    <span class="hljs-comment">&lt;!-- 不需要修改 --&gt;</span><br>    <span class="hljs-comment">&lt;!-- 限制向队列提交的用户--&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.scheduler.capacity.root.default.acl_submit_applications<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>*<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">description</span>&gt;</span><br>            The ACL of who can submit jobs to the default queue.<br>        <span class="hljs-tag">&lt;/<span class="hljs-name">description</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br>    <span class="hljs-comment">&lt;!-- 添加!!! --&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.scheduler.capacity.root.small.acl_submit_applications<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>*<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">description</span>&gt;</span><br>            The ACL of who can submit jobs to the default queue.<br>        <span class="hljs-tag">&lt;/<span class="hljs-name">description</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br><br>    <span class="hljs-comment">&lt;!-- 不需要修改 --&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.scheduler.capacity.root.default.acl_administer_queue<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>*<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">description</span>&gt;</span><br>            The ACL of who can administer jobs on the default queue.<br>        <span class="hljs-tag">&lt;/<span class="hljs-name">description</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br>    <span class="hljs-comment">&lt;!-- 添加!!! --&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.scheduler.capacity.root.small.acl_administer_queue<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>*<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">description</span>&gt;</span><br>            The ACL of who can administer jobs on the default queue.<br>        <span class="hljs-tag">&lt;/<span class="hljs-name">description</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br><br><br>    <span class="hljs-comment">&lt;!-- 不需要修改 --&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.scheduler.capacity.node-locality-delay<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>40<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">description</span>&gt;</span><br>            Number of missed scheduling opportunities after which the CapacityScheduler <br>            attempts to schedule rack-local containers. <br>            Typically this should be set to number of nodes in the cluster, By default is setting <br>            approximately number of nodes in one rack which is 40.<br>        <span class="hljs-tag">&lt;/<span class="hljs-name">description</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br>    <span class="hljs-comment">&lt;!-- 不需要修改 --&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.scheduler.capacity.queue-mappings<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">description</span>&gt;</span><br>            A list of mappings that will be used to assign jobs to queues<br>            The syntax for this list is [u|g]:[name]:[queue_name][,next mapping]*<br>            Typically this list will be used to map users to queues,<br>            for example, u:%user:%user maps all users to queues with the same name<br>            as the user.<br>        <span class="hljs-tag">&lt;/<span class="hljs-name">description</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br>    <span class="hljs-comment">&lt;!-- 不需要修改 --&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.scheduler.capacity.queue-mappings-override.enable<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>false<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">description</span>&gt;</span><br>            If a queue mapping is present, will it override the value specified<br>            by the user? This can be used by administrators to place jobs in queues<br>            that are different than the one specified by the user.<br>            The default is false.<br>        <span class="hljs-tag">&lt;/<span class="hljs-name">description</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">configuration</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="8-2-分发配置到各个节点"><a href="#8-2-分发配置到各个节点" class="headerlink" title="8.2 分发配置到各个节点"></a>8.2 分发配置到各个节点</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@qianfeng01 ~]# cd $HADOOP_HOME/etc/hadoop<br>[root@qianfeng01 hadoop]# scp capacity-scheduler.xml qianfeng02:$PWD<br>[root@qianfeng01 hadoop]# scp capacity-scheduler.xml qianfeng03:$PWD<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">重启集群</span><br>[root@qianfeng01 hadoop]# stop-yarn.sh<br>[root@qianfeng01 hadoop]# start-yarn.sh<br></code></pre></td></tr></table></figure>
+
+<h2 id="8-3-提交任务"><a href="#8-3-提交任务" class="headerlink" title="8.3  提交任务"></a>8.3  提交任务</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">提交Job到default队列，其中的-Dmapreduce.job.queuename可以不指定，因为现在默认向default队列提交Job</span><br>[root@qianfeng01 ~]# hadoop jar $HADOOP_HOME/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.3.1.jar wordcount -Dmapreduce.job.queuename=default /input /output1<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">提交Job到small队列</span><br>[root@qianfeng01 ~]# hadoop jar $HADOOP_HOME/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.3.1.jar wordcount -Dmapreduce.job.queuename=small /input /output2<br></code></pre></td></tr></table></figure>
+
+<h2 id="8-4-查看任务"><a href="#8-4-查看任务" class="headerlink" title="8.4 查看任务"></a>8.4 查看任务</h2><p><a target="_blank" rel="noopener" href="http://192.168.10.101:8088/cluster/scheduler">http://192.168.10.101:8088/cluster/scheduler</a></p>
+<p><img src="/image/Hadoop/YARN/13.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="8-5-默认队列设置"><a href="#8-5-默认队列设置" class="headerlink" title="8.5 默认队列设置"></a>8.5 默认队列设置</h2><p>YARN默认将任务提交到default队列，我们如果需要提交到其他的队列中，可以使用-Dmapreduce.job.queuename指定提交的队列。也可以设置默认的任务提交队列。</p>
+<blockquote>
+<p>例如: Hive的底层会把HQL语句翻译成MapReduce的程序执行，我们可以创建一个hive队列，将这个队列的容量设置的大一些。我们可以设置默认将任务提交到这个队列中。如果需要往其他的队列中提交任务的话，可以再使用-Dmapreduce.job.queuename去提交了。</p>
+</blockquote>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-comment">&lt;!--配置默认的提交队列--&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>mapreduce.job.queuename<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>small<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<h1 id="9-Node-Label机制"><a href="#9-Node-Label机制" class="headerlink" title="9 Node Label机制"></a>9 Node Label机制</h1><h2 id="9-1-Node-Label的介绍"><a href="#9-1-Node-Label的介绍" class="headerlink" title="9.1 Node Label的介绍"></a>9.1 Node Label的介绍</h2><p>官网对NodeLabel的介绍如下: Node label is a way to group nodes with similar characteristics and applications can specify where to run. 节点标签是一种对具有相似特征的节点进行分组的方法，应用程序可以指定在哪里运行。</p>
+<p>我们可以创建多个队列，划分集群的总的资源。例如队列hive占集群总资源的70%，那么这个70%具体会落地在哪一个节点上呢？没办法确定，有可能在qianfeng01，也有可能在qianfeng03。而节点标签，可以为每一个NodeManager打上标签，可以限定某一个程序只能够运行在哪些节点上。例如我希望我的wordcount的程序只会运行在qianfeng02和qianfeng03节点上，这就是标签的作用。</p>
+<h2 id="9-2-开启标签"><a href="#9-2-开启标签" class="headerlink" title="9.2 开启标签"></a>9.2 开启标签</h2><p>修改 <strong>yarn-site.xml</strong> 文件，添加如下配置:</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-comment">&lt;!-- 启用节点标签 --&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.node-labels.enabled<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>true<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br><br><span class="hljs-comment">&lt;!-- 节点标签存储的路径，可以是HDFS，也可以是本地文件系统 --&gt;</span><br><span class="hljs-comment">&lt;!-- 如果是本地文件系统，使用类似file:///home/yarn/node-label这样的路径 --&gt;</span><br><span class="hljs-comment">&lt;!-- 无论是HDFS，还是本地文件系统，需要保证RM有权限去访问 --&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.node-labels.fs-store.root-dir<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>hdfs://qianfeng01:9820/tmp/yarn/node-labels/<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br><br><span class="hljs-comment">&lt;!-- 保持默认即可，也可以不配置这个选项 --&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.node-labels.configuration-type<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>centralized<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>分发到每一个节点，重启YARN即可。</p>
+<h2 id="9-3-标签管理"><a href="#9-3-标签管理" class="headerlink" title="9.3 标签管理"></a>9.3 标签管理</h2><h3 id="9-3-1-添加标签"><a href="#9-3-1-添加标签" class="headerlink" title="9.3.1 添加标签"></a>9.3.1 添加标签</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">yarn rmadmin -addToClusterNodeLabels &quot;label_1&quot;<br>yarn rmadmin -addToClusterNodeLabels &quot;label_2,label_3&quot;<br></code></pre></td></tr></table></figure>
+
+<h3 id="9-3-2-查看标签"><a href="#9-3-2-查看标签" class="headerlink" title="9.3.2 查看标签"></a>9.3.2 查看标签</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">yarn cluster --list-node-labels<br></code></pre></td></tr></table></figure>
+
+<h3 id="9-3-3-删除标签"><a href="#9-3-3-删除标签" class="headerlink" title="9.3.3 删除标签"></a>9.3.3 删除标签</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">yarn rmadmin -removeFromClusterNodeLabels label_1<br></code></pre></td></tr></table></figure>
+
+<h3 id="9-3-4-为节点打上标签"><a href="#9-3-4-为节点打上标签" class="headerlink" title="9.3.4 为节点打上标签"></a>9.3.4 为节点打上标签</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">绑定一个NodeManager与Label</span><br>yarn rmadmin -replaceLabelsOnNode &quot;qianfeng02=label_2&quot;<br><span class="hljs-meta prompt_"># </span><span class="language-bash">绑定多个NodeManager与Label的关系，中间用空格分隔</span><br>yarn rmadmin -replaceLabelsOnNode &quot;qianfeng02=label_2 qianfeng03=label_2&quot;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">一个标签可以绑定多个NodeManager，一个NodeManager只能绑定一个标签。</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">例如上方的，label_2就绑定在了qianfeng02和qianfeng03的NodeManager上。</span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">绑定完成后，可以使用WebUI进行查看。</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">在WebUI的左侧，有Node Labels的查看，可以查看到所有的标签，以及对应的节点信息。</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">需要注意的是，如果某节点没有进行标签的绑定，则其在一个默认的&lt;DEFAULT_PARTITION&gt;上绑定。</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="9-4-为队列绑定标签"><a href="#9-4-为队列绑定标签" class="headerlink" title="9.4 为队列绑定标签"></a>9.4 为队列绑定标签</h2><p>通过修改<strong>capacity-scheduler.xml</strong>实现:</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-comment">&lt;!-- 前文，我们已经新增了一个队列，现在共有两个队列: default、small --&gt;</span><br><br><span class="hljs-comment">&lt;!-- 设置某个队列可以使用的标签，*表示通配，可以使用所有标签 --&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.scheduler.capacity.root.default.accessible-node-labels<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>*<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br><br><span class="hljs-comment">&lt;!-- 设置small队列可以使用label_3标签的节点资源 --&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.scheduler.capacity.root.small.accessible-node-labels<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>label_3<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br><br><span class="hljs-comment">&lt;!-- 设置default队列可以使用label_2标签的节点资源最多60% --&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.scheduler.capacity.root.default.accessible-node-labels.label_2.capacity<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>60<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br><br><span class="hljs-comment">&lt;!-- 设置small队列可以使用label_3标签的节点资源最多80% --&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.scheduler.capacity.root.small.accessible-node-labels.label_3.capacity<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>80<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br><br><span class="hljs-comment">&lt;!-- 设置default队列，如果没有明确的标签指向，则默认使用label_3 --&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.scheduler.capacity.root.default.default-node-label-expression<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>label_3<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>修改之后，无需重启，直接刷新一下队列即可: <strong>yarn rmadmin -refreshQueues</strong></p>
+<h2 id="9-5-测试"><a href="#9-5-测试" class="headerlink" title="9.5 测试"></a>9.5 测试</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">hadoop jar $HADOOP_HOME/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.3.1.jar pi -Dmapreduce.job.queuename=small 10 10<br></code></pre></td></tr></table></figure>
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Hadoop/" class="category-chain-item">Hadoop</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Hadoop/YARN/" class="category-chain-item">YARN</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Hadoop/">#Hadoop</a>
+      
+        <a href="/tags/YARN/">#YARN</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>YARN</div>
+      <div>http://www.zivjie.cn/2024/06/02/Hadoop/YARN/YARN/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Francis</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年6月2日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/06/15/Hadoop/MapReduce/1-MapReduce%E5%85%A5%E9%97%A8/" title="1-MapReduce入门">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">1-MapReduce入门</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/06/02/Hadoop/HDFS/7-HDFS%E9%AB%98%E7%BA%A7%E6%93%8D%E4%BD%9C/" title="7-高级操作">
+                        <span class="hidden-mobile">7-高级操作</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

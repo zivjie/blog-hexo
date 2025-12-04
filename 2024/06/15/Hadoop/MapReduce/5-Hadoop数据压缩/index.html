@@ -16,24 +16,25 @@
   <meta name="author" content="Francis">
   <meta name="keywords" content="">
   
-    <meta name="description" content="1  在redis中调用lua脚本">
+    <meta name="description" content="1 概述这是MapReduce的一种优化策略：通过压缩编码对mapper或者reducer的输出进行压缩，以减少磁盘IO，提高MR程序运行速度（但相应增加了cpu运算负担） 123451) MapReduce支持将map输出的结果或者reduce输出的结果进行压缩，以减少网络IO或最终输出数据的体积2) 压缩特性运用得当能提高性能，但运用不当也可能降低性能3) 基本原则：	-运算密集型的job，少">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Hadoop概述">
-<meta property="og:url" content="http://www.zivjie.cn/2024/06/01/Hadoop/MapReduce/3-MapReduce%E5%9F%BA%E7%A1%80/index.html">
+<meta property="og:title" content="5-Hadoop数据压缩">
+<meta property="og:url" content="http://www.zivjie.cn/2024/06/15/Hadoop/MapReduce/5-Hadoop%E6%95%B0%E6%8D%AE%E5%8E%8B%E7%BC%A9/index.html">
 <meta property="og:site_name" content="Francis-Blog">
-<meta property="og:description" content="1  在redis中调用lua脚本">
+<meta property="og:description" content="1 概述这是MapReduce的一种优化策略：通过压缩编码对mapper或者reducer的输出进行压缩，以减少磁盘IO，提高MR程序运行速度（但相应增加了cpu运算负担） 123451) MapReduce支持将map输出的结果或者reduce输出的结果进行压缩，以减少网络IO或最终输出数据的体积2) 压缩特性运用得当能提高性能，但运用不当也可能降低性能3) 基本原则：	-运算密集型的job，少">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://www.zivjie.cn/img/4K%E9%BB%84%E6%98%8F.png">
-<meta property="article:published_time" content="2024-06-01T08:13:00.000Z">
-<meta property="article:modified_time" content="2025-11-14T01:58:53.933Z">
+<meta property="og:image" content="http://www.zivjie.cn/img/Slow-Mo-Ocean.png">
+<meta property="article:published_time" content="2024-06-15T08:13:00.000Z">
+<meta property="article:modified_time" content="2025-12-04T07:19:16.231Z">
 <meta property="article:author" content="Francis">
 <meta property="article:tag" content="Hadoop">
+<meta property="article:tag" content="MapReduce">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://www.zivjie.cn/img/4K%E9%BB%84%E6%98%8F.png">
+<meta name="twitter:image" content="http://www.zivjie.cn/img/Slow-Mo-Ocean.png">
   
   
   
-  <title>Hadoop概述 - Francis-Blog</title>
+  <title>5-Hadoop数据压缩 - Francis-Blog</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -199,7 +200,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="Hadoop概述"></span>
+            <span id="subtitle" data-typed-text="5-Hadoop数据压缩"></span>
           
         </div>
 
@@ -210,8 +211,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2024-06-01 16:13" pubdate>
-          2024年6月1日 下午
+        <time datetime="2024-06-15 16:13" pubdate>
+          2024年6月15日 下午
         </time>
       </span>
     
@@ -222,7 +223,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          15 字
+          2.9k 字
         
       </span>
     
@@ -233,7 +234,7 @@
         
         
         
-          1 分钟
+          25 分钟
         
       </span>
     
@@ -271,12 +272,49 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">Hadoop概述</h1>
+            <h1 style="display: none">5-Hadoop数据压缩</h1>
             
             
               <div class="markdown-body">
                 
-                <h2 id="1-在redis中调用lua脚本"><a href="#1-在redis中调用lua脚本" class="headerlink" title="1  在redis中调用lua脚本"></a>1  在redis中调用lua脚本</h2>
+                <h1 id="1-概述"><a href="#1-概述" class="headerlink" title="1 概述"></a>1 概述</h1><p>这是MapReduce的一种优化策略：通过压缩编码对mapper或者reducer的输出进行压缩，以减少磁盘IO，提高MR程序运行速度（但相应增加了cpu运算负担）</p>
+<figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs arcade"><span class="hljs-number">1</span>) MapReduce支持将<span class="hljs-built_in">map</span>输出的结果或者<span class="hljs-built_in">reduce</span>输出的结果进行压缩，以减少网络IO或最终输出数据的体积<br><span class="hljs-number">2</span>) 压缩特性运用得当能提高性能，但运用不当也可能降低性能<br><span class="hljs-number">3</span>) 基本原则：<br>	-运算密集型的job，少用压缩<br>	-IO密集型的job，多用压缩<br></code></pre></td></tr></table></figure>
+
+<h1 id="2-MR支持的压缩编码"><a href="#2-MR支持的压缩编码" class="headerlink" title="2 MR支持的压缩编码"></a>2 MR支持的压缩编码</h1><p><img src="/image/Hadoop/MapReduce/10.png" srcset="/img/loading.gif" lazyload></p>
+<p>考虑Hadoop应用处理的数据集比较大，因此需要借助压缩。下面是按照效率从高到低排列的</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs erlang">（<span class="hljs-number">1</span>）使用容器格式文件，例如：顺序文件、RCFile、Avro数据格式支持压缩和切分文件。另外在配合使用一些快速压缩工具，例如：LZO、LZ4或者Snappy.<br>（<span class="hljs-number">2</span>）使用支持切分压缩格式，例如bzip2<br>（<span class="hljs-number">3</span>）在应用中将文件切分成块，对每块进行任意格式压缩。这种情况确保压缩后的数据接近HDFS块大小。<br>（<span class="hljs-number">4</span>）存储未压缩文件，以原始文件存储。<br></code></pre></td></tr></table></figure>
+
+<h1 id="3-Reducer输出压缩"><a href="#3-Reducer输出压缩" class="headerlink" title="3 Reducer输出压缩"></a>3 Reducer输出压缩</h1><p>在配置参数或在代码中都可以设置reduce的输出压缩</p>
+<ol>
+<li>在配置参数中设置 </li>
+</ol>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs stylus">压缩属性：mapreduce<span class="hljs-selector-class">.output</span><span class="hljs-selector-class">.fileoutputformat</span><span class="hljs-selector-class">.compress</span>	设置为true<br>压缩格式属性：mapreduce<span class="hljs-selector-class">.output</span><span class="hljs-selector-class">.fileoutputformat</span><span class="hljs-selector-class">.compress</span><span class="hljs-selector-class">.codec</span><br>	类库有：org<span class="hljs-selector-class">.apache</span><span class="hljs-selector-class">.hadoop</span><span class="hljs-selector-class">.io</span><span class="hljs-selector-class">.compress</span><span class="hljs-selector-class">.DefaultCodec</span>          <span class="hljs-selector-class">.deflate</span><br>		org<span class="hljs-selector-class">.apache</span><span class="hljs-selector-class">.hadoop</span><span class="hljs-selector-class">.io</span><span class="hljs-selector-class">.compress</span><span class="hljs-selector-class">.GzipCodec</span>				   <span class="hljs-selector-class">.gz</span><br>压缩类型属性：mapreduce<span class="hljs-selector-class">.output</span><span class="hljs-selector-class">.fileoutputformat</span><span class="hljs-selector-class">.compress</span>.type=RECORD<br></code></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>也可以在代码中用</li>
+</ol>
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs livecodeserver">conf.<span class="hljs-built_in">set</span>(“mapreduce.output.fileoutputformat.<span class="hljs-built_in">compress</span>”,”<span class="hljs-literal">true</span>”)<br></code></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>在代码中设置</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">Job</span> <span class="hljs-variable">job</span> <span class="hljs-operator">=</span> Job.getInstance(conf);<br>FileOutputFormat.setCompressOutput(job, <span class="hljs-literal">true</span>);<br>FileOutputFormat.setOutputCompressorClass(job, (Class&lt;? <span class="hljs-keyword">extends</span> <span class="hljs-title class_">CompressionCodec</span>&gt;) Class.forName(<span class="hljs-string">&quot;&quot;</span>));<br></code></pre></td></tr></table></figure>
+
+<h1 id="4-Mapper输出压缩"><a href="#4-Mapper输出压缩" class="headerlink" title="4 Mapper输出压缩"></a>4 Mapper输出压缩</h1><p>在配置参数或在代码中都可以设置reduce的输出压缩</p>
+<ol>
+<li>在配置参数中设置 </li>
+</ol>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs stylus">mapreduce<span class="hljs-selector-class">.map</span><span class="hljs-selector-class">.output</span>.compress=true<br><br>mapreduce<span class="hljs-selector-class">.map</span><span class="hljs-selector-class">.output</span><span class="hljs-selector-class">.compress</span>.codec=org<span class="hljs-selector-class">.apache</span><span class="hljs-selector-class">.hadoop</span><span class="hljs-selector-class">.io</span><span class="hljs-selector-class">.compress</span>.DefaultCodec<br></code></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>在代码中设置</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java">conf.set(“mapreduce.map.output.compress”,” <span class="hljs-literal">true</span>”)<br>conf.setBoolean(Job.MAP_OUTPUT_COMPRESS, <span class="hljs-literal">true</span>);<br>conf.setClass(Job.MAP_OUTPUT_COMPRESS_CODEC, GzipCodec.class, CompressionCodec.class);<br></code></pre></td></tr></table></figure>
+
+<h1 id="5-压缩文件的读取"><a href="#5-压缩文件的读取" class="headerlink" title="5 压缩文件的读取"></a>5 压缩文件的读取</h1><p>Hadoop自带的InputFormat类内置支持压缩文件的读取，比如TextInputformat类，在其initialize方法中： </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">initialize</span><span class="hljs-params">(InputSplit genericSplit,</span><br><span class="hljs-params">                       TaskAttemptContext context)</span> <span class="hljs-keyword">throws</span> IOException &#123;<br>    <span class="hljs-type">FileSplit</span> <span class="hljs-variable">split</span> <span class="hljs-operator">=</span> (FileSplit) genericSplit;<br>    <span class="hljs-type">Configuration</span> <span class="hljs-variable">job</span> <span class="hljs-operator">=</span> context.getConfiguration();<br>    <span class="hljs-built_in">this</span>.maxLineLength = job.getInt(MAX_LINE_LENGTH, Integer.MAX_VALUE);<br>    start = split.getStart();<br>    end = start + split.getLength();<br>    <span class="hljs-keyword">final</span> <span class="hljs-type">Path</span> <span class="hljs-variable">file</span> <span class="hljs-operator">=</span> split.getPath();<br><br>    <span class="hljs-comment">// open the file and seek to the start of the split</span><br>    <span class="hljs-keyword">final</span> <span class="hljs-type">FileSystem</span> <span class="hljs-variable">fs</span> <span class="hljs-operator">=</span> file.getFileSystem(job);<br>    fileIn = fs.open(file);<br>    <span class="hljs-comment">//根据文件后缀名创建相应压缩编码的codec</span><br>    <span class="hljs-type">CompressionCodec</span> <span class="hljs-variable">codec</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">CompressionCodecFactory</span>(job).getCodec(file);<br>    <span class="hljs-keyword">if</span> (<span class="hljs-literal">null</span>!=codec) &#123;<br>        isCompressedInput = <span class="hljs-literal">true</span>;	<br>        decompressor = CodecPool.getDecompressor(codec);<br>        <span class="hljs-comment">//判断是否属于可切片压缩编码类型</span><br>        <span class="hljs-keyword">if</span> (codec <span class="hljs-keyword">instanceof</span> SplittableCompressionCodec) &#123;<br>            <span class="hljs-keyword">final</span> <span class="hljs-type">SplitCompressionInputStream</span> <span class="hljs-variable">cIn</span> <span class="hljs-operator">=</span><br>                ((SplittableCompressionCodec)codec).createInputStream(<br>                fileIn, decompressor, start, end,<br>                SplittableCompressionCodec.READ_MODE.BYBLOCK);<br>            <span class="hljs-comment">//如果是可切片压缩编码，则创建一个CompressedSplitLineReader读取压缩数据</span><br>            in = <span class="hljs-keyword">new</span> <span class="hljs-title class_">CompressedSplitLineReader</span>(cIn, job,<br>                                               <span class="hljs-built_in">this</span>.recordDelimiterBytes);<br>            start = cIn.getAdjustedStart();<br>            end = cIn.getAdjustedEnd();<br>            filePosition = cIn;<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-comment">//如果是不可切片压缩编码，则创建一个SplitLineReader读取压缩数据，并将文件输入流转换成解压数据流传递给普通SplitLineReader读取</span><br>            in = <span class="hljs-keyword">new</span> <span class="hljs-title class_">SplitLineReader</span>(codec.createInputStream(fileIn,<br>                                                             decompressor), job, <span class="hljs-built_in">this</span>.recordDelimiterBytes);<br>            filePosition = fileIn;<br>        &#125;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        fileIn.seek(start);<br>        <span class="hljs-comment">//如果不是压缩文件，则创建普通SplitLineReader读取数据</span><br>        in = <span class="hljs-keyword">new</span> <span class="hljs-title class_">SplitLineReader</span>(fileIn, job, <span class="hljs-built_in">this</span>.recordDelimiterBytes);<br>        filePosition = fileIn;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
                 
               </div>
             
@@ -297,6 +335,13 @@
   <a href="/categories/Hadoop/" class="category-chain-item">Hadoop</a>
   
   
+    <span>></span>
+    
+  <a href="/categories/Hadoop/MapReduce/" class="category-chain-item">MapReduce</a>
+  
+  
+
+  
 
       </span>
     
@@ -311,6 +356,8 @@
       
         <a href="/tags/Hadoop/">#Hadoop</a>
       
+        <a href="/tags/MapReduce/">#MapReduce</a>
+      
     </div>
   
 </div>
@@ -321,8 +368,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>Hadoop概述</div>
-      <div>http://www.zivjie.cn/2024/06/01/Hadoop/MapReduce/3-MapReduce基础/</div>
+      <div>5-Hadoop数据压缩</div>
+      <div>http://www.zivjie.cn/2024/06/15/Hadoop/MapReduce/5-Hadoop数据压缩/</div>
     </div>
     <div class="license-meta">
       
@@ -334,7 +381,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2024年6月1日</div>
+          <div>2024年6月15日</div>
         </div>
       
       
@@ -366,9 +413,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2024/06/01/Hadoop/MapReduce/6-%E5%AE%9E%E6%88%98%E6%A1%88%E4%BE%8B/" title="Hadoop概述">
+                      <a href="/2024/06/15/Hadoop/MapReduce/6-%E5%AE%9E%E6%88%98%E6%A1%88%E4%BE%8B/" title="6-实战案例">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">Hadoop概述</span>
+                        <span class="hidden-mobile">6-实战案例</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -376,8 +423,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2024/06/01/Hadoop/MapReduce/5-Hadoop%E6%95%B0%E6%8D%AE%E5%8E%8B%E7%BC%A9/" title="Hadoop概述">
-                        <span class="hidden-mobile">Hadoop概述</span>
+                      <a href="/2024/06/15/Hadoop/MapReduce/4-MapReduce%E9%AB%98%E7%BA%A7/" title="4-MapReduce高级">
+                        <span class="hidden-mobile">4-MapReduce高级</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
