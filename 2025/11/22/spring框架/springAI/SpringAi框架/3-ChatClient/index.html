@@ -1,0 +1,734 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Francis">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1 概述 核心功能：提供与 AI 模型通信的流式 API，支持同步和流式编程模型。  输入构建：通过流式 API 构建包含用户消息和系统消息的提示（Prompt），消息可包含运行时替换的占位符。  输出处理：支持返回文本内容、结构化实体、带元数据的响应（如 token 使用量），以及流式响应。     对比 交互方式 功能扩展 结构化输出 适用场景    ChatModel 直接调用模型，需手动处">
+<meta property="og:type" content="article">
+<meta property="og:title" content="3-ChatClient">
+<meta property="og:url" content="http://www.zivjie.cn/2025/11/22/spring%E6%A1%86%E6%9E%B6/springAI/SpringAi%E6%A1%86%E6%9E%B6/3-ChatClient/index.html">
+<meta property="og:site_name" content="Francis-Blog">
+<meta property="og:description" content="1 概述 核心功能：提供与 AI 模型通信的流式 API，支持同步和流式编程模型。  输入构建：通过流式 API 构建包含用户消息和系统消息的提示（Prompt），消息可包含运行时替换的占位符。  输出处理：支持返回文本内容、结构化实体、带元数据的响应（如 token 使用量），以及流式响应。     对比 交互方式 功能扩展 结构化输出 适用场景    ChatModel 直接调用模型，需手动处">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.zivjie.cn/img/Lonely%20Night%20.png">
+<meta property="article:published_time" content="2025-11-22T01:35:21.000Z">
+<meta property="article:modified_time" content="2026-02-04T02:24:49.898Z">
+<meta property="article:author" content="Francis">
+<meta property="article:tag" content="AI">
+<meta property="article:tag" content="SpringAI">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://www.zivjie.cn/img/Lonely%20Night%20.png">
+  
+  
+  
+  <title>3-ChatClient - Francis-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.zivjie.cn","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Francis</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="3-ChatClient"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-11-22 09:35" pubdate>
+          2025年11月22日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          38 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">3-ChatClient</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="1-概述"><a href="#1-概述" class="headerlink" title="1 概述"></a>1 概述</h1><ul>
+<li>核心功能：提供与 AI 模型通信的流式 API，支持同步和流式编程模型。 </li>
+<li>输入构建：通过流式 API 构建包含用户消息和系统消息的提示（Prompt），消息可包含运行时替换的占位符。 </li>
+<li>输出处理：支持返回文本内容、结构化实体、带元数据的响应（如 token 使用量），以及流式响应。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>对比</th>
+<th>交互方式</th>
+<th>功能扩展</th>
+<th>结构化输出</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ChatModel</td>
+<td>直接调用模型，需手动处理请求/响应</td>
+<td>弱</td>
+<td>需手动解析响应文本</td>
+<td>实现简单功能和场景</td>
+</tr>
+<tr>
+<td>ChatClient</td>
+<td>链式调用，自动封装提示词贺解析响应</td>
+<td>强，内置Advisor机制（如对话历史管理、RAG）</td>
+<td>支持自动映射为Java对象（如entity(Recipe.class)）</td>
+<td>快速开发复杂功能的场景，如企业级智能客服、连接外部工具等</td>
+</tr>
+</tbody></table>
+<h1 id="2-创建ChatClient对象"><a href="#2-创建ChatClient对象" class="headerlink" title="2 创建ChatClient对象"></a>2 创建ChatClient对象</h1><h2 id="2-1-自动配置"><a href="#2-1-自动配置" class="headerlink" title="2.1 自动配置"></a>2.1 自动配置</h2><p>SpringBoot自动配置会创建 ChatClent.Builder bean，可直接注入并构建实例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Chat2Controller</span> &#123;<br>    <br>    <span class="hljs-keyword">private</span> ChatClient client;<br>    <br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Chat2Controller</span><span class="hljs-params">(ChatClient.Builder clientBuilder )</span> &#123;<br>        <span class="hljs-built_in">this</span>.client  = clientBuilder.build();<br>    &#125;<br>    <br>    <span class="hljs-meta">@GetMapping(&quot;/ai2/generate&quot;)</span><br>    <span class="hljs-keyword">public</span> Map <span class="hljs-title function_">generate</span><span class="hljs-params">(<span class="hljs-meta">@RequestParam(value = &quot;message&quot;, defaultValue = &quot;Tell me a joke&quot;)</span> String message)</span> &#123;<br>		<span class="hljs-keyword">return</span> Map.of(<span class="hljs-string">&quot;generation&quot;</span>, <span class="hljs-built_in">this</span>.client.prompt(message).call().content());<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="2-2-手动创建方式"><a href="#2-2-手动创建方式" class="headerlink" title="2.2 手动创建方式"></a>2.2 手动创建方式</h2><p>禁用自动配置后（ spring.ai.chat.client.enabled=false），可手动创建多个实例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Configuration</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">ChatConfig</span> &#123;<br>	<span class="hljs-meta">@Bean</span><br>	ChatClient <span class="hljs-title function_">openAiClient</span><span class="hljs-params">(OpenAiChatModel model)</span> &#123;<br>		<span class="hljs-keyword">return</span> ChatClient.create(model);<br>	&#125;<br>    <br><span class="hljs-comment">/*  @Bean </span><br><span class="hljs-comment">	ChatClient anthropicClient(AnthropicChatModel model) &#123;</span><br><span class="hljs-comment">		return ChatClient.create(model);</span><br><span class="hljs-comment">	&#125;*/</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>然后在使用的时候直接从容器中获取：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Chat2Controller</span> &#123;<br>    <br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> ChatClient client;<br>    <br>    <span class="hljs-meta">@GetMapping(&quot;/ai2/generate&quot;)</span><br>    <span class="hljs-keyword">public</span> Map <span class="hljs-title function_">generate</span><span class="hljs-params">(<span class="hljs-meta">@RequestParam(value = &quot;message&quot;, defaultValue = &quot;Tell me a joke&quot;)</span> String message)</span> &#123;<br>        <span class="hljs-keyword">return</span> Map.of(<span class="hljs-string">&quot;generation&quot;</span>, <span class="hljs-built_in">this</span>.client.prompt(message).call().content());<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h1 id="3-流式API核心用法"><a href="#3-流式API核心用法" class="headerlink" title="3 流式API核心用法"></a>3 流式API核心用法</h1><p>构建提示的三种方式</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs stylus"><span class="hljs-function"><span class="hljs-title">prompt</span><span class="hljs-params">()</span></span>：空参，手动构建用户、系统消息。<br><span class="hljs-function"><span class="hljs-title">prompt</span><span class="hljs-params">(Prompt prompt)</span></span>：传入已构建的 Prompt 实例。<br><span class="hljs-function"><span class="hljs-title">prompt</span><span class="hljs-params">(String content)</span></span>：快速设置用户消息内容。<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs java">	<span class="hljs-meta">@Test</span><br>   <span class="hljs-keyword">void</span> <span class="hljs-title function_">coreApi1</span><span class="hljs-params">()</span> &#123;<br>       <span class="hljs-comment">// 核心API的使用</span><br>       <span class="hljs-type">String</span> <span class="hljs-variable">content</span> <span class="hljs-operator">=</span> client.prompt()<br>               .user(<span class="hljs-string">&quot;中国的面积有多大?&quot;</span>)<br>               .system(<span class="hljs-string">&quot;你是一个地理专家，能够回复用户的各种地理问题&quot;</span>)<br>               .call()<br>               .content();<br>       System.out.println(content);<br>   &#125;<br><br>   <span class="hljs-meta">@Test</span><br>   <span class="hljs-keyword">void</span> <span class="hljs-title function_">coreApi2</span><span class="hljs-params">()</span> &#123;<br>       <span class="hljs-comment">// 核心API的使用</span><br>       <span class="hljs-type">String</span> <span class="hljs-variable">content</span> <span class="hljs-operator">=</span> client.prompt(<span class="hljs-string">&quot;中国的面积有多大?&quot;</span>)<br>               .call()<br>               .content();<br>       System.out.println(content);<br>&#125;<br><br><span class="hljs-meta">@Test</span><br><span class="hljs-keyword">void</span> <span class="hljs-title function_">coreApi3</span><span class="hljs-params">()</span> &#123;<br>	<span class="hljs-comment">// 创建用户消息</span><br>	<span class="hljs-type">Message</span> <span class="hljs-variable">userMsg</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">UserMessage</span>(<span class="hljs-string">&quot;中国的面积有多大?&quot;</span>);<br>	<span class="hljs-comment">// 创建系统消息</span><br>	<span class="hljs-type">Message</span> <span class="hljs-variable">sysMsg</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SystemMessage</span>(<span class="hljs-string">&quot;你是一个地理专家，能够回复用户的各种地理问题;&quot;</span>);<br>	<span class="hljs-comment">// 组装 Prompt</span><br>	<span class="hljs-type">Prompt</span> <span class="hljs-variable">prompt</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Prompt</span>(List.of(sysMsg, userMsg));<br>	<span class="hljs-comment">// 核心API的使用</span><br>	<span class="hljs-type">String</span> <span class="hljs-variable">content</span> <span class="hljs-operator">=</span> client.prompt(prompt)<br>           .call()<br>		.content();<br>	System.out.println(content);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>同步调用（call）返回值</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs stylus"><span class="hljs-function"><span class="hljs-title">content</span><span class="hljs-params">()</span></span>：返回字符串内容。<br><span class="hljs-function"><span class="hljs-title">chatResponse</span><span class="hljs-params">()</span></span>：返回包含元数据（如 token 数）的 ChatResponse。<br><span class="hljs-function"><span class="hljs-title">entity</span><span class="hljs-params">(Class&lt;T&gt; type)</span></span>：将响应映射为实体类,这个我们得创建对应的实体类来封装<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Test</span><br><span class="hljs-keyword">void</span> <span class="hljs-title function_">coreApiCall2</span><span class="hljs-params">()</span> &#123;<br>	<span class="hljs-comment">// 核心API的使用</span><br>	<span class="hljs-type">ChatResponse</span> <span class="hljs-variable">chatResponse</span> <span class="hljs-operator">=</span> client.prompt()<br>		.user(<span class="hljs-string">&quot;中国的面积有多大?&quot;</span>)<br>		.system(<span class="hljs-string">&quot;你是一个地理专家，能够回复用户的各种地理问题&quot;</span>)<br>		.call().chatResponse();<br>	System.out.println(chatResponse);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>输出结果</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs routeros">ChatResponse [metadata=&#123; id: chatcmplBwKrrhtbeNYcvZICeMJz5xdRRzuEQ, usage: DefaultUsage&#123;<span class="hljs-attribute">promptTokens</span>=33, <span class="hljs-attribute">completionTokens</span>=37, <span class="hljs-attribute">totalTokens</span>=70&#125;, rateLimit: &#123; @type: org.springframework.ai.openai.metadata.OpenAiRateLimit, requestsLimit: <span class="hljs-literal">null</span>, requestsRemaining: <span class="hljs-literal">null</span>, requestsReset: <span class="hljs-literal">null</span>, tokensLimit: <span class="hljs-literal">null</span>; tokensRemaining: <span class="hljs-literal">null</span>; tokensReset: <span class="hljs-literal">null</span> &#125; &#125;, generations=[Generation[<span class="hljs-attribute">assistantMessage</span>=AssistantMessage [<span class="hljs-attribute">messageType</span>=ASSISTANT, toolCalls=[], <span class="hljs-attribute">textContent</span>=中国的总面积约为960万平方公里，是世界上面积第三大的国家，仅次于俄罗斯和加拿大。这个面积包括了中国的陆地和水域。, metadata=&#123;<span class="hljs-attribute">refusal</span>=, <span class="hljs-attribute">finishReason</span>=STOP, <span class="hljs-attribute">index</span>=0, <span class="hljs-attribute">id</span>=chatcmpl-BwKrrhtbeNYcvZICeMJz5xdRRzuEQ, <span class="hljs-attribute">role</span>=ASSISTANT, <span class="hljs-attribute">messageType</span>=ASSISTANT&#125;], <span class="hljs-attribute">chatGenerationMetadata</span>=DefaultChatGenerationMetadata[<span class="hljs-attribute">finishReason</span>=<span class="hljs-string">&#x27;STOP&#x27;</span>, <span class="hljs-attribute">filters</span>=0, <span class="hljs-attribute">metadata</span>=0]]]]<br></code></pre></td></tr></table></figure>
+
+<p>流式调用（stream）返回值</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs stylus"><span class="hljs-function"><span class="hljs-title">content</span><span class="hljs-params">()</span></span>：返回 Flux&lt;String&gt; 流式文本。<br><span class="hljs-function"><span class="hljs-title">chatResponse</span><span class="hljs-params">()</span></span>：返回 Flux&lt;ChatResponse&gt; 流式响应（含元数据）。<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Test</span><br><span class="hljs-keyword">void</span> <span class="hljs-title function_">coreApiStream1</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> InterruptedException &#123;<br>	<span class="hljs-comment">// 核心API的使用</span><br>	Flux&lt;String&gt; content = client.prompt()<br>		.user(<span class="hljs-string">&quot;中国的面积有多大?&quot;</span>)<br>		.system(<span class="hljs-string">&quot;你是一个地理专家，能够回复用户的各种地理问题&quot;</span>)<br>		.stream().content();<br>	<span class="hljs-comment">// 方式2：收集为字符串</span><br>	<span class="hljs-type">String</span> <span class="hljs-variable">result</span> <span class="hljs-operator">=</span> content.reduce(<span class="hljs-string">&quot;&quot;</span>, String::concat).block();<br>	System.out.println(result);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h1 id="4-默认配置与动态覆盖"><a href="#4-默认配置与动态覆盖" class="headerlink" title="4 默认配置与动态覆盖"></a>4 默认配置与动态覆盖</h1><p><strong>默认系统消息</strong>  在配置类中设置全局默认系统消息，避免每次调用重复设置：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Configuration</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Config</span> &#123;<br>	<span class="hljs-meta">@Bean</span><br>	ChatClient <span class="hljs-title function_">chatClient</span><span class="hljs-params">(ChatClient.Builder builder)</span> &#123;<br>		<span class="hljs-keyword">return</span> builder.defaultSystem(<span class="hljs-string">&quot;你是语言专家，精通英语&quot;</span>).build();<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>带参数的动态默认值</strong>  系统消息中使用占位符，运行时通过  system(sp -&gt; sp.param(“key”, value))  动态赋值：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 配置类中设置带参数的默认系统消息</span><br>builder.defaultSystem(<span class="hljs-string">&quot;你是语言专家，精通&#123;language&#125;&quot;</span>);<br><span class="hljs-comment">// 运行时覆盖参数</span><br>chatClient.prompt().system(sp -&gt; sp.param(<span class="hljs-string">&quot;language&quot;</span>, <span class="hljs-string">&quot;英语&quot;</span>)).user(<span class="hljs-string">&quot;Tell a story&quot;</span>).call().content();<br></code></pre></td></tr></table></figure>
+
+<p><strong>其他默认配置</strong></p>
+<ul>
+<li>defaultOptions(ChatOptions)：设置模型默认参数（如温度、模型类型）。 </li>
+<li>defaultFunctions(Function…)：注册默认工具调用函数。 </li>
+<li>defaultAdvisors(Advisor…)：添加默认顾问（如记忆、检索增强）。</li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/spring%E6%A1%86%E6%9E%B6/" class="category-chain-item">spring框架</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/spring%E6%A1%86%E6%9E%B6/SpringAI/" class="category-chain-item">SpringAI</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/spring%E6%A1%86%E6%9E%B6/SpringAI/SpringAi%E6%A1%86%E6%9E%B6/" class="category-chain-item">SpringAi框架</a>
+  
+  
+
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/AI/">#AI</a>
+      
+        <a href="/tags/SpringAI/">#SpringAI</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>3-ChatClient</div>
+      <div>http://www.zivjie.cn/2025/11/22/spring框架/springAI/SpringAi框架/3-ChatClient/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Francis</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年11月22日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/11/22/spring%E6%A1%86%E6%9E%B6/springAI/SpringAi%E6%A1%86%E6%9E%B6/4-Advisor/" title="4-Advisor">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">4-Advisor</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/11/15/spring%E6%A1%86%E6%9E%B6/springAI/SpringAi%E6%A1%86%E6%9E%B6/2-SpringAi%E5%85%A5%E9%97%A8/" title="2-SpringAi入门">
+                        <span class="hidden-mobile">2-SpringAi入门</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

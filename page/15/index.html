@@ -222,23 +222,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/02/26/spring%E6%A1%86%E6%9E%B6/springcloud/nacos/nacos%E5%AE%89%E8%A3%85%E4%B8%8E%E9%85%8D%E7%BD%AE/" target="_self">
-          <img src="/img/Kitchen%20Open%20Late.png" srcset="/img/loading.gif" lazyload alt="nacos安装与配置">
+        <a href="/2023/03/05/spring%E6%A1%86%E6%9E%B6/springcloud/openfegin/openfegin/" target="_self">
+          <img src="/img/Milky%20Way.png" srcset="/img/loading.gif" lazyload alt="OpenFeign">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/02/26/spring%E6%A1%86%E6%9E%B6/springcloud/nacos/nacos%E5%AE%89%E8%A3%85%E4%B8%8E%E9%85%8D%E7%BD%AE/" target="_self">
-          nacos安装与配置
+        <a href="/2023/03/05/spring%E6%A1%86%E6%9E%B6/springcloud/openfegin/openfegin/" target="_self">
+          OpenFeign
         </a>
       </h1>
 
       
-      <a class="index-excerpt " href="/2023/02/26/spring%E6%A1%86%E6%9E%B6/springcloud/nacos/nacos%E5%AE%89%E8%A3%85%E4%B8%8E%E9%85%8D%E7%BD%AE/" target="_self">
+      <a class="index-excerpt " href="/2023/03/05/spring%E6%A1%86%E6%9E%B6/springcloud/openfegin/openfegin/" target="_self">
         <div>
-          Nacos版本：2.0.4   nacos2.x已不支持ribbon，使用nacos2.x需要手动引入LoadBalancer 1. 单机版1.1 package(基于CentOS)1234567891011121314151617#（1）下载nacos-server的二进制包，比如：nacos-server-2.0.4.tar.gz#（2）解压并进入bin目录unzip nacos-server
+          新版本的OpenFeign把ribbon移除了，正常使用应该引入LoadBalancer依赖 1 OpenFeign使用(1) 整合openfeign依赖 1234&lt;dependency&gt;	&lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;	&lt;artifactId&gt;spring-cloud-starter-ope
         </div>
       </a>
 
@@ -246,8 +246,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2023-02-26 10:55" pubdate>
-              2023-02-26
+            <time datetime="2023-03-05 14:25" pubdate>
+              2023-03-05
             </time>
           </div>
         
@@ -272,7 +272,7 @@
   
     <span>></span>
     
-  <a href="/categories/spring%E6%A1%86%E6%9E%B6/springcloud/nacos/" class="category-chain-item">nacos</a>
+  <a href="/categories/spring%E6%A1%86%E6%9E%B6/springcloud/OpenFeign/" class="category-chain-item">OpenFeign</a>
   
   
 
@@ -295,7 +295,7 @@
             
               <a href="/tags/springcloud/">#springcloud</a>
             
-              <a href="/tags/nacos/">#nacos</a>
+              <a href="/tags/OpenFeign/">#OpenFeign</a>
             
           </div>
         
@@ -307,23 +307,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/02/25/spring%E6%A1%86%E6%9E%B6/springcloud/nacos/nacos%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83/" target="_self">
-          <img src="/img/LUNA.png" srcset="/img/loading.gif" lazyload alt="nacos注册中心">
+        <a href="/2023/03/05/spring%E6%A1%86%E6%9E%B6/springcloud/LoadBalancer/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1LoadBalancer/" target="_self">
+          <img src="/img/golden.png" srcset="/img/loading.gif" lazyload alt="负载均衡LoadBalancer">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/02/25/spring%E6%A1%86%E6%9E%B6/springcloud/nacos/nacos%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83/" target="_self">
-          nacos注册中心
+        <a href="/2023/03/05/spring%E6%A1%86%E6%9E%B6/springcloud/LoadBalancer/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1LoadBalancer/" target="_self">
+          负载均衡LoadBalancer
         </a>
       </h1>
 
       
-      <a class="index-excerpt " href="/2023/02/25/spring%E6%A1%86%E6%9E%B6/springcloud/nacos/nacos%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83/" target="_self">
+      <a class="index-excerpt " href="/2023/03/05/spring%E6%A1%86%E6%9E%B6/springcloud/LoadBalancer/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1LoadBalancer/" target="_self">
         <div>
-          Nacos版本：2.0.4   nacos2.x已不支持ribbon，使用nacos2.x需要手动引入LoadBalancer https://nacos.io/zh-cn/docs/sdk.html 12345#服务注册curl -X POST &#x27;http://localhost:8848/nacos/v1/ns/instance?serviceName=nacos.naming.se
+          nacos2.x已不支持ribbon，使用nacos2.x需要手动引入LoadBalancer 1 手写随机负载均衡算法12345678910111213@Resourceprivate RestTemplate restTemplate;//通过restTemplate访问随机一个url地址@RequestMapping(&quot;/test&quot;)public String loadb
         </div>
       </a>
 
@@ -331,8 +331,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2023-02-25 17:08" pubdate>
-              2023-02-25
+            <time datetime="2023-03-05 10:55" pubdate>
+              2023-03-05
             </time>
           </div>
         
@@ -357,7 +357,7 @@
   
     <span>></span>
     
-  <a href="/categories/spring%E6%A1%86%E6%9E%B6/springcloud/nacos/" class="category-chain-item">nacos</a>
+  <a href="/categories/spring%E6%A1%86%E6%9E%B6/springcloud/LoadBalancer/" class="category-chain-item">LoadBalancer</a>
   
   
 
@@ -376,11 +376,11 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
+              <a href="/tags/java/">#java</a>
+            
               <a href="/tags/springcloud/">#springcloud</a>
             
-              <a href="/tags/nacos/">#nacos</a>
-            
-              <a href="/tags/%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83/">#服务注册中心</a>
+              <a href="/tags/LoadBalancer/">#LoadBalancer</a>
             
           </div>
         
@@ -392,23 +392,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/02/25/lua/Lua-redis/" target="_self">
-          <img src="/img/4K%E9%BB%84%E6%98%8F.png" srcset="/img/loading.gif" lazyload alt="Lua脚本-redis">
+        <a href="/2023/03/04/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E5%86%85%E5%AD%98%E5%9B%9E%E6%94%B6/" target="_self">
+          <img src="/img/Dusk%20Minimal.png" srcset="/img/loading.gif" lazyload alt="Redis内存回收">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/02/25/lua/Lua-redis/" target="_self">
-          Lua脚本-redis
+        <a href="/2023/03/04/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E5%86%85%E5%AD%98%E5%9B%9E%E6%94%B6/" target="_self">
+          Redis内存回收
         </a>
       </h1>
 
       
-      <a class="index-excerpt " href="/2023/02/25/lua/Lua-redis/" target="_self">
+      <a class="index-excerpt " href="/2023/03/04/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E5%86%85%E5%AD%98%E5%9B%9E%E6%94%B6/" target="_self">
         <div>
-          1  在redis中调用lua脚本使用eval方法，语法格式： 1234567eval lua-script key-num [key1 key2 key3 ...] [value1 value2 value3 ...]//eval 代表执行Lua语言的命令//lua-script 代表Lua语言脚本内容//key-num 表示参数中有多少个key，需要注意的是Redis中的key是从1开始的，如
+          1. 过期策略1.1 立即过期(主动淘汰)每个设置过期时间的key都需要创建一个定时器，到过期时间就会立即清除。该策略可以立即清除过期的数据，对内存很友好，但是会占用大量CPU资源去处理过期的数据，从而影响缓存的响应时间和吞吐量。 1.2 惰性过期(被动淘汰)只有当访问一个key时，才会判断该key是否已经过期，过期则清除。该策略可以最大化的节省CPU资源，却对内存非常不友好。极端情况下可能出现大
         </div>
       </a>
 
@@ -416,8 +416,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2023-02-25 16:13" pubdate>
-              2023-02-25
+            <time datetime="2023-03-04 20:12" pubdate>
+              2023-03-04
             </time>
           </div>
         
@@ -432,8 +432,15 @@
     
       <span class="category-chain">
         
-  <a href="/categories/Lua/" class="category-chain-item">Lua</a>
+  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/" class="category-chain-item">中间件</a>
   
+  
+    <span>></span>
+    
+  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/Redis/" class="category-chain-item">Redis</a>
+  
+  
+
   
 
       </span>
@@ -449,7 +456,7 @@
             
               <a href="/tags/redis/">#redis</a>
             
-              <a href="/tags/lua/">#lua</a>
+              <a href="/tags/%E7%BC%93%E5%AD%98/">#缓存</a>
             
           </div>
         
@@ -461,23 +468,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/02/25/spring%E6%A1%86%E6%9E%B6/springboot/springboot%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" target="_self">
-          <img src="/img/Ghost%20of%20Tsushima.png" srcset="/img/loading.gif" lazyload alt="Springboot启动流程">
+        <a href="/2023/03/04/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB/" target="_self">
+          <img src="/img/Fantasy%20World.png" srcset="/img/loading.gif" lazyload alt="Redis为什么这么快">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/02/25/spring%E6%A1%86%E6%9E%B6/springboot/springboot%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" target="_self">
-          Springboot启动流程
+        <a href="/2023/03/04/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB/" target="_self">
+          Redis为什么这么快
         </a>
       </h1>
 
       
-      <a class="index-excerpt " href="/2023/02/25/spring%E6%A1%86%E6%9E%B6/springboot/springboot%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" target="_self">
+      <a class="index-excerpt " href="/2023/03/04/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB/" target="_self">
         <div>
-          1. 启动方式12345678910111213141516171819@SpringBootApplication public class Application &#123;    //方式一    public static void main(String[] args) &#123;        SpringApplication.run(Application.class, arg
+          总结起来主要有三点：1.纯内存结构。2.请求处理单线程。3.多路复用机制 1  原因1.1 内存KV结构的内存数据库，时间复杂度是O(1)。 1.2 单线程这里说的单线程其实指的是处理客户端的请求是单线程的，可以把它叫做主线程。从4.0版本之后，还引入了一些线程处理其他的事情，比如清理脏数据，无用连接的释放，大key的删除。 ​    把处理请求的主线程设置成单线程有什么好处呢？ ​    1.没
         </div>
       </a>
 
@@ -485,8 +492,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2023-02-25 12:01" pubdate>
-              2023-02-25
+            <time datetime="2023-03-04 16:00" pubdate>
+              2023-03-04
             </time>
           </div>
         
@@ -501,12 +508,12 @@
     
       <span class="category-chain">
         
-  <a href="/categories/spring%E6%A1%86%E6%9E%B6/" class="category-chain-item">spring框架</a>
+  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/" class="category-chain-item">中间件</a>
   
   
     <span>></span>
     
-  <a href="/categories/spring%E6%A1%86%E6%9E%B6/Springboot/" class="category-chain-item">Springboot</a>
+  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/Redis/" class="category-chain-item">Redis</a>
   
   
 
@@ -523,9 +530,9 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/java/">#java</a>
+              <a href="/tags/redis/">#redis</a>
             
-              <a href="/tags/springboot/">#springboot</a>
+              <a href="/tags/%E7%BC%93%E5%AD%98/">#缓存</a>
             
           </div>
         
@@ -537,23 +544,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/02/04/spring%E6%A1%86%E6%9E%B6/springcloud/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B%E4%BB%A5%E5%8F%8A%E7%89%88%E6%9C%AC%E6%9B%B4%E8%BF%AD/" target="_self">
-          <img src="/img/Mountain%20lake.png" srcset="/img/loading.gif" lazyload alt="架构演进以及版本更迭">
+        <a href="/2023/03/04/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E4%BA%8B%E5%8A%A1/" target="_self">
+          <img src="/img/Fantasy%20World%20(2).png" srcset="/img/loading.gif" lazyload alt="Redis事务">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/02/04/spring%E6%A1%86%E6%9E%B6/springcloud/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B%E4%BB%A5%E5%8F%8A%E7%89%88%E6%9C%AC%E6%9B%B4%E8%BF%AD/" target="_self">
-          架构演进以及版本更迭
+        <a href="/2023/03/04/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E4%BA%8B%E5%8A%A1/" target="_self">
+          Redis事务
         </a>
       </h1>
 
       
-      <a class="index-excerpt " href="/2023/02/04/spring%E6%A1%86%E6%9E%B6/springcloud/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B%E4%BB%A5%E5%8F%8A%E7%89%88%E6%9C%AC%E6%9B%B4%E8%BF%AD/" target="_self">
+      <a class="index-excerpt " href="/2023/03/04/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E4%BA%8B%E5%8A%A1/" target="_self">
         <div>
-          1. 架构演进1.1 单体架构 1.2 垂直化拆分按功能模块进行垂直化拆分  1.3 集群+负载均衡 1.4 SOASOA：Service Oriented Architecture  ESB：Enterprise Service Bus 企业服务总线。ESB就相当于是一根管道，主要是为了集成不同协议的服务，使得不同服务之间能够彼此调用  1.5 微服务 2. 微服务架构下问题的解决方案Cloud
+          1 为什么要用事务Redis的单个命令是原子性的（比如get set mget mset），要么成功要么失败，不存在并发干扰的问题。如果涉及到多个命令的时候，需要把多个命令作为一个不可分割的处理序列，就必须要依赖redis的功能特性来实现了。 Redis提供了事务的功能，可以把一组命令一起执行。Redis的事务有3个特点：  按进入队列的顺序执行。  不会受到其他客户端的请求的影响  事务不能嵌套
         </div>
       </a>
 
@@ -561,8 +568,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2023-02-04 10:35" pubdate>
-              2023-02-04
+            <time datetime="2023-03-04 16:00" pubdate>
+              2023-03-04
             </time>
           </div>
         
@@ -577,12 +584,12 @@
     
       <span class="category-chain">
         
-  <a href="/categories/spring%E6%A1%86%E6%9E%B6/" class="category-chain-item">spring框架</a>
+  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/" class="category-chain-item">中间件</a>
   
   
     <span>></span>
     
-  <a href="/categories/spring%E6%A1%86%E6%9E%B6/springcloud/" class="category-chain-item">springcloud</a>
+  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/Redis/" class="category-chain-item">Redis</a>
   
   
 
@@ -599,9 +606,389 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/java/">#java</a>
+              <a href="/tags/redis/">#redis</a>
             
-              <a href="/tags/springcloud/">#springcloud</a>
+              <a href="/tags/%E7%BC%93%E5%AD%98/">#缓存</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2023/03/04/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E5%AE%A2%E6%88%B7%E7%AB%AF/" target="_self">
+          <img src="/img/doomsday.png" srcset="/img/loading.gif" lazyload alt="Redis客户端">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/03/04/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E5%AE%A2%E6%88%B7%E7%AB%AF/" target="_self">
+          Redis客户端
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt " href="/2023/03/04/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E5%AE%A2%E6%88%B7%E7%AB%AF/" target="_self">
+        <div>
+          1  通信协议Redis监听默认6379的端口号，可以通过TCP方式建立连接。服务端约定了一种特殊的消息格式，每个命令都是以\r\n（CRLF回车+换行）结尾。这种编码格式之前在AOF文件中见到了，叫做Redis Serialization Protocol（RESP，redis序列化协议），发消息或者相应消息需要按这种格式编码，接受消息需要按这种格式解码，redis设计这种格式的原因：容易实现，
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-03-04 13:19" pubdate>
+              2023-03-04
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/" class="category-chain-item">中间件</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/Redis/" class="category-chain-item">Redis</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/redis/">#redis</a>
+            
+              <a href="/tags/%E7%BC%93%E5%AD%98/">#缓存</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2023/03/04/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E5%88%86%E5%B8%83%E5%BC%8F/" target="_self">
+          <img src="/img/dawn%20of%20war.png" srcset="/img/loading.gif" lazyload alt="Redis分布式">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/03/04/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E5%88%86%E5%B8%83%E5%BC%8F/" target="_self">
+          Redis分布式
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt " href="/2023/03/04/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E5%88%86%E5%B8%83%E5%BC%8F/" target="_self">
+        <div>
+          如果要实现redis数据的分片，有三种方案。 第一种是在客户端实现相关的逻辑，例如用取模或者一致性哈希对key进行分片，查询和修改都先判断key的路由。 第二种是把做分片处理的逻辑抽取出来，运行一个独立的代理服务，客户端连接到这个代理服务，代理服务做请求的转发。 第三种就是基于服务端实现。 1  客户端Sharding-ShardedJedisRedisTemplate就是对jedis的封装。 J
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-03-04 11:30" pubdate>
+              2023-03-04
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/" class="category-chain-item">中间件</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/Redis/" class="category-chain-item">Redis</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/redis/">#redis</a>
+            
+              <a href="/tags/%E7%BC%93%E5%AD%98/">#缓存</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2023/03/04/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E5%85%A5%E9%97%A8/" target="_self">
+          <img src="/img/Eternal%20Light%20by.png" srcset="/img/loading.gif" lazyload alt="Redis入门">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/03/04/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E5%85%A5%E9%97%A8/" target="_self">
+          Redis入门
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt " href="/2023/03/04/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E5%85%A5%E9%97%A8/" target="_self">
+        <div>
+          1 redis定位与特性1.1 SQL与NoSQL​    大部分时候，我们都会首先考虑用关系型数据库来存储我们的数据，比如SQLServer，Oracle，MySQL 等等。关系型数据库的特点： ​    1.它以表格的形式，基于行存储数据，是一个二维的模式。 ​    2.它存储的是结构化的数据，数据存储有固定的模式（scheme），数据需要适应表结构。 ​    3.表与表之间存在关联（Re
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-03-04 11:12" pubdate>
+              2023-03-04
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/" class="category-chain-item">中间件</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/Redis/" class="category-chain-item">Redis</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/redis/">#redis</a>
+            
+              <a href="/tags/%E7%BC%93%E5%AD%98/">#缓存</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2023/03/04/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85%E6%A8%A1%E5%BC%8F/" target="_self">
+          <img src="/img/Cyberpunk%20World.png" srcset="/img/loading.gif" lazyload alt="Redis发布订阅模式">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/03/04/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85%E6%A8%A1%E5%BC%8F/" target="_self">
+          Redis发布订阅模式
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt " href="/2023/03/04/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85%E6%A8%A1%E5%BC%8F/" target="_self">
+        <div>
+          1 列表的局限通过队列的rpush和blpop可以实现消息队列（队尾进队头出），没有任何元素可以弹出的时候，连接会被阻塞。但是基于list实现的消息队列，不支持一对多的消息分发，相当于只有一个消费者。 2 发布订阅模式除了通过list实现消息队列之外，Redis还提供了发布订阅的功能 2.1 订阅频道消息的生产者和消费者是不同的客户端，连接到同一个redis的服务。通过什么对象把生产者和消费者关联
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-03-04 11:12" pubdate>
+              2023-03-04
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/" class="category-chain-item">中间件</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/Redis/" class="category-chain-item">Redis</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/redis/">#redis</a>
+            
+              <a href="/tags/%E7%BC%93%E5%AD%98/">#缓存</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2023/03/04/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/" target="_self">
+          <img src="/img/floating.png" srcset="/img/loading.gif" lazyload alt="Redis主从复制">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/03/04/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/" target="_self">
+          Redis主从复制
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt " href="/2023/03/04/%E4%B8%AD%E9%97%B4%E4%BB%B6/redis/Redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/" target="_self">
+        <div>
+          redis支持集群的架构。集群的节点有主节点和从节点之分，主节点叫master，从节点叫slave。slave会通过复制的技术，自动同步master的数据。 1  主从复制配置Redis的主从配置非常的简单，只需要在配置文件里面添加一行配置就可以了。例如一主多从，186是主节点，在每个slave节点的redis.conf配置文件增加一行: 1replicaof 192.168.44.186 637
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-03-04 10:35" pubdate>
+              2023-03-04
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/" class="category-chain-item">中间件</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/Redis/" class="category-chain-item">Redis</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/redis/">#redis</a>
+            
+              <a href="/tags/%E7%BC%93%E5%AD%98/">#缓存</a>
             
           </div>
         
@@ -613,7 +1000,7 @@
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <a class="extend prev" rel="prev" href="/page/14/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/#board">13</a><a class="page-number" href="/page/14/#board">14</a><span class="page-number current">15</span>
+      <a class="extend prev" rel="prev" href="/page/14/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/#board">13</a><a class="page-number" href="/page/14/#board">14</a><span class="page-number current">15</span><a class="page-number" href="/page/16/#board">16</a><a class="extend next" rel="next" href="/page/16/#board"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
 

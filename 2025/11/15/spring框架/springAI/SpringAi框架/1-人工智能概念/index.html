@@ -1,0 +1,697 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Francis">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Spring AI 是由 Spring 官方推出的开源框架，旨在将人工智能（AI）功能无缝集成到 Java 应用程序中。它借鉴了 LangChain 和 LlamaIndex 等 Python 项目的设计理念，提供统一的抽象和模块化接口，简化了 AI 模型的接入和管理，降低了开发复杂度。 1 Model人工智能模型是用于处理和生成信息的算法，通常模仿人类的认知功能。通过从大型数据集中学习模式和洞察">
+<meta property="og:type" content="article">
+<meta property="og:title" content="1-人工智能概念">
+<meta property="og:url" content="http://www.zivjie.cn/2025/11/15/spring%E6%A1%86%E6%9E%B6/springAI/SpringAi%E6%A1%86%E6%9E%B6/1-%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%E6%A6%82%E5%BF%B5/index.html">
+<meta property="og:site_name" content="Francis-Blog">
+<meta property="og:description" content="Spring AI 是由 Spring 官方推出的开源框架，旨在将人工智能（AI）功能无缝集成到 Java 应用程序中。它借鉴了 LangChain 和 LlamaIndex 等 Python 项目的设计理念，提供统一的抽象和模块化接口，简化了 AI 模型的接入和管理，降低了开发复杂度。 1 Model人工智能模型是用于处理和生成信息的算法，通常模仿人类的认知功能。通过从大型数据集中学习模式和洞察">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.zivjie.cn/img/Ghost%20of%20Tsushima.png">
+<meta property="article:published_time" content="2025-11-15T11:45:21.000Z">
+<meta property="article:modified_time" content="2026-02-02T07:43:05.983Z">
+<meta property="article:author" content="Francis">
+<meta property="article:tag" content="AI">
+<meta property="article:tag" content="SpringAI">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://www.zivjie.cn/img/Ghost%20of%20Tsushima.png">
+  
+  
+  
+  <title>1-人工智能概念 - Francis-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.zivjie.cn","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Francis</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="1-人工智能概念"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-11-15 19:45" pubdate>
+          2025年11月15日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          26 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">1-人工智能概念</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>Spring AI 是由 Spring 官方推出的开源框架，旨在将人工智能（AI）功能无缝集成到 Java 应用程序中。它借鉴了 LangChain 和 LlamaIndex 等 Python 项目的设计理念，提供统一的抽象和模块化接口，简化了 AI 模型的接入和管理，降低了开发复杂度。</p>
+<h2 id="1-Model"><a href="#1-Model" class="headerlink" title="1 Model"></a>1 Model</h2><p>人工智能模型是用于处理和生成信息的算法，通常模仿人类的认知功能。通过从大型数据集中学习模式和洞察，这些模型可以进行预测、文本、图像或其他输出，从而增强各行各业的各种应用。</p>
+<p>AI 模型种类繁多，每种模型都适用于特定的用例。虽然 ChatGPT 及其生成式 AI 功能通过文本输入和输出吸引了众多用户，但许多模型和公司也提供多样化的输入和输出。在 ChatGPT 出现之前，许多人对文本转图像生成模型（例如 Midjourney 和 Stable Diffusion）着迷。</p>
+<p><img src="/image/spring/springAI/SpringAi/1.png" srcset="/img/loading.gif" lazyload></p>
+<p>Spring AI 目前支持将输入和输出处理为语言、图像和音频的模型。上表中的最后一行接受文本作为输入并输出数字，这通常被称为嵌入文本，代表 AI 模型中使用的内部数据结构。Spring AI 支持嵌入，以实现更高级的用例。</p>
+<p>GPT 等模型的独特之处在于其预训练特性，正如 GPT 中的“P”（聊天生成预训练 Transformer）所示。这项预训练功能将 AI 转变为通用的开发工具，无需丰富的机器学习或模型训练背景。</p>
+<h2 id="2-Prompt"><a href="#2-Prompt" class="headerlink" title="2 Prompt"></a>2 Prompt</h2><p>提示Prompt是基于语言的输入的基础，引导 AI 模型生成特定的输出。对于熟悉 ChatGPT 的人来说，提示可能看起来仅仅是在对话框中输入并发送到 API 的文本。然而，它包含的内容远不止于此。在许多 AI 模型中，提示的文本不仅仅是一个简单的字符串。</p>
+<p>ChatGPT 的 API 在一个提示中包含多个文本输入，每个文本输入都被分配一个角色。例如，系统角色用于指示模型如何操作并设置交互的上下文。此外，还有用户角色，通常是来自用户的输入。</p>
+<p>制作有效的提示既是一门艺术，也是一门科学。ChatGPT 是为人类对话而设计的。这与使用 SQL 之类的语言“提问”截然不同。人们必须像与人交谈一样与 AI 模型进行交流。</p>
+<p>这种交互方式如此重要，以至于“提示工程”一词已发展成为一门独立的学科。目前，有越来越多的技术可以提高提示的有效性。投入时间精心设计提示可以显著提升最终效果。</p>
+<p><strong>提示词模板</strong></p>
+<p>创建有效的提示涉及建立请求的上下文以及用特定于用户输入的值替换请求的各部分。此过程使用传统的基于文本的模板引擎来创建和管理提示。Spring AI为此使用了  OSS 库:  <a target="_blank" rel="noopener" href="https://www.stringtemplate.org/">https://www.stringtemplate.org/</a>   例如，考虑简单的提示模板:</p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs applescript">Tell <span class="hljs-keyword">me</span> a &#123;adjective&#125; joke <span class="hljs-keyword">about</span> &#123;content&#125;.<br></code></pre></td></tr></table></figure>
+
+<p>在 Spring AI 中，提示模板可以类比为 Spring MVC 架构中的“视图”。 java.util.Map它提供了一个模型对象（通常是 ），用于填充模板中的占位符。“渲染”后的字符串将成为提供给 AI 模型的提示内容。发送给模型的提示的具体数据格式存在相当大的差异。提示最初只是一些简单的字符串，后来演变为包含多条消息，每条消息中的每个字符串都代表着模型的不同角色。</p>
+<h2 id="3-Embedding"><a href="#3-Embedding" class="headerlink" title="3 Embedding"></a>3 Embedding</h2><p>嵌入是文本、图像或视频的数字表示，用于捕捉输入之间的关系。 嵌入的工作原理是将文本、图像和视频转换为浮点数数组（称为向量）。这些向量旨在捕捉文本、图像和视频的含义。嵌入数组的长度称为向量的维数。 通过计算两段文本的向量表示之间的数值距离，应用程序可以确定用于生成嵌入向量的对象之间的相似性。</p>
+<p><img src="/image/spring/springAI/SpringAi/2.png" srcset="/img/loading.gif" lazyload></p>
+<p>作为探索 AI 的 Java 开发者，无需理解这些向量表示背后的复杂数学理论或具体实现。只需了解它们在 AI 系统中的作用和功能即可，尤其是在将 AI 功能集成到应用程序中时。 嵌入在实际应用中尤为重要，例如检索增强生成 (RAG) 模式。它们能够将数据表示为语义空间中的点，语义空间类似于欧氏几何的二维空间，但维度更高。这意味着，就像欧氏几何中平面上的点根据其坐标可以远近一样，在语义空间中，点的接近程度反映了含义的相似性。在这个多维空间中，关于相似主题的句子位置更近，就像图上彼此靠近的点一样。这种接近性有助于文本分类、语义搜索甚至产品推荐等任务，因为它允许 AI 根据相关概念在这个扩展的语义景观中的“位置”来识别和分组它们。 可以把这个语义空间想象成一个向量。</p>
+<h2 id="4-Token"><a href="#4-Token" class="headerlink" title="4 Token"></a>4 Token</h2><p>token是 AI 模型运作的基石。输入时，模型将单词转换为token。输出时，模型将token转换回单词。 在英语中，一个token大致对应一个单词的 75%。作为参考，莎士比亚全集总计约  90 万字，翻译过来大约有 120 万个token。</p>
+<p>或许更重要的是，Token=金钱。在托管AI模型的背景下，你的费用取决于使用的Token数量。输入和输出都会计入Token总量。 此外，模型还受到令牌限制的影响，这会限制单个 API 调用中处理的文本量。此阈值通常称为“上下文窗口”。模型不会处理任何超出此限制的文本。 例如，ChatGPT3 的Token限制为 4K，而 GPT4 则提供 8K、16K 和 32K 等不同选项。Anthropic 的 Claude AI 模型的Token限制为 10 万，而 Meta 的最新研究则提出了 100 万Token限制模型。 要使用 GPT4 总结莎士比亚全集，您需要设计软件工程策略来切分数据，并在模型的上下文窗口限制内呈现数据。</p>
+<h2 id="5-结构化输出"><a href="#5-结构化输出" class="headerlink" title="5 结构化输出"></a>5 结构化输出</h2><p>即使你要求回复为 JSON 格式， AI 模型的输出通常也会以 JSON的形式出现java.lang.String。它可能是正确的 JSON，但它并非 JSON 数据结构。它只是一个字符串。此外，在提示中要求“需要 JSON”并非 100% 准确。这种复杂性导致了一个专门领域的出现，该领域涉及创建提示以产生预期的输出，然后将生成的简单字符串转换为可用于应用程序集成的数据结构。</p>
+<p><img src="/image/spring/springAI/SpringAi/3.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="6-模型增强"><a href="#6-模型增强" class="headerlink" title="6 模型增强"></a>6 模型增强</h2><p>有三种技术可以定制 AI 模型来整合您的数据：</p>
+<ul>
+<li><p><strong>微调：</strong>这项传统的机器学习技术涉及调整模型并更改其内部权重。然而，对于机器学习专家来说，这是一个极具挑战性的过程，而且由于 GPT 等模型的规模庞大，会极其耗费资源。此外，某些模型可能不提供此选项。</p>
+</li>
+<li><p><strong>提示填充：</strong>一种更实用的替代方案是将数据嵌入到提供给模型的提示中。考虑到模型的令牌限制，需要采用一些技术在模型的上下文窗口中呈现相关数据。这种方法通俗地称为“填充提示”。Spring AI 库可以帮助您基于“填充提示”技术（也称为检索增强生成 (RAG)）实现解决方案。<a target="_blank" rel="noopener" href="https://docs.spring.io/spring-ai/reference/concepts.html#concept-rag">https://docs.spring.io/spring-ai/reference/concepts.html#concept-rag</a></p>
+</li>
+<li><p><strong>工具调用</strong>：此技术允许注册工具（用户定义的服务），将大型语言模型连接到外部系统的 API。Spring AI 大大简化了支持工具调用所需的代码。</p>
+</li>
+</ul>
+<h2 id="7-评估"><a href="#7-评估" class="headerlink" title="7 评估"></a>7 评估</h2><p>有效地评估人工智能系统响应用户请求的输出，对于确保最终应用的准确性和实用性至关重要。一些新兴技术使得预训练模型本身能够实现这一目标。 此评估过程涉及分析生成的响应是否符合用户意图和查询上下文。相关性、连贯性和事实正确性等指标用于衡量 AI 生成的响应的质量。 一种方法是同时呈现用户的请求和 AI 模型的响应，查询响应是否与提供的数据一致。 此外，利用矢量数据库中存储的信息作为补充数据可以增强评估过程，有助于确定响应相关性。 Spring AI 项目提供了一个 EvaluatorAPI，目前支持访问评估模型响应的基本策略。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/spring%E6%A1%86%E6%9E%B6/" class="category-chain-item">spring框架</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/spring%E6%A1%86%E6%9E%B6/SpringAI/" class="category-chain-item">SpringAI</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/spring%E6%A1%86%E6%9E%B6/SpringAI/SpringAi%E6%A1%86%E6%9E%B6/" class="category-chain-item">SpringAi框架</a>
+  
+  
+
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/AI/">#AI</a>
+      
+        <a href="/tags/SpringAI/">#SpringAI</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>1-人工智能概念</div>
+      <div>http://www.zivjie.cn/2025/11/15/spring框架/springAI/SpringAi框架/1-人工智能概念/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Francis</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年11月15日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/11/15/spring%E6%A1%86%E6%9E%B6/springAI/SpringAi%E6%A1%86%E6%9E%B6/2-SpringAi%E5%85%A5%E9%97%A8/" title="2-SpringAi入门">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">2-SpringAi入门</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/11/15/spring%E6%A1%86%E6%9E%B6/springAI/6-%E5%BC%80%E6%BA%90%E6%A1%86%E6%9E%B6/" title="6-开源框架">
+                        <span class="hidden-mobile">6-开源框架</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

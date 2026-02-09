@@ -1,0 +1,706 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Francis">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1 核心概念和作用定义：RAG 是一种结合检索与生成的技术，解决大语言模型（LLM）在长文本处理、事实准确性和上下文感知方面的局限。  核心逻辑：通过检索外部知识库（如向量数据库）获取相关文档，将其作为上下文附加到用户查询中，辅助 LLM 生成更准确、有依据的回答。  Spring AI 支持：提供模块化架构和开箱即用的 Advisor，允许自定义 RAG 流程或使用现成实现。 2 Milvus的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="8-RAG">
+<meta property="og:url" content="http://www.zivjie.cn/2025/11/22/spring%E6%A1%86%E6%9E%B6/springAI/SpringAi%E6%A1%86%E6%9E%B6/8-RAG/index.html">
+<meta property="og:site_name" content="Francis-Blog">
+<meta property="og:description" content="1 核心概念和作用定义：RAG 是一种结合检索与生成的技术，解决大语言模型（LLM）在长文本处理、事实准确性和上下文感知方面的局限。  核心逻辑：通过检索外部知识库（如向量数据库）获取相关文档，将其作为上下文附加到用户查询中，辅助 LLM 生成更准确、有依据的回答。  Spring AI 支持：提供模块化架构和开箱即用的 Advisor，允许自定义 RAG 流程或使用现成实现。 2 Milvus的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.zivjie.cn/img/Pirates.png">
+<meta property="article:published_time" content="2025-11-22T05:45:21.000Z">
+<meta property="article:modified_time" content="2026-02-05T10:05:53.687Z">
+<meta property="article:author" content="Francis">
+<meta property="article:tag" content="AI">
+<meta property="article:tag" content="SpringAI">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://www.zivjie.cn/img/Pirates.png">
+  
+  
+  
+  <title>8-RAG - Francis-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.zivjie.cn","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Francis</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="8-RAG"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-11-22 13:45" pubdate>
+          2025年11月22日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          9.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          81 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">8-RAG</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="1-核心概念和作用"><a href="#1-核心概念和作用" class="headerlink" title="1 核心概念和作用"></a>1 核心概念和作用</h1><p><strong>定义：</strong>RAG 是一种结合检索与生成的技术，解决大语言模型（LLM）在长文本处理、事实准确性和上下文感知方面的局限。</p>
+<p><img src="/image/spring/springAI/SpringAi/21.png" srcset="/img/loading.gif" lazyload></p>
+<p><strong>核心逻辑：</strong>通过检索外部知识库（如向量数据库）获取相关文档，将其作为上下文附加到用户查询中，辅助 LLM 生成更准确、有依据的回答。 </p>
+<p><strong>Spring AI 支持：</strong>提供模块化架构和开箱即用的 Advisor，允许自定义 RAG 流程或使用现成实现。</p>
+<h1 id="2-Milvus的操作"><a href="#2-Milvus的操作" class="headerlink" title="2 Milvus的操作"></a>2 Milvus的操作</h1><h2 id="2-1-向量化"><a href="#2-1-向量化" class="headerlink" title="2.1 向量化"></a>2.1 向量化</h2><p>这里可以通过OpenAI提供的向量模型来处理。首先是配置相关的信息</p>
+<p><img src="/image/spring/springAI/SpringAi/22.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Autowired</span><br>   <span class="hljs-keyword">private</span> EmbeddingModel embeddingModel;<br>   <span class="hljs-comment">/**</span><br><span class="hljs-comment">    * 向量化的实现</span><br><span class="hljs-comment">    */</span><br>   <span class="hljs-meta">@Test</span><br>   <span class="hljs-keyword">void</span> <span class="hljs-title function_">embeddings</span><span class="hljs-params">()</span>&#123;<br>       <span class="hljs-comment">// 例 1：将文本转换为 Embedding</span><br>       <span class="hljs-type">float</span>[] embeddings1 = embeddingModel.embed(<span class="hljs-string">&quot;我喜欢Java&quot;</span>);<br>       <span class="hljs-built_in">this</span>.printFloatArrays(embeddings1);<br>       <span class="hljs-comment">// 例 2：将文档转换为 Embedding</span><br>       <span class="hljs-type">float</span>[] embeddings2 = embeddingModel.embed(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Document</span>(<span class="hljs-string">&quot;我喜欢Java&quot;</span>));<br>       <span class="hljs-built_in">this</span>.printFloatArrays(embeddings2);<br>       <span class="hljs-comment">// 例 3：使用选项将文本转换为 Embedding</span><br>       <span class="hljs-type">EmbeddingRequest</span> <span class="hljs-variable">embeddingRequest</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">EmbeddingRequest</span>(<br>           List.of(<span class="hljs-string">&quot;我喜欢Java&quot;</span>),<br>           OpenAiEmbeddingOptions.builder()<br>           	.model(<span class="hljs-string">&quot;text-embedding-3-small&quot;</span>)<br>               .build());<br>       <span class="hljs-type">EmbeddingResponse</span> <span class="hljs-variable">embeddingResponse</span> <span class="hljs-operator">=</span> embeddingModel.call(embeddingRequest);<br>       <span class="hljs-type">float</span>[] embeddings3 = embeddingResponse.getResult().getOutput();<br>       <span class="hljs-built_in">this</span>.printFloatArrays(embeddings3);<br>   &#125;<br><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">printFloatArrays</span><span class="hljs-params">(<span class="hljs-type">float</span>[] embeddings1)</span> &#123;<br>       System.out.println(embeddings1.length);<br>       <span class="hljs-keyword">for</span> (<span class="hljs-type">float</span> v : embeddings1) &#123;<br>           System.out.print(v+<span class="hljs-string">&quot;\t&quot;</span>);<br>       &#125;<br>       System.out.println();<br>   &#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="2-2-创建集合和索引"><a href="#2-2-创建集合和索引" class="headerlink" title="2.2 创建集合和索引"></a>2.2 创建集合和索引</h2><p>引入对应的依赖</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>mysql<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>mysql-connector-java<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>8.0.19<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">exclusions</span>&gt;</span><br>    	<span class="hljs-tag">&lt;<span class="hljs-name">exclusion</span>&gt;</span><br>        	<span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>com.google.protobuf<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>protobuf-java<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>        <span class="hljs-tag">&lt;/<span class="hljs-name">exclusion</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">exclusions</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.springframework.ai<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-ai-starter-vector-store-milvus<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>protobuf的依赖有冲突，这里排除mysql中的冲突依赖。需要把向量数据信息存储到Milvus数据库中，那么就得先创建对应的集合和索引，具体代码如下:</p>
+<p>先把核心的MilvusServiceClient注入到Spring容器中</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Bean</span><br>   <span class="hljs-keyword">public</span> MilvusServiceClient <span class="hljs-title function_">getMilvusServiceClient</span><span class="hljs-params">(ChatClient client)</span> &#123;<br>       <span class="hljs-type">ConnectParam</span> <span class="hljs-variable">connectParam</span> <span class="hljs-operator">=</span> ConnectParam.newBuilder()<br>               .withHost(<span class="hljs-string">&quot;localhost&quot;</span>)<br>               .withPort(<span class="hljs-number">19530</span>)<br>               .build();<br>       <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">MilvusServiceClient</span>(connectParam);<br>   &#125;<br></code></pre></td></tr></table></figure>
+
+<p>然后创建对应的集合和索引</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Autowired</span><br>   <span class="hljs-keyword">private</span> MilvusServiceClient client;<br>   <span class="hljs-comment">/**</span><br><span class="hljs-comment">    * 创建集合</span><br><span class="hljs-comment">    * <span class="hljs-doctag">@throws</span> Exception</span><br><span class="hljs-comment">    */</span><br>   <span class="hljs-meta">@Test</span><br>   <span class="hljs-keyword">void</span> <span class="hljs-title function_">createCollection</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>       List&lt;FieldType&gt; fieldTypes = Arrays.asList(<br>               FieldType.newBuilder()<br>                       .withName(MilvusEntity.Field.ID)<br>                       .withDescription(<span class="hljs-string">&quot;主键ID&quot;</span>)<br>                       .withDataType(DataType.Int64)<br>                       .withPrimaryKey(<span class="hljs-literal">true</span>)<br>                       .withAutoID(<span class="hljs-literal">true</span>)<br>                       .build(),<br>               FieldType.newBuilder()<br>                       .withName(MilvusEntity.Field.FEATURE)<br>                       .withDescription(<span class="hljs-string">&quot;特征向量&quot;</span>)<br>                       .withDataType(DataType.FloatVector)<br>                       .withDimension(MilvusEntity.FEATURE_DIM)<br>           			.build(),<br>			<span class="hljs-comment">// 设置向量维度   </span><br>               FieldType.newBuilder()<br>                       .withName(MilvusEntity.Field.TEXT)<br>                       .withDescription(<span class="hljs-string">&quot;输入数据&quot;</span>)<br>                       .withDataType(DataType.VarChar)<br>					.withTypeParams(Collections.singletonMap(<span class="hljs-string">&quot;max_length&quot;</span>, <span class="hljs-string">&quot;65535&quot;</span>))<br>                       .build(),<br>               FieldType.newBuilder()<br>                       .withName(MilvusEntity.Field.OUTPUT)<br>                       .withDescription(<span class="hljs-string">&quot;问题答案数据&quot;</span>)<br>                       .withDataType(DataType.VarChar)<br>                       .withTypeParams(Collections.singletonMap(<span class="hljs-string">&quot;max_length&quot;</span>, <span class="hljs-string">&quot;65535&quot;</span>))<br>                       .build());<br>       <span class="hljs-type">CreateCollectionParam</span> <span class="hljs-variable">createCollectionReq</span> <span class="hljs-operator">=</span> CreateCollectionParam.newBuilder()<br>               .withCollectionName(MilvusEntity.COLLECTION_NAME)<br>               .withDescription(<span class="hljs-string">&quot;rag collection&quot;</span>)<br>               .withShardsNum(MilvusEntity.SHARDS_NUM)<br>               .withFieldTypes(fieldTypes)<br>               .build();<br>       client.createCollection(createCollectionReq);<br>       <span class="hljs-comment">// 同时给向量创建对应的索引</span><br>       <span class="hljs-type">CreateIndexParam</span> <span class="hljs-variable">createIndexParam</span> <span class="hljs-operator">=</span> CreateIndexParam.newBuilder()<br>               .withCollectionName(MilvusEntity.COLLECTION_NAME)<br>               .withFieldName(MilvusEntity.Field.FEATURE) <span class="hljs-comment">// 向量字段名</span><br>               .withIndexType(IndexType.IVF_FLAT) <span class="hljs-comment">// 使用IVF_FLAT索引类型</span><br>               .withMetricType(MetricType.L2) <span class="hljs-comment">// 指定度量类型，如L2距离</span><br>               .withExtraParam(<span class="hljs-string">&quot;&#123;\&quot;nlist\&quot;:128&#125;&quot;</span>) <span class="hljs-comment">// 根据索引类型提供额外参数，比如nlist</span><br>               .build();<br>       client.createIndex(createIndexParam);<br>   &#125;<br></code></pre></td></tr></table></figure>
+
+<p>这里为了方便自定义了MilvusEntity</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MilvusEntity</span> &#123;<br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 向量数据库名称</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">String</span> <span class="hljs-variable">DB_NAME</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;default&quot;</span>;<br> 	<span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 集合名称</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">String</span> <span class="hljs-variable">COLLECTION_NAME</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;springai_rag&quot;</span>;<br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 分片数量</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-variable">SHARDS_NUM</span> <span class="hljs-operator">=</span> <span class="hljs-number">1</span>;<br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 分区数量</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-variable">PARTITION_NUM</span> <span class="hljs-operator">=</span> <span class="hljs-number">1</span>;<br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 特征向量维度</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">Integer</span> <span class="hljs-variable">FEATURE_DIM</span> <span class="hljs-operator">=</span> <span class="hljs-number">1536</span>;<br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 字段</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Field</span> &#123;<br>        <span class="hljs-comment">/**</span><br><span class="hljs-comment">         * id</span><br><span class="hljs-comment">         */</span><br>        <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">String</span> <span class="hljs-variable">ID</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;id&quot;</span>;<br>        <span class="hljs-comment">/**</span><br><span class="hljs-comment">         * 文本特征向量</span><br><span class="hljs-comment">         */</span><br>        <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">String</span> <span class="hljs-variable">FEATURE</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;feature&quot;</span>;<br>        <span class="hljs-comment">/**</span><br><span class="hljs-comment">         * 文本</span><br><span class="hljs-comment">         */</span><br>        <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">String</span> <span class="hljs-variable">TEXT</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;instruction&quot;</span>;<br>        <span class="hljs-comment">/**</span><br><span class="hljs-comment">         * 问答匹配的结果</span><br><span class="hljs-comment">         */</span><br>        <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">String</span> <span class="hljs-variable">OUTPUT</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;output&quot;</span>;<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>执行代码后可以看到创建的结构</p>
+<p><img src="/image/spring/springAI/SpringAi/23.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="2-3-插入数据"><a href="#2-3-插入数据" class="headerlink" title="2.3 插入数据"></a>2.3 插入数据</h2><p>现在就可以通过代码把需要准备的数据插入到Milvus数据库中去了，数据存放在resources目录下</p>
+<p><img src="/image/spring/springAI/SpringAi/24.png" srcset="/img/loading.gif" lazyload></p>
+<p>为了方便存储创建了对应的对象来结构化数据</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">FaqItem</span> &#123;<br>	<span class="hljs-keyword">private</span> String instruction;<br>	<span class="hljs-keyword">private</span> String input;<br>	<span class="hljs-keyword">private</span> String output;<br>    <span class="hljs-comment">// Getters and Setters</span><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">getInstruction</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> instruction;<br>    &#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setInstruction</span><span class="hljs-params">(String instruction)</span> &#123;<br>        <span class="hljs-built_in">this</span>.instruction = instruction;<br>    &#125;<br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">getInput</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> input;<br>    &#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setInput</span><span class="hljs-params">(String input)</span> &#123;<br>        <span class="hljs-built_in">this</span>.input = input;<br>    &#125;<br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">getOutput</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> output;<br>    &#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setOutput</span><span class="hljs-params">(String output)</span> &#123;<br>        <span class="hljs-built_in">this</span>.output = output;<br>    &#125;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">toString</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;FaqItem&#123;&quot;</span> +<br>                <span class="hljs-string">&quot;instruction=&#x27;&quot;</span> + instruction + <span class="hljs-string">&#x27;\&#x27;&#x27;</span> +<br>                <span class="hljs-string">&quot;, input=&#x27;&quot;</span> + input + <span class="hljs-string">&#x27;\&#x27;&#x27;</span> +<br>                <span class="hljs-string">&quot;, output=&#x27;&quot;</span> + output + <span class="hljs-string">&#x27;\&#x27;&#x27;</span> +<br>                <span class="hljs-string">&#x27;&#125;&#x27;</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>现在创建添加的逻辑代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">ObjectMapper</span> <span class="hljs-variable">objectMapper</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectMapper</span>();<br>   <span class="hljs-meta">@Test</span><br>   <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">insertTestData</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>		<span class="hljs-comment">// 加载数据</span><br>       <span class="hljs-type">InputStream</span> <span class="hljs-variable">inputStream</span> <span class="hljs-operator">=</span> getClass().getClassLoader().getResourceAsStream(<span class="hljs-string">&quot;train_zh.json&quot;</span>);<br>       <span class="hljs-comment">// 一行一行读取数据</span><br>       <span class="hljs-keyword">try</span> (<span class="hljs-type">BufferedReader</span> <span class="hljs-variable">reader</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">BufferedReader</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">InputStreamReader</span>(inputStream, StandardCharsets.UTF_8))) &#123;<br>           String line;<br>           <span class="hljs-keyword">while</span> ((line = reader.readLine()) != <span class="hljs-literal">null</span>) &#123;<br>               <span class="hljs-keyword">if</span> (line.trim().isEmpty()) <span class="hljs-keyword">continue</span>;<br>               <span class="hljs-comment">// 这里需要提取的是  instruction 的信息，然后向量化</span><br>               <span class="hljs-type">FaqItem</span> <span class="hljs-variable">item</span> <span class="hljs-operator">=</span> objectMapper.readValue(line, FaqItem.class);<br>               <span class="hljs-comment">// 获取原始的问题</span><br>               <span class="hljs-type">String</span> <span class="hljs-variable">instruction</span> <span class="hljs-operator">=</span> item.getInstruction();<br>               <span class="hljs-comment">// 对问题向量化</span><br>               <span class="hljs-type">float</span>[] embeddings = embeddingModel.embed(instruction);<br>               <span class="hljs-comment">// float[] embeddings 转换为 List&lt;Float&gt;</span><br>               List&lt;Float&gt; embeddingList = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;(embeddings.length);<br>               <span class="hljs-keyword">for</span> (<span class="hljs-type">float</span> f : embeddings) &#123;<br>                   embeddingList.add(f);<br>               &#125;<br>               <span class="hljs-comment">// 最终需要存储到向量数据库中的结构</span><br>               List&lt;List&lt;Float&gt;&gt; floats = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br>               floats.add(embeddingList);<br>               List&lt;InsertParam.Field&gt; fields = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br>               fields.add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">InsertParam</span>.Field(MilvusEntity.Field.FEATURE, floats));<br>               fields.add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">InsertParam</span>.Field(MilvusEntity.Field.TEXT, Arrays.asList(item.getInstruction())));<br>               fields.add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">InsertParam</span>.Field(MilvusEntity.Field.OUTPUT, Arrays.asList(item.getOutput())));<br>               <span class="hljs-type">InsertParam</span> <span class="hljs-variable">insertParam</span> <span class="hljs-operator">=</span> InsertParam.newBuilder()<br>                       .withCollectionName(MilvusEntity.COLLECTION_NAME)<br>                       .withFields(fields)<br>                       .build();<br>               client.insert(insertParam);<br>		&#125;<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>执行后就可以查看具体的数据信息</p>
+<p><img src="/image/spring/springAI/SpringAi/25.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="2-4-数据检索"><a href="#2-4-数据检索" class="headerlink" title="2.4 数据检索"></a>2.4 数据检索</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Test</span><br><span class="hljs-keyword">void</span> <span class="hljs-title function_">search</span><span class="hljs-params">()</span>&#123;<br>	List&lt;List&lt;Float&gt;&gt; floats = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br>	<span class="hljs-type">float</span>[] embeddings = embeddingModel.embed(<span class="hljs-string">&quot;白癜风怎么治疗&quot;</span>);<br>	<span class="hljs-comment">// float[] embeddings 转换为 List&lt;Float&gt;</span><br>	List&lt;Float&gt; embeddingList = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;(embeddings.length);<br>	<span class="hljs-keyword">for</span> (<span class="hljs-type">float</span> f : embeddings) &#123;<br>		embeddingList.add(f);<br>	&#125;<br>	floats.add(embeddingList);<br>	<span class="hljs-type">SearchParam</span> <span class="hljs-variable">searchParam</span> <span class="hljs-operator">=</span> SearchParam.newBuilder()<br>		.withCollectionName(MilvusEntity.COLLECTION_NAME)<br>		.withMetricType(MetricType.L2)<span class="hljs-comment">// 使用 L2 距离作为相似度度量</span><br>		.withTopK(<span class="hljs-number">3</span>) <span class="hljs-comment">// 返回最接近的前3个结果</span><br>		.withVectors(floats)<br>		.withVectorFieldName(MilvusEntity.Field.FEATURE) <br>		<span class="hljs-comment">// 向量字段名</span><br>		.withOutFields(Arrays.asList(MilvusEntity.Field.ID,MilvusEntity.Field.OUTPUT,MilvusEntity.Field.TEXT)) <span class="hljs-comment">// 需要返回的字段</span><br>		.build();<br>	<span class="hljs-type">SearchResults</span> <span class="hljs-variable">data</span> <span class="hljs-operator">=</span> client.search(searchParam).getData();<br>	<span class="hljs-type">SearchResultsWrapper</span> <span class="hljs-variable">resultsWrapper</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SearchResultsWrapper</span>(data.getResults());<br>	List&lt;QueryResultsWrapper.RowRecord&gt; rowRecords = resultsWrapper.getRowRecords();<br>	<span class="hljs-keyword">if</span>(rowRecords != <span class="hljs-literal">null</span> &amp;&amp; !rowRecords.isEmpty())&#123;<br>		System.out.println(rowRecords);<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h1 id="3-RAG的实现"><a href="#3-RAG的实现" class="headerlink" title="3 RAG的实现"></a>3 RAG的实现</h1><p>创建对应的工具方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Tool(description = &quot;病人患病信息检索&quot;)</span><br>String <span class="hljs-title function_">vectorSearch</span><span class="hljs-params">(<span class="hljs-meta">@ToolParam(description = &quot;患者问题&quot;)</span> String msg, ToolContext context)</span>  &#123;<br>	<span class="hljs-comment">// 1.获取查询的向量信息</span><br>	List&lt;List&lt;Float&gt;&gt; floats = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br>	<span class="hljs-type">EmbeddingModel</span> <span class="hljs-variable">embeddingModel</span> <span class="hljs-operator">=</span> (EmbeddingModel) context.getContext().get(<span class="hljs-string">&quot;embeddingModel&quot;</span>);<br>	<span class="hljs-type">MilvusServiceClient</span> <span class="hljs-variable">client</span> <span class="hljs-operator">=</span> (MilvusServiceClient) context.getContext().get(<span class="hljs-string">&quot;client&quot;</span>);<br>	<span class="hljs-type">float</span>[] embeddings = embeddingModel.embed(msg);<br>	<span class="hljs-comment">// float[] embeddings 转换为 List&lt;Float&gt;</span><br>	List&lt;Float&gt; embeddingList = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;(embeddings.length);<br>	<span class="hljs-keyword">for</span> (<span class="hljs-type">float</span> f : embeddings) &#123;<br>		embeddingList.add(f);<br>	&#125;<br>	floats.add(embeddingList);<br>		<span class="hljs-comment">// 封装向量数据库检索的信息</span><br>       <span class="hljs-type">SearchParam</span> <span class="hljs-variable">searchParam</span> <span class="hljs-operator">=</span> SearchParam.newBuilder()<br>               .withCollectionName(MilvusEntity.COLLECTION_NAME)<br>               .withMetricType(MetricType.L2)<span class="hljs-comment">// 使用 L2 距离作为相似度度量</span><br>               .withTopK(<span class="hljs-number">3</span>) <span class="hljs-comment">// 返回最接近的前3个结果</span><br>               .withVectors(floats)<br>               .withVectorFieldName(MilvusEntity.Field.FEATURE) <br>			<span class="hljs-comment">// 向量字段名</span><br>               .withOutFields(Arrays.asList(MilvusEntity.Field.ID,MilvusEntity.Field.OUTPUT,MilvusEntity.Field.TEXT)) <span class="hljs-comment">// 需要返回的字段</span><br>               .build();<br>       <span class="hljs-type">SearchResults</span> <span class="hljs-variable">data</span> <span class="hljs-operator">=</span> client.search(searchParam).getData();<br>       <span class="hljs-comment">// 3.处理响应的信息</span><br>       <span class="hljs-type">SearchResultsWrapper</span> <span class="hljs-variable">resultsWrapper</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SearchResultsWrapper</span>(data.getResults());<br>       List&lt;QueryResultsWrapper.RowRecord&gt; rowRecords = resultsWrapper.getRowRecords();<br>       <span class="hljs-type">StringBuilder</span> <span class="hljs-variable">sb</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">StringBuilder</span>();<br>       <span class="hljs-keyword">if</span>(rowRecords != <span class="hljs-literal">null</span> &amp;&amp; !rowRecords.isEmpty())&#123;<br>           sb.append(rowRecords);<br>       &#125;<br>       <span class="hljs-keyword">return</span> sb.toString();<br>   &#125;<br></code></pre></td></tr></table></figure>
+
+<p>然后在使用的时候添加工具就可以</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Test</span><br>  <span class="hljs-keyword">void</span> <span class="hljs-title function_">ragTest</span><span class="hljs-params">()</span>&#123;<br>      <span class="hljs-type">String</span> <span class="hljs-variable">content</span> <span class="hljs-operator">=</span> ChatClient.builder(chatModel)<br>              .build().prompt()<br>              .tools(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Tools</span>())<br>              .toolContext(Map.of(<span class="hljs-string">&quot;embeddingModel&quot;</span>,embeddingModel,<span class="hljs-string">&quot;client&quot;</span>,client))<br>              .user(<span class="hljs-string">&quot;白癜风怎么治疗&quot;</span>)<br>              .call()<br>              .content();<br>      System.out.println(content);<br>  &#125;<br><br></code></pre></td></tr></table></figure>
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/spring%E6%A1%86%E6%9E%B6/" class="category-chain-item">spring框架</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/spring%E6%A1%86%E6%9E%B6/SpringAI/" class="category-chain-item">SpringAI</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/spring%E6%A1%86%E6%9E%B6/SpringAI/SpringAi%E6%A1%86%E6%9E%B6/" class="category-chain-item">SpringAi框架</a>
+  
+  
+
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/AI/">#AI</a>
+      
+        <a href="/tags/SpringAI/">#SpringAI</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>8-RAG</div>
+      <div>http://www.zivjie.cn/2025/11/22/spring框架/springAI/SpringAi框架/8-RAG/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Francis</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年11月22日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/11/22/spring%E6%A1%86%E6%9E%B6/springAI/SpringAi%E6%A1%86%E6%9E%B6/9-MCP/" title="9-MCP">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">9-MCP</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/11/22/spring%E6%A1%86%E6%9E%B6/springAI/SpringAi%E6%A1%86%E6%9E%B6/7-Tool%20Calling/" title="7-Tool Calling">
+                        <span class="hidden-mobile">7-Tool Calling</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

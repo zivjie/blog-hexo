@@ -222,23 +222,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/03/18/spring%E6%A1%86%E6%9E%B6/springcloud/sentinel/sentinel%E9%80%82%E9%85%8D%E5%BC%80%E6%BA%90%E6%A1%86%E6%9E%B6/" target="_self">
-          <img src="/img/Sitting%20on%20an%20Elk.png" srcset="/img/loading.gif" lazyload alt="sentinel适配开源框架">
+        <a href="/2023/04/15/%E4%BA%91%E5%8E%9F%E7%94%9F(%E5%AE%B9%E5%99%A8%E5%8C%96)/etcd/etcdMVCC%E5%92%8C%E7%A7%9F%E7%BA%A6%E5%92%8CWatch%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/" target="_self">
+          <img src="/img/wyy7.png" srcset="/img/loading.gif" lazyload alt="etcd的MVCC和租约和Watch原理分析">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/03/18/spring%E6%A1%86%E6%9E%B6/springcloud/sentinel/sentinel%E9%80%82%E9%85%8D%E5%BC%80%E6%BA%90%E6%A1%86%E6%9E%B6/" target="_self">
-          sentinel适配开源框架
+        <a href="/2023/04/15/%E4%BA%91%E5%8E%9F%E7%94%9F(%E5%AE%B9%E5%99%A8%E5%8C%96)/etcd/etcdMVCC%E5%92%8C%E7%A7%9F%E7%BA%A6%E5%92%8CWatch%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/" target="_self">
+          etcd的MVCC和租约和Watch原理分析
         </a>
       </h1>
 
       
-      <a class="index-excerpt " href="/2023/03/18/spring%E6%A1%86%E6%9E%B6/springcloud/sentinel/sentinel%E9%80%82%E9%85%8D%E5%BC%80%E6%BA%90%E6%A1%86%E6%9E%B6/" target="_self">
+      <a class="index-excerpt " href="/2023/04/15/%E4%BA%91%E5%8E%9F%E7%94%9F(%E5%AE%B9%E5%99%A8%E5%8C%96)/etcd/etcdMVCC%E5%92%8C%E7%A7%9F%E7%BA%A6%E5%92%8CWatch%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/" target="_self">
         <div>
-          官网：https://sentinelguard.io/zh-cn/docs/open-source-framework-integrations.html 1 开源生态https://github.com/alibaba/Sentinel/wiki/Roadmap  2 适配RestTemplatehttps://github.com/alibaba/spring-cloud-alibaba/w
+          1 MVCC流程mvcc(多版本并发控制，mysql中也使用到了)解决的就是读写时的线程安全问题，线程不用去争抢读写锁。  查询  更新  2 Lease(租约)流程一个key一个TTL太占内存，同时性能不高。说白了就相当于租房的一个合同而已，这个合同可以管理很多key，在合同的时间围之内，我的key存在你那里是有效的，你不能删除我关联到此Lease上的key-value。 2.1 架构 创建Le
         </div>
       </a>
 
@@ -246,8 +246,232 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2023-03-18 08:33" pubdate>
-              2023-03-18
+            <time datetime="2023-04-15 14:12" pubdate>
+              2023-04-15
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E4%BA%91%E5%8E%9F%E7%94%9F-%E5%AE%B9%E5%99%A8%E5%8C%96/" class="category-chain-item">云原生(容器化)</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E4%BA%91%E5%8E%9F%E7%94%9F-%E5%AE%B9%E5%99%A8%E5%8C%96/etcd/" class="category-chain-item">etcd</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/etcd/">#etcd</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2023/04/15/%E4%BA%91%E5%8E%9F%E7%94%9F(%E5%AE%B9%E5%99%A8%E5%8C%96)/etcd/etcd%E5%9F%BA%E7%A1%80%E4%BD%BF%E7%94%A8/" target="_self">
+          <img src="/img/wyy5.png" srcset="/img/loading.gif" lazyload alt="etcd基础使用">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/04/15/%E4%BA%91%E5%8E%9F%E7%94%9F(%E5%AE%B9%E5%99%A8%E5%8C%96)/etcd/etcd%E5%9F%BA%E7%A1%80%E4%BD%BF%E7%94%A8/" target="_self">
+          etcd基础使用
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt " href="/2023/04/15/%E4%BA%91%E5%8E%9F%E7%94%9F(%E5%AE%B9%E5%99%A8%E5%8C%96)/etcd/etcd%E5%9F%BA%E7%A1%80%E4%BD%BF%E7%94%A8/" target="_self">
+        <div>
+          https://etcd.io/ https://www.etcd.cn/ 1 etcd架构 2 特征，使用场景2.1 特征 使用简单 存储结构是key-value类型 能实时感知变化 权限校验 性能高 集群数据一致性  2.2 使用场景 存储数据 注册中心、配置中心 消息发布订阅 分布式锁 leader选举  适当参考中文网，描述有些夸大 3 部署3.1 单节点linux环境的二进制部署 1、下
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-04-15 11:17" pubdate>
+              2023-04-15
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E4%BA%91%E5%8E%9F%E7%94%9F-%E5%AE%B9%E5%99%A8%E5%8C%96/" class="category-chain-item">云原生(容器化)</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E4%BA%91%E5%8E%9F%E7%94%9F-%E5%AE%B9%E5%99%A8%E5%8C%96/etcd/" class="category-chain-item">etcd</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/etcd/">#etcd</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2023/04/01/java%E5%9F%BA%E7%A1%80/GraalVM/GraalVM/" target="_self">
+          <img src="/img/wyy4.png" srcset="/img/loading.gif" lazyload alt="GraalVM安装与基本介绍">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/04/01/java%E5%9F%BA%E7%A1%80/GraalVM/GraalVM/" target="_self">
+          GraalVM安装与基本介绍
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt " href="/2023/04/01/java%E5%9F%BA%E7%A1%80/GraalVM/GraalVM/" target="_self">
+        <div>
+          1 GraalVM基础使用官网： https://www.graalvm.org/ github：https://github.com/oracle/graal SpringFramework6.x，SpringBoot 3.x 支持JDK17，GraalVM 1.1 安装GraalVMhttps://www.graalvm.org/latest/docs/getting-started/#ins
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-04-01 15:57" pubdate>
+              2023-04-01
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/java%E5%9F%BA%E7%A1%80/" class="category-chain-item">java基础</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/java%E5%9F%BA%E7%A1%80/GraalVM/" class="category-chain-item">GraalVM</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/JDK/">#JDK</a>
+            
+              <a href="/tags/GraalVM/">#GraalVM</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2023/03/26/spring%E6%A1%86%E6%9E%B6/springcloud/sentinel/sentinel%E8%A7%84%E5%88%99%E6%8C%81%E4%B9%85%E5%8C%96/" target="_self">
+          <img src="/img/Volcanonado.png" srcset="/img/loading.gif" lazyload alt="sentinel规则持久化">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/03/26/spring%E6%A1%86%E6%9E%B6/springcloud/sentinel/sentinel%E8%A7%84%E5%88%99%E6%8C%81%E4%B9%85%E5%8C%96/" target="_self">
+          sentinel规则持久化
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt " href="/2023/03/26/spring%E6%A1%86%E6%9E%B6/springcloud/sentinel/sentinel%E8%A7%84%E5%88%99%E6%8C%81%E4%B9%85%E5%8C%96/" target="_self">
+        <div>
+          官网：https://github.com/alibaba/Sentinel/wiki/动态规则扩展 1 客户端内存的规则1.1 规则的存储 1.2 规则的获取 2 Dashboard规则管理2.1 三种模式   推送模式 说明 优点 缺点    原始模式 API将规则推送至客户端并直接更新到内存中，扩展写数据源(WritableDateSource) 简单，无任何依赖 不保证一致性；规则保存在内
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-03-26 20:50" pubdate>
+              2023-03-26
             </time>
           </div>
         
@@ -307,23 +531,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/03/12/java%E5%9F%BA%E7%A1%80/%E5%A4%9A%E7%BA%BF%E7%A8%8B/%E7%BA%BF%E7%A8%8B%E6%B1%A0/" target="_self">
-          <img src="/img/Milky%20Way.png" srcset="/img/loading.gif" lazyload alt="线程池">
+        <a href="/2023/03/26/spring%E6%A1%86%E6%9E%B6/springcloud/sentinel/sentinel%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" target="_self">
+          <img src="/img/the%20dock.png" srcset="/img/loading.gif" lazyload alt="sentinel源码解析">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/03/12/java%E5%9F%BA%E7%A1%80/%E5%A4%9A%E7%BA%BF%E7%A8%8B/%E7%BA%BF%E7%A8%8B%E6%B1%A0/" target="_self">
-          线程池
+        <a href="/2023/03/26/spring%E6%A1%86%E6%9E%B6/springcloud/sentinel/sentinel%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" target="_self">
+          sentinel源码解析
         </a>
       </h1>
 
       
-      <a class="index-excerpt " href="/2023/03/12/java%E5%9F%BA%E7%A1%80/%E5%A4%9A%E7%BA%BF%E7%A8%8B/%E7%BA%BF%E7%A8%8B%E6%B1%A0/" target="_self">
+      <a class="index-excerpt " href="/2023/03/26/spring%E6%A1%86%E6%9E%B6/springcloud/sentinel/sentinel%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" target="_self">
         <div>
-          1 实现原理当向线程池提交一个任务之后，线程池的处理流程如下：  判断是否达到核心线程数，若未达到，则直接创建新的线程处理当前传入的任务，否则进入下个流程  线程池中的工作队列是否已满，若未满，则将任务丢入工作队列中先存着等待处理，否则进入下个流程  是否达到最大线程数，若未达到，则创建新的线程处理当前传入的任务，否则交给线程池中的饱和策略进行处理。    2 java中的线程池jdk中提供了线程
+          
         </div>
       </a>
 
@@ -331,8 +555,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2023-03-12 15:51" pubdate>
-              2023-03-12
+            <time datetime="2023-03-26 20:43" pubdate>
+              2023-03-26
             </time>
           </div>
         
@@ -347,13 +571,20 @@
     
       <span class="category-chain">
         
-  <a href="/categories/java%E5%9F%BA%E7%A1%80/" class="category-chain-item">java基础</a>
+  <a href="/categories/spring%E6%A1%86%E6%9E%B6/" class="category-chain-item">spring框架</a>
   
   
     <span>></span>
     
-  <a href="/categories/java%E5%9F%BA%E7%A1%80/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" class="category-chain-item">多线程</a>
+  <a href="/categories/spring%E6%A1%86%E6%9E%B6/springcloud/" class="category-chain-item">springcloud</a>
   
+  
+    <span>></span>
+    
+  <a href="/categories/spring%E6%A1%86%E6%9E%B6/springcloud/sentinel/" class="category-chain-item">sentinel</a>
+  
+  
+
   
 
   
@@ -369,9 +600,11 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/">#多线程</a>
+              <a href="/tags/java/">#java</a>
             
-              <a href="/tags/%E7%BA%BF%E7%A8%8B%E6%B1%A0/">#线程池</a>
+              <a href="/tags/springcloud/">#springcloud</a>
+            
+              <a href="/tags/sentinel/">#sentinel</a>
             
           </div>
         
@@ -383,23 +616,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/03/12/%E4%B8%AD%E9%97%B4%E4%BB%B6/zookeeper/Zookeeper%E5%88%9D%E8%AF%86/" target="_self">
-          <img src="/img/a%20lonely%20winte.png" srcset="/img/loading.gif" lazyload alt="Zookeeper初识">
+        <a href="/2023/03/26/%E4%B8%AD%E9%97%B4%E4%BB%B6/zookeeper/Zookeeper%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" target="_self">
+          <img src="/img/chaos%20invoked.png" srcset="/img/loading.gif" lazyload alt="Zookeeper源码解析">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/03/12/%E4%B8%AD%E9%97%B4%E4%BB%B6/zookeeper/Zookeeper%E5%88%9D%E8%AF%86/" target="_self">
-          Zookeeper初识
+        <a href="/2023/03/26/%E4%B8%AD%E9%97%B4%E4%BB%B6/zookeeper/Zookeeper%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" target="_self">
+          Zookeeper源码解析
         </a>
       </h1>
 
       
-      <a class="index-excerpt " href="/2023/03/12/%E4%B8%AD%E9%97%B4%E4%BB%B6/zookeeper/Zookeeper%E5%88%9D%E8%AF%86/" target="_self">
+      <a class="index-excerpt " href="/2023/03/26/%E4%B8%AD%E9%97%B4%E4%BB%B6/zookeeper/Zookeeper%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" target="_self">
         <div>
-          官网：https://zookeeper.apache.org/ 1 Zookeeper环境安装1.1 服务端安装启动1.1.1 centos 前置环境  Java8    Maven  下载Zookeeper：3.7.1  https://zookeeper.apache.org/releases.html 1wget https://www.apache.org/dyn/closer.lua/
+          1 Zookeeper Server启动流程 2 客户端实例化与创建节点 3 Zookeeper源码分析之查询数据与watch 4 集群启动与Leader选举 5 Learn与Leader数据同步 6 ZAB协议处理事务请求
         </div>
       </a>
 
@@ -407,8 +640,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2023-03-12 15:43" pubdate>
-              2023-03-12
+            <time datetime="2023-03-26 14:40" pubdate>
+              2023-03-26
             </time>
           </div>
         
@@ -457,23 +690,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/03/12/java%E5%9F%BA%E7%A1%80/%E5%A4%9A%E7%BA%BF%E7%A8%8B/%E6%AD%BB%E9%94%81%E5%92%8CThreadLocal/" target="_self">
-          <img src="/img/Kitchen%20Open%20Late.png" srcset="/img/loading.gif" lazyload alt="死锁和ThreadLocal">
+        <a href="/2023/03/25/%E4%B8%AD%E9%97%B4%E4%BB%B6/zookeeper/Zookeeper%E5%AE%9E%E7%8E%B0%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83/" target="_self">
+          <img src="/img/background%20city.png" srcset="/img/loading.gif" lazyload alt="Zookeeper实现注册中心">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/03/12/java%E5%9F%BA%E7%A1%80/%E5%A4%9A%E7%BA%BF%E7%A8%8B/%E6%AD%BB%E9%94%81%E5%92%8CThreadLocal/" target="_self">
-          死锁和ThreadLocal
+        <a href="/2023/03/25/%E4%B8%AD%E9%97%B4%E4%BB%B6/zookeeper/Zookeeper%E5%AE%9E%E7%8E%B0%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83/" target="_self">
+          Zookeeper实现注册中心
         </a>
       </h1>
 
       
-      <a class="index-excerpt " href="/2023/03/12/java%E5%9F%BA%E7%A1%80/%E5%A4%9A%E7%BA%BF%E7%A8%8B/%E6%AD%BB%E9%94%81%E5%92%8CThreadLocal/" target="_self">
+      <a class="index-excerpt " href="/2023/03/25/%E4%B8%AD%E9%97%B4%E4%BB%B6/zookeeper/Zookeeper%E5%AE%9E%E7%8E%B0%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83/" target="_self">
         <div>
-          1 死锁/活锁死锁： 一组互相竞争资源的线程因互相等待，导致“永久”阻塞的现象。 活锁： 活锁指的是任务或者执行者没有被阻塞，由于某些条件没有满足，导致一直重复尝试—失败—尝试—失败的过程。处于活锁的实体是在不断的改变状态，活锁有可能自行解开。 2 死锁发生的条件 互斥，共享资源 X 和 Y 只能被一个线程占用；  占有且等待，线程 T1 已经取得共享资源 X，在等待共享资源 Y 的时候，不释放共
+          1 Zookeeper实现注册中心1.1 项目准备创建一个父工程，名称为handwritten-zookeeper-discovery，并在父工程下创建两个Spring Boot项目，分别为order-service和user-service，并在order-service中准备一个OrderController。 123456789@RestController@RequestMapping(&
         </div>
       </a>
 
@@ -481,8 +714,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2023-03-12 15:20" pubdate>
-              2023-03-12
+            <time datetime="2023-03-25 15:50" pubdate>
+              2023-03-25
             </time>
           </div>
         
@@ -497,12 +730,12 @@
     
       <span class="category-chain">
         
-  <a href="/categories/java%E5%9F%BA%E7%A1%80/" class="category-chain-item">java基础</a>
+  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/" class="category-chain-item">中间件</a>
   
   
     <span>></span>
     
-  <a href="/categories/java%E5%9F%BA%E7%A1%80/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" class="category-chain-item">多线程</a>
+  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/Zookeeper/" class="category-chain-item">Zookeeper</a>
   
   
 
@@ -519,11 +752,7 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/">#多线程</a>
-            
-              <a href="/tags/%E6%AD%BB%E9%94%81/">#死锁</a>
-            
-              <a href="/tags/ThreadLocal/">#ThreadLocal</a>
+              <a href="/tags/Zookeeper/">#Zookeeper</a>
             
           </div>
         
@@ -535,23 +764,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/03/12/java%E5%9F%BA%E7%A1%80/%E5%A4%9A%E7%BA%BF%E7%A8%8B/volatile%E5%85%B3%E9%94%AE%E5%AD%97/" target="_self">
-          <img src="/img/Kitchen%20Open%20Late.png" srcset="/img/loading.gif" lazyload alt="volatile关键字">
+        <a href="/2023/03/25/%E4%B8%AD%E9%97%B4%E4%BB%B6/zookeeper/Zookeeper%E5%AE%9E%E7%8E%B0%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/" target="_self">
+          <img src="/img/Artic%20Sunset.png" srcset="/img/loading.gif" lazyload alt="Zookeeper实现配置中心">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/03/12/java%E5%9F%BA%E7%A1%80/%E5%A4%9A%E7%BA%BF%E7%A8%8B/volatile%E5%85%B3%E9%94%AE%E5%AD%97/" target="_self">
-          volatile关键字
+        <a href="/2023/03/25/%E4%B8%AD%E9%97%B4%E4%BB%B6/zookeeper/Zookeeper%E5%AE%9E%E7%8E%B0%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/" target="_self">
+          Zookeeper实现配置中心
         </a>
       </h1>
 
       
-      <a class="index-excerpt " href="/2023/03/12/java%E5%9F%BA%E7%A1%80/%E5%A4%9A%E7%BA%BF%E7%A8%8B/volatile%E5%85%B3%E9%94%AE%E5%AD%97/" target="_self">
+      <a class="index-excerpt " href="/2023/03/25/%E4%B8%AD%E9%97%B4%E4%BB%B6/zookeeper/Zookeeper%E5%AE%9E%E7%8E%B0%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/" target="_self">
         <div>
-          1 一个问题1234567891011121314151617public static void main(String[] args) throws Exception &#123;    Thread thread = new Thread(() -&gt; &#123;        int i = 0;        while(!stop) &#123;            i++;
+          1 本地配置原理https://docs.spring.io/spring-boot/docs/2.7.2/reference/htmlsingle/#features.external-config （1）加载application.properties文件 123PropertySourceLoader#load()	-&gt;PropertiesPropertySourceLoader#lo
         </div>
       </a>
 
@@ -559,8 +788,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2023-03-12 14:32" pubdate>
-              2023-03-12
+            <time datetime="2023-03-25 15:43" pubdate>
+              2023-03-25
             </time>
           </div>
         
@@ -575,12 +804,12 @@
     
       <span class="category-chain">
         
-  <a href="/categories/java%E5%9F%BA%E7%A1%80/" class="category-chain-item">java基础</a>
+  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/" class="category-chain-item">中间件</a>
   
   
     <span>></span>
     
-  <a href="/categories/java%E5%9F%BA%E7%A1%80/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" class="category-chain-item">多线程</a>
+  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/Zookeeper/" class="category-chain-item">Zookeeper</a>
   
   
 
@@ -597,9 +826,7 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/">#多线程</a>
-            
-              <a href="/tags/volatile%E5%85%B3%E9%94%AE%E5%AD%97/">#volatile关键字</a>
+              <a href="/tags/Zookeeper/">#Zookeeper</a>
             
           </div>
         
@@ -611,23 +838,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/03/12/java%E5%9F%BA%E7%A1%80/%E5%A4%9A%E7%BA%BF%E7%A8%8B/%E5%B9%B6%E5%8F%91%E5%B7%A5%E5%85%B7%E7%B1%BB%E4%BB%A5%E5%8F%8AAQS/" target="_self">
-          <img src="/img/Lonely%20Night%20.png" srcset="/img/loading.gif" lazyload alt="并发工具类以及AQS">
+        <a href="/2023/03/19/%E4%B8%AD%E9%97%B4%E4%BB%B6/zookeeper/Zookeeper%E9%9B%86%E7%BE%A4/" target="_self">
+          <img src="/img/Bridge%20of%20Spirits.png" srcset="/img/loading.gif" lazyload alt="Zookeeper集群">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/03/12/java%E5%9F%BA%E7%A1%80/%E5%A4%9A%E7%BA%BF%E7%A8%8B/%E5%B9%B6%E5%8F%91%E5%B7%A5%E5%85%B7%E7%B1%BB%E4%BB%A5%E5%8F%8AAQS/" target="_self">
-          并发工具类以及AQS
+        <a href="/2023/03/19/%E4%B8%AD%E9%97%B4%E4%BB%B6/zookeeper/Zookeeper%E9%9B%86%E7%BE%A4/" target="_self">
+          Zookeeper集群
         </a>
       </h1>
 
       
-      <a class="index-excerpt " href="/2023/03/12/java%E5%9F%BA%E7%A1%80/%E5%A4%9A%E7%BA%BF%E7%A8%8B/%E5%B9%B6%E5%8F%91%E5%B7%A5%E5%85%B7%E7%B1%BB%E4%BB%A5%E5%8F%8AAQS/" target="_self">
+      <a class="index-excerpt " href="/2023/03/19/%E4%B8%AD%E9%97%B4%E4%BB%B6/zookeeper/Zookeeper%E9%9B%86%E7%BE%A4/" target="_self">
         <div>
-          1 AQS谈到并发，不得不谈ReentrantLock；而谈到ReentrantLock，不得不谈AbstractQueuedSynchronizer。 类如其名，抽象的队列式的同步器，AQS定义了一套多线程访问共享资源的同步器框架，许多同步类实现都依赖于它，是同步类的最核心的一个类，如常用的ReentrantLock/Semaphore/CountDownLatch…。 1.1 整体框架 它维护
+          1 初识Zookeeper集群官网：https://zookeeper.apache.org/doc/current/zookeeperOver.html#sc_designGoals 1.1 zk集群中的角色 客户端是可以连接任意一个Zookeeper Server Cluster中的机器的。 Leader：只能有一个，可以处理客户端的读写请求。 Follower：可以有多个，只能处理客户端的读
         </div>
       </a>
 
@@ -635,8 +862,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2023-03-12 13:28" pubdate>
-              2023-03-12
+            <time datetime="2023-03-19 14:00" pubdate>
+              2023-03-19
             </time>
           </div>
         
@@ -651,12 +878,12 @@
     
       <span class="category-chain">
         
-  <a href="/categories/java%E5%9F%BA%E7%A1%80/" class="category-chain-item">java基础</a>
+  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/" class="category-chain-item">中间件</a>
   
   
     <span>></span>
     
-  <a href="/categories/java%E5%9F%BA%E7%A1%80/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" class="category-chain-item">多线程</a>
+  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/Zookeeper/" class="category-chain-item">Zookeeper</a>
   
   
 
@@ -673,11 +900,7 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/">#多线程</a>
-            
-              <a href="/tags/%E5%B9%B6%E5%8F%91%E5%B7%A5%E5%85%B7%E7%B1%BB/">#并发工具类</a>
-            
-              <a href="/tags/AQS/">#AQS</a>
+              <a href="/tags/Zookeeper/">#Zookeeper</a>
             
           </div>
         
@@ -689,23 +912,23 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/03/12/java%E5%9F%BA%E7%A1%80/%E5%A4%9A%E7%BA%BF%E7%A8%8B/%E9%94%81-synchronized/" target="_self">
-          <img src="/img/golden.png" srcset="/img/loading.gif" lazyload alt="锁-synchronized">
+        <a href="/2023/03/19/spring%E6%A1%86%E6%9E%B6/springcloud/sentinel/sentinel%E8%A7%84%E5%88%99%E8%AF%A6%E8%A7%A3/" target="_self">
+          <img src="/img/Shrine.png" srcset="/img/loading.gif" lazyload alt="sentinel规则详解">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/03/12/java%E5%9F%BA%E7%A1%80/%E5%A4%9A%E7%BA%BF%E7%A8%8B/%E9%94%81-synchronized/" target="_self">
-          锁-synchronized
+        <a href="/2023/03/19/spring%E6%A1%86%E6%9E%B6/springcloud/sentinel/sentinel%E8%A7%84%E5%88%99%E8%AF%A6%E8%A7%A3/" target="_self">
+          sentinel规则详解
         </a>
       </h1>
 
       
-      <a class="index-excerpt " href="/2023/03/12/java%E5%9F%BA%E7%A1%80/%E5%A4%9A%E7%BA%BF%E7%A8%8B/%E9%94%81-synchronized/" target="_self">
+      <a class="index-excerpt " href="/2023/03/19/spring%E6%A1%86%E6%9E%B6/springcloud/sentinel/sentinel%E8%A7%84%E5%88%99%E8%AF%A6%E8%A7%A3/" target="_self">
         <div>
-          互斥锁的本质是共享资源。 1 锁的使用可以修饰在方法层面和代码块层面 synchronized有三种方式来加锁，不同的修饰类型，代表锁的控制粒度：  修饰实例方法，作用于当前实例加锁，进入同步代码前要获得当前实例的锁  静态方法，作用于当前类对象加锁，进入同步代码前要获得当前类对象的锁  修饰代码块，指定加锁对象，对给定对象加锁，进入同步代码库前要获得给定对象的锁。   锁是在对象头中存储。 2
+          面向分布式、多语言异构化服务架构的流量治理组件 1 Sentinel入门小结 2 实时监控实时监控仅存储 5 分钟以内的数据，如果需要持久化，需要通过调用实时监控接口来定制。  注意：请确保 Sentinel 控制台所在的机器时间与自己应用的机器时间保持一致，否则会导致拉不到实时的监控数据。 3 簇点链路簇点链路（单机调用链路）页面实时的去拉取指定客户端资源的运行情况。它一共提供两种展示模式：一种
         </div>
       </a>
 
@@ -713,236 +936,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2023-03-12 10:51" pubdate>
-              2023-03-12
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/java%E5%9F%BA%E7%A1%80/" class="category-chain-item">java基础</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/java%E5%9F%BA%E7%A1%80/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" class="category-chain-item">多线程</a>
-  
-  
-
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/">#多线程</a>
-            
-              <a href="/tags/synchronized/">#synchronized</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/03/12/java%E5%9F%BA%E7%A1%80/%E5%A4%9A%E7%BA%BF%E7%A8%8B/ConcurrentHashMap/" target="_self">
-          <img src="/img/LUNA.png" srcset="/img/loading.gif" lazyload alt="ConcurrentHashMap">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/03/12/java%E5%9F%BA%E7%A1%80/%E5%A4%9A%E7%BA%BF%E7%A8%8B/ConcurrentHashMap/" target="_self">
-          ConcurrentHashMap
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt " href="/2023/03/12/java%E5%9F%BA%E7%A1%80/%E5%A4%9A%E7%BA%BF%E7%A8%8B/ConcurrentHashMap/" target="_self">
-        <div>
-          1 JDK8版本的改进在jdk1.7版本中，ConcurrentHashMap由数组+Segment+分段锁实现，其内部分为一个个段（Segment）数组，Segment通过继承ReentrantLock来进行加锁，通过每次锁住一个Segment来降低锁的粒度而且保证了每个Segment内的操作的线程安全性，从而实现全局线程安全。  但是这么做的缺陷就是每次通过 hash 确认位置时需要 2 次才
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-03-12 09:02" pubdate>
-              2023-03-12
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/java%E5%9F%BA%E7%A1%80/" class="category-chain-item">java基础</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/java%E5%9F%BA%E7%A1%80/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" class="category-chain-item">多线程</a>
-  
-  
-
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/">#多线程</a>
-            
-              <a href="/tags/%E9%9B%86%E5%90%88/">#集合</a>
-            
-              <a href="/tags/ConcurrentHashMap/">#ConcurrentHashMap</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/03/11/java%E5%9F%BA%E7%A1%80/jvm/%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6(Garbage%20Collect-GC)/" target="_self">
-          <img src="/img/rgb%20spiderman.png" srcset="/img/loading.gif" lazyload alt="垃圾回收(Garbage Collect-GC)">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/03/11/java%E5%9F%BA%E7%A1%80/jvm/%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6(Garbage%20Collect-GC)/" target="_self">
-          垃圾回收(Garbage Collect-GC)
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt " href="/2023/03/11/java%E5%9F%BA%E7%A1%80/jvm/%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6(Garbage%20Collect-GC)/" target="_self">
-        <div>
-          1 对象的引用Java中的引用的定义：如果reference(引用)类型的数据中存储的数值代表的是另外一块内存的起始地址，就称这块内存代表着一个引用。  希望能描述这样一类对象：当内存空间还足够时，则能保留在内存之中；如果内存空间在进行垃圾收集后还是非常紧张，则可以抛弃这些对象。 很多系统的缓存功能都符合这样的应用场景。四种引用类型： 强引用：在Java中最常见的就是强引用，也是在开发过程中经常会
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-03-11 17:21" pubdate>
-              2023-03-11
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/java%E5%9F%BA%E7%A1%80/" class="category-chain-item">java基础</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/java%E5%9F%BA%E7%A1%80/jvm/" class="category-chain-item">jvm</a>
-  
-  
-
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/jvm/">#jvm</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/03/11/spring%E6%A1%86%E6%9E%B6/springcloud/nacos/nacos%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/" target="_self">
-          <img src="/img/Lonely%20Night%20.png" srcset="/img/loading.gif" lazyload alt="nacos配置中心">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/03/11/spring%E6%A1%86%E6%9E%B6/springcloud/nacos/nacos%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/" target="_self">
-          nacos配置中心
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt " href="/2023/03/11/spring%E6%A1%86%E6%9E%B6/springcloud/nacos/nacos%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/" target="_self">
-        <div>
-          Nacos版本：2.0.4  nacos2.x已不支持ribbon，使用nacos2.x需要手动引入LoadBalancer 1 基本使用使用外部数据源 12345spring.datasource.platform=mysqldb.num=1db.url.0=jdbc:mysql://127.0.0.1:3306/mynacos?characterEncoding=utf8&amp;connec
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-03-11 16:27" pubdate>
-              2023-03-11
+            <time datetime="2023-03-19 13:32" pubdate>
+              2023-03-19
             </time>
           </div>
         
@@ -967,7 +962,7 @@
   
     <span>></span>
     
-  <a href="/categories/spring%E6%A1%86%E6%9E%B6/springcloud/nacos/" class="category-chain-item">nacos</a>
+  <a href="/categories/spring%E6%A1%86%E6%9E%B6/springcloud/sentinel/" class="category-chain-item">sentinel</a>
   
   
 
@@ -986,11 +981,11 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
+              <a href="/tags/java/">#java</a>
+            
               <a href="/tags/springcloud/">#springcloud</a>
             
-              <a href="/tags/nacos/">#nacos</a>
-            
-              <a href="/tags/%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/">#配置中心</a>
+              <a href="/tags/sentinel/">#sentinel</a>
             
           </div>
         
@@ -1002,7 +997,7 @@
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <a class="extend prev" rel="prev" href="/page/11/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/#board">10</a><a class="page-number" href="/page/11/#board">11</a><span class="page-number current">12</span><a class="page-number" href="/page/13/#board">13</a><a class="page-number" href="/page/14/#board">14</a><a class="page-number" href="/page/15/#board">15</a><a class="extend next" rel="next" href="/page/13/#board"><i class="iconfont icon-arrowright"></i></a>
+      <a class="extend prev" rel="prev" href="/page/11/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/#board">10</a><a class="page-number" href="/page/11/#board">11</a><span class="page-number current">12</span><a class="page-number" href="/page/13/#board">13</a><a class="page-number" href="/page/14/#board">14</a><span class="space">&hellip;</span><a class="page-number" href="/page/16/#board">16</a><a class="extend next" rel="next" href="/page/13/#board"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
 
